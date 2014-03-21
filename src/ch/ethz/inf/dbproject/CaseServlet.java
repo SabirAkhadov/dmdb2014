@@ -17,7 +17,7 @@ import ch.ethz.inf.dbproject.model.Case;
 import ch.ethz.inf.dbproject.util.UserManagement;
 import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
 
-//Com
+//NOCH EIN KOMMENTAR
 /**
  * Servlet implementation class of Case Details Page
  */
