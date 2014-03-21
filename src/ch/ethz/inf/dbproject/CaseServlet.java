@@ -17,7 +17,6 @@ import ch.ethz.inf.dbproject.model.Case;
 import ch.ethz.inf.dbproject.util.UserManagement;
 import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
 
-//NOCH ETWAS COMMITEN
 //Hoffentlich geht das jetzt ...
 //KONFLIKT MIT ROGER
 /**
