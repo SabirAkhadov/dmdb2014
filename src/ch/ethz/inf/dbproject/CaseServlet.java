@@ -1,3 +1,5 @@
+//comment
+
 package ch.ethz.inf.dbproject;
 
 import java.io.IOException;
