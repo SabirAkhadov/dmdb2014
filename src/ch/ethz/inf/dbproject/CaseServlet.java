@@ -19,6 +19,7 @@ import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
 
 //NOCH ETWAS COMMITEN
 //Hoffentlich geht das jetzt ...
+//KONFLIKT MIT ROGER
 /**
  * Servlet implementation class of Case Details Page
  */
