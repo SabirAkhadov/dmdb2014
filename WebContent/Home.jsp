@@ -11,10 +11,6 @@
 
 <%@page import="ch.ethz.inf.dbproject.database.MySQLConnection"%>
 
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@ include file="Header.jsp"%>
-
 <%
 final User user = (User) session.getAttribute(UserManagement.SESSION_USER);
 
@@ -24,8 +20,8 @@ Connection conn = inst.getConnection();
 Statement s = conn.createStatement();
 ResultSet r;
 
-//s.execute("CREATE TABLE Testtable (Name varchar(30));");
-s.execute("INSERT INTO Testtable (Name) VALUES (\"Gutknecht\");");
+//s.execute("CREATE TABLE testtable (Name varchar(30));");
+s.execute("INSERT INTO testtable (Name) VALUES (\"Gutknecht\");");
 r = s.getResultSet();
 if(r != null){
 	while(r.next()){
@@ -52,23 +48,6 @@ Welcome!
 <input type="submit" value="go">
 </form>
 
-
-<br /><br />
-See all available <a href="Cases">cases</a> and <a href="PersonsOfInterest">persons of interest</a>.
-
-	conn.createStatement().execute("INSERT INTO testtable(name) VALUES ('dmdb2014')");
-	
-/*	try{
-			PreparedStatement s = conn.prepareStatement(
-					"INSERT INTO testtable(name) VALUES ('?')"		
-			);
-
-			s.setString(1, "2014's dmdb project");
-			s.executeQuery();
-		}catch(Exception ex){
-			ex.printStackTrace();
-	}*/
-%>
 <br />
 <br />
 See all available
