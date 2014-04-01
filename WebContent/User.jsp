@@ -37,6 +37,9 @@ if ((Boolean) session.getAttribute(UserServlet.SESSION_USER_LOGGED_IN)) {
 			<th colspan="2">
 				<input type="submit" value="Login" />
 			</th>
+			<th>
+				<a href="Registration.jsp">Register</a>  <!-- why should I use .jsp?? --> 
+			</th>
 		</tr>
 	</table>
 	</form>
