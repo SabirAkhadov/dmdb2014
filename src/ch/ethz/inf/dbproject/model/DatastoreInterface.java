@@ -1,6 +1,9 @@
 package ch.ethz.inf.dbproject.model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +16,8 @@ import ch.ethz.inf.dbproject.database.MySQLConnection;
  */
 public final class DatastoreInterface {
 
+	private PreparedStatement allUsers;
+	
 	//FIXME This is a temporary list of cases that will be displayed until all the methods have been properly implemented
 	private final static Case[] staticCases = new Case[] { 
 			new Case(0, "Noise pollution..", "1287.9%", 10000), 
@@ -27,12 +32,17 @@ public final class DatastoreInterface {
 		}
 	}
 	
-	@SuppressWarnings("unused")
 	private Connection sqlConnection;
 
 	public DatastoreInterface() {
-		//TODO Uncomment the following line once MySQL is running
-		//this.sqlConnection = MySQLConnection.getInstance().getConnection();
+		
+		this.sqlConnection = MySQLConnection.getInstance().getConnection();
+		
+		try {
+			allUsers = sqlConnection.prepareStatement("SELECT * FROM User");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public final Case getCaseById(final int id) {
@@ -84,8 +94,65 @@ public final class DatastoreInterface {
 		// For the time being, we return some bogus projects
 		return staticCaseList;
 	}
+	public final List<User> getAllUsers() {
+		
+		/**
+		 *this method should returns all users in the database
+		 *one can improve it by saving the list and having a flag changed.
+		 */
+		try {
+			
+			allUsers.execute();
+			ResultSet rs = allUsers.getResultSet();
+			List <User> list = new ArrayList<User>();
+			
+			while (rs.next())
+			{
+				list.add(new User (rs));
+			}
+			allUsers.close();
+			rs.close();
+			return list;
+			
+		} catch (final SQLException ex) {			
+			ex.printStackTrace();
+			return null;			
+		}
+	}
 	
-	//TODO Implement all missing data access methods
+	public final void insertUser(int userID, String username, String email, String password) throws SQLException {
 
-
+		PreparedStatement s = sqlConnection.prepareStatement("INSERT INTO User Values (?, ?, ?, ?)");
+		s.setInt(1, userID);
+		s.setString(2, username);
+		s.setString(3, email);
+		s.setString(4, password);
+		s.execute();
+		s.close();
+		
+	}
+	
+	public final User validateUser (String name, String password) {
+		
+		PreparedStatement s;
+		try {
+			s = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ?");
+		
+			s.setString(1, name);
+			s.setString(2, password);
+			s.execute();
+			ResultSet rs = s.getResultSet();
+			if (rs.next()) {
+				return new User (rs);
+			}
+			else {
+				return null;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	
+	}
 }

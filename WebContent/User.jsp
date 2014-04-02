@@ -1,16 +1,21 @@
-<%@page import="ch.ethz.inf.dbproject.UserServlet"%>
+<%@ page import="ch.ethz.inf.dbproject.UserServlet"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
 
 <h2>Your Account</h2>
 
 <% 
-if ((Boolean) session.getAttribute(UserServlet.SESSION_USER_LOGGED_IN)) {
+if (session.getAttribute("user") != null) {
 	// User is logged in. Display the details:
 %>
-	
+	Username Email Password <br> 
 <%= session.getAttribute(UserServlet.SESSION_USER_DETAILS) %>
 	
+	
+	<form action="User" method="get">
+	<input type="hidden" name="action" value="logout" />
+		<input type="submit" value="Logout" />
+	</form>
 
 
 <%
@@ -19,8 +24,16 @@ if ((Boolean) session.getAttribute(UserServlet.SESSION_USER_LOGGED_IN)) {
 //TODO: Add possibility to create new case (requires a form) 
 	
 } else {
-	// User not logged in. Display the login form.
-%>
+	//User not logged in
+	if (session.getAttribute("error")!= null && session.getAttribute("error").equals("login")) {
+		%>
+			<font  color="red">Wrong name or password!</font>		
+				<br>
+			<%	
+				session.setAttribute("error", null);
+			}	
+			%>
+
 
 	<form action="User" method="get">
 	<input type="hidden" name="action" value="login" />
@@ -38,7 +51,7 @@ if ((Boolean) session.getAttribute(UserServlet.SESSION_USER_LOGGED_IN)) {
 				<input type="submit" value="Login" />
 			</th>
 			<th>
-				<a href="Registration.jsp">Register</a>  <!-- why should I use .jsp?? --> 
+				<a href="Register">Register</a>
 			</th>
 		</tr>
 	</table>

@@ -6,7 +6,7 @@ import ch.ethz.inf.dbproject.model.User;
 
 public class UserManagement {
 
-	public final static String SESSION_USER = "LOGGED_IN_USER";
+	public static final String SESSION_USER = "LOGGED_IN_USER";
 	
 	public static final User getCurrentlyLoggedInUser(final HttpSession session) {
 		final Object obj = session.getAttribute(SESSION_USER);
@@ -15,5 +15,5 @@ public class UserManagement {
 		} else {
 			return (User) obj; 
 		}
-	}	
+	}
 }

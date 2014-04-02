@@ -148,7 +148,7 @@ public final class BeanTableHelper<T> extends HtmlHelperIface {
 		final StringBuilder sb = new StringBuilder();
 
 		sb.append("<!-- TableHelper Generated Code -->\n");
-		sb.append("<table " + "cellpadding=\"0\" cellspacing=\"0\" " + "id=\""
+		sb.append("<table " + "cellpadding=\"0\" cellspacing=\"5\" " + "id=\""
 				+ this.tableHtmlId + "\" " + "class=\"" + this.tableHtmlClass
 				+ "\">\n");
 

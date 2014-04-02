@@ -50,7 +50,7 @@ public final class MySQLConnection {
 			 */
 			System.err.println("Could not connect to MYSQL. Is the server running?");
 			JOptionPane.showMessageDialog(null,	
-					"Could not connect to MYSQL. Is the server running?\n" + "Error in " + this.getClass().getName() + ".",
+					"Could not connect to MYSQL. Is the server running?\n" + "Error in " + this.getClass().getName() + ". Username = " + USERNAME,
 					"Critical Error!", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}

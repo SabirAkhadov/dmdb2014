@@ -17,7 +17,7 @@
 			<tr>
 				<th id="masterHeader" colspan="2">
 					<h1>Law Enforcement Project</h1>
-					Project by &lt;Name Here&gt; 
+					Project by Benjamin, Roger, Sabir 
 				</th>
 			</tr>
 			<tr id="masterContent">
