@@ -124,15 +124,15 @@ public final class DatastoreInterface {
 	public final User insertUser(String username, String email, String password) throws SQLException {
 
 		//userID will be auto incremented
-		PreparedStatement s = sqlConnection.prepareStatement("INSERT INTO User Values (null, ?, ?, ?)");
+		PreparedStatement s = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
 		
 		s.setString(1, username);
-		s.setString(2, email);
-		s.setString(3, password);
+		s.setString(2, password);
+		s.setString(3, email);
 		s.execute();
 		s.close();
 		
-		PreparedStatement us = sqlConnection.prepareStatement("SELECT * FROM user WHERE username = ?");
+		PreparedStatement us = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
 		us.setString(1, username);
 		us.execute();
 		ResultSet rs = us.getResultSet();
