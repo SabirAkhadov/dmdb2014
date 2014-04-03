@@ -78,12 +78,9 @@ public class RegisterServlet extends HttpServlet {
 
 				session.setAttribute(UserServlet.SESSION_USER_DETAILS, userDetails);
 				
-				User user = new User (username, email, password);
-				
-				
 				//now insert a new user to db
 				
-				dsi.insertUser(username, email, password);
+				User user = dsi.insertUser(username, email, password);
 				
 				//TODO implement sending email, if we have time
 				
