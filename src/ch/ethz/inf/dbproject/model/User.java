@@ -8,13 +8,11 @@ import java.sql.SQLException;
  */
 public final class User {
 
-	private final int userid;
 	private final String username;
 	private final String email;
 	private final String password;
 	
-	public User(final int userid, final String username, final String email, final String password) {
-		this.userid = userid;
+	public User(final String username, final String email, final String password) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
@@ -23,14 +21,9 @@ public final class User {
 	public User(final ResultSet rs) throws SQLException {
 		// TODO These need to be adapted to your schema
 		// TODO Extra properties need to be added
-		this.userid = rs.getInt("userID");
 		this.username = rs.getString("name");
 		this.email = rs.getString("email");
 		this.password  = rs.getString("password");
-	}
-
-	public int getUserid() {
-		return userid;
 	}
 	
 	public String getUsername() {

@@ -77,17 +77,13 @@ public class RegisterServlet extends HttpServlet {
 				userDetails.addBeanColumn(password, "password");
 
 				session.setAttribute(UserServlet.SESSION_USER_DETAILS, userDetails);
-	
 				
-				int count = users.size();
-				// userid will be just incrementing
-				
-				User user = new User (count, username, email, password);
+				User user = new User (username, email, password);
 				
 				
 				//now insert a new user to db
 				
-				dsi.insertUser(count, username, email, password);
+				dsi.insertUser(username, email, password);
 				
 				//TODO implement sending email, if we have time
 				
