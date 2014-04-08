@@ -21,7 +21,7 @@ public final class CasesServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private final DatastoreInterface dbInterface = new DatastoreInterface();
-
+	
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -51,13 +51,13 @@ public final class CasesServlet extends HttpServlet {
 		/*
 		 * Column 1: The name of the item (This will probably have to be changed)
 		 */
-		table.addBeanColumn("Case Description", "description");
+		table.addBeanColumn("Title", "title");
 
 		/*
 		 * Columns 2 & 3: Some random fields. These should be replaced by i.e. funding progress, or time remaining
 		 */
-		table.addBeanColumn("Test Field2", "field2");
-		table.addBeanColumn("Test Integer Field 3", "field3");
+		table.addBeanColumn("Status", "status");
+		table.addBeanColumn("Location", "location");
 
 		/*
 		 * Column 4: This is a special column. It adds a link to view the
@@ -82,32 +82,27 @@ public final class CasesServlet extends HttpServlet {
 
 		} else if (category != null) {
 
-			// TODO implement this!
-			//table.addObjects(this.dbInterface.getProjectsByCategory(category));
+			table.addObjects(this.dbInterface.getCasesByCategory(category));
 			
 		} else if (filter != null) {
 		
 			if(filter.equals("open")) {
 
-				// TODO implement this!
-				//table.addObjects(this.dbInterface.getOpenCases());
+				table.addObjects(this.dbInterface.getOpenCases());
 
 			} else if (filter.equals("closed")) {
 
-				// TODO implement this!
-				// table.addObjects(this.dbInterface.getClosedCases());
+				table.addObjects(this.dbInterface.getClosedCases());
 
 			} else if (filter.equals("recent")) {
 
-				// TODO implement this!
-				// table.addObjects(this.dbInterface.getMostRecentCases());
+				table.addObjects(this.dbInterface.getMostRecentCases());
 
 			}
 			
 			else if (filter.equals("oldest")) {
 
-				// TODO implement this!
-				// table.addObjects(this.dbInterface.getOldestUnsolvedCases());
+				table.addObjects(this.dbInterface.getOldestUnsolvedCases());
 
 			}
 			

@@ -17,95 +17,173 @@ import ch.ethz.inf.dbproject.database.MySQLConnection;
 public final class DatastoreInterface {
 
 	private PreparedStatement allUsers;
-	
-	//FIXME This is a temporary list of cases that will be displayed until all the methods have been properly implemented
-	private final static Case[] staticCases = new Case[] { 
-			new Case(0, "Noise pollution..", "1287.9%", 10000), 
-			new Case(1, "Highway overspeed...", "54.7%", 250000),
-			new Case(2, "Money Laundring...", "1.2%", 1000000),
-			new Case(3, "Corruption...", "0.0%", 1000000000),
-		};
-	private final static List<Case> staticCaseList = new ArrayList<Case>();
-	static {
-		for (int i = 0; i < staticCases.length; i++) {
-			staticCaseList.add(staticCases[i]);
-		}
-	}
-	
+
 	private Connection sqlConnection;
 
 	public DatastoreInterface() {
-		
+
 		this.sqlConnection = MySQLConnection.getInstance().getConnection();
-		
+
 		try {
 			allUsers = sqlConnection.prepareStatement("SELECT * FROM User");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public final Case getCaseById(final int id) {
-	
-		/**
-		 * TODO this method should return the case with the given id
-		 */
-		
-		if (id < staticCases.length) {
-			return staticCases[id];
-		} else {
+
+		try{
+			final java.sql.Statement stmt = this.sqlConnection.createStatement();
+			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases WHERE caseID = " + id + ";");
+
+			if(rs.next())
+				return new Case(rs);
+
+			return null;
+		}catch(Exception ex){
+			ex.printStackTrace();
 			return null;
 		}
-		
+
 	}
-	
+
 	public final List<Case> getAllCases() {
 
-		/**
-		 * TODO this method should return all the cases in the database
-		 */
-			
-		/*
-		//Code example for DB access
 		try {
-			
-			final Statement stmt = this.sqlConnection.createStatement();
-			final ResultSet rs = stmt.executeQuery("Select ...");
-		
+
+			final java.sql.Statement stmt = this.sqlConnection.createStatement();
+			final ResultSet rs = stmt.executeQuery("SELECT * FROM  cases;");
+
 			final List<Case> cases = new ArrayList<Case>(); 
 			while (rs.next()) {
 				cases.add(new Case(rs));
 			}
-			
+
 			rs.close();
 			stmt.close();
 
 			return cases;
-			
+
 		} catch (final SQLException ex) {			
 			ex.printStackTrace();
 			return null;			
 		}
-		
-		*/
-		
-		// If you chose to use PreparedStatements instead of statements, you should prepare them in the constructor of DatastoreInterface.
-		
-		// For the time being, we return some bogus projects
-		return staticCaseList;
 	}
+
+	public final List<Case> getOpenCases(){
+		try{
+			final java.sql.Statement stmt = this.sqlConnection.createStatement();
+			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases WHERE status = 1;");
+
+			final List<Case> cases = new ArrayList<Case>();
+			while(rs.next())
+				cases.add(new Case(rs));
+
+			rs.close();
+			stmt.close();
+
+			return cases;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
+	}
+
+	public final List<Case> getClosedCases(){
+		try{
+			final java.sql.Statement stmt = this.sqlConnection.createStatement();
+			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases WHERE status = 0;");
+
+			final List<Case> cases = new ArrayList<Case>();
+			while(rs.next())
+				cases.add(new Case(rs));
+
+			rs.close();
+			stmt.close();
+
+			return cases;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
+	}
+
+	public final List<Case> getMostRecentCases(){
+		try{
+			final java.sql.Statement stmt = this.sqlConnection.createStatement();
+			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases ORDER BY date DESC;");
+
+			final List<Case> cases = new ArrayList<Case>();
+			while(rs.next())
+				cases.add(new Case(rs));
+
+			rs.close();
+			stmt.close();
+
+			return cases;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
+	}
+	
+	public final List<Case> getOldestUnsolvedCases(){
+		try{
+			final java.sql.Statement stmt = this.sqlConnection.createStatement();
+			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases WHERE status = 1 ORDER BY date DESC;");
+
+			final List<Case> cases = new ArrayList<Case>();
+			while(rs.next())
+				cases.add(new Case(rs));
+
+			rs.close();
+			stmt.close();
+
+			return cases;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
+	}
+	
+	public final List<Case> getCasesByCategory(String category){
+		try{
+			final java.sql.Statement stmt = this.sqlConnection.createStatement();
+			final ResultSet rs = stmt.executeQuery("" +
+					"SELECT cas.caseID, cas.date, cas.status, cas.location, cas.time, cas.description, cas.title" +
+					" FROM cases AS cas" +
+					" INNER JOIN CaseCategory AS cc ON cas.caseID = cc.caseID" +
+					" INNER JOIN category AS cat ON cc.catID = cat.catID" +
+					" WHERE cat.name = '" + category + "'" +
+					" ORDER BY date DESC;");
+
+			final List<Case> cases = new ArrayList<Case>();
+			while(rs.next())
+				cases.add(new Case(rs));
+
+			rs.close();
+			stmt.close();
+
+			return cases;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
+	}
+
 	public final List<User> getAllUsers() {
-		
+
 		/**
 		 *this method should returns all users in the database
 		 *one can improve it by saving the list and having a flag changed.
 		 */
 		try {
-			
+
 			allUsers.execute();
 			ResultSet rs = allUsers.getResultSet();
 			List <User> list = new ArrayList<User>();
-			
+
 			while (rs.next())
 			{
 				list.add(new User (rs));
@@ -113,40 +191,40 @@ public final class DatastoreInterface {
 			allUsers.close();
 			rs.close();
 			return list;
-			
+
 		} catch (final SQLException ex) {			
 			ex.printStackTrace();
 			return null;			
 		}
 	}
-	
+
 	//insert user to db, return user object
 	public final User insertUser(String username, String email, String password) throws SQLException {
 
 		//userID will be auto incremented
 		PreparedStatement s = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
-		
+
 		s.setString(1, username);
 		s.setString(2, password);
 		s.setString(3, email);
 		s.execute();
 		s.close();
-		
+
 		PreparedStatement us = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
 		us.setString(1, username);
 		us.execute();
 		ResultSet rs = us.getResultSet();
-		
+
 		return new User(rs);
-		
+
 	}
-	
+
 	public final User validateUser (String name, String password) {
-		
+
 		PreparedStatement s;
 		try {
 			s = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ?");
-		
+
 			s.setString(1, name);
 			s.setString(2, password);
 			s.execute();
@@ -162,6 +240,6 @@ public final class DatastoreInterface {
 			e.printStackTrace();
 		}
 		return null;
-	
+
 	}
 }
