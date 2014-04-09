@@ -56,7 +56,7 @@ public final class DatastoreInterface {
 		try {
 			allUsers = sqlConnection.prepareStatement("SELECT * FROM User");
 
-			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE id = ?;");
+			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
 			caseClosed = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 0;");
@@ -278,7 +278,6 @@ public final class DatastoreInterface {
 				return null;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

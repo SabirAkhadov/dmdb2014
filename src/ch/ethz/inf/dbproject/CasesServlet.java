@@ -50,8 +50,8 @@ public final class CasesServlet extends HttpServlet {
 
 		table.addBeanColumn("Title", "title");
 		table.addBeanColumn("Status", "status");
+		table.addBeanColumn("Category", "category");
 		table.addBeanColumn("Location", "location");
-		table.addBeanColumn("Description", "description");
 		table.addBeanColumn("Date", "date");
 
 		/*

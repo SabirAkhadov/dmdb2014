@@ -24,6 +24,8 @@ import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
  */
 @WebServlet(description = "Displays a specific case.", urlPatterns = { "/Case" })
 public final class CaseServlet extends HttpServlet {
+	
+	private final String CASE_EDIT = "/CaseEdit.jsp";
 
 	private static final long serialVersionUID = 1L;
 	private final DatastoreInterface dbInterface = new DatastoreInterface();
@@ -42,17 +44,36 @@ public final class CaseServlet extends HttpServlet {
 
 		final HttpSession session = request.getSession(true);
 
+		
 		final String idString = request.getParameter("id");
 		if (idString == null) {
 			this.getServletContext().getRequestDispatcher("/Cases").forward(request, response);
 		}
+		
+		final Integer id = Integer.parseInt(idString);
+		
+		
+		String action = request.getParameter("action");
+
+		if(action != null){
+			switch(action){
+			case "editCase":
+				Case aCase = (Case)session.getAttribute("case");
+				if(aCase != null && aCase.getId() == id)
+					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
+					return;
+			default:
+				break;
+			}
+
+
+		}
+
 
 		try {
-
-			final Integer id = Integer.parseInt(idString);
 			final Case aCase = this.dbInterface.getCaseById(id);
 
-			
+
 			/*******************************************************
 			 * Construct a table to present all properties of a case
 			 *******************************************************/
@@ -60,29 +81,38 @@ public final class CaseServlet extends HttpServlet {
 					"cases" 		/* The table html id property */,
 					"casesTable" /* The table html class property */,
 					Case.class 	/* The class of the objects (rows) that will be displayed */
-			);
+					);
 
-			// Add columns to the new table
+			// Add columns to the new table			
+			table.addBeanColumn("Title", "title");
+			table.addBeanColumn("Status", "status");
+			table.addBeanColumn("Category", "category");
+			table.addBeanColumn("Location", "location");
+			table.addBeanColumn("Date", "date");
+			table.addBeanColumn("Time", "time");
+			table.addBeanColumn("Description", "description");
 
-			/*
-			 * Column 1: The name of the item (This will probably have to be changed)
-			 */
-			table.addBeanColumn("Case Description", "description");
-
-			/*
-			 * Columns 2 & 3: Some random fields. These should be replaced by i.e. funding progress, or time remaining
-			 */
-			table.addBeanColumn("Test Field2", "field2");
-			table.addBeanColumn("Test Integer Field 3", "field3");
 
 			table.addObject(aCase);
 			table.setVertical(true);			
 
-			session.setAttribute("caseTable", table);			
-			
+			session.setAttribute("caseTable", table);
+			session.setAttribute("case", aCase);
+
 		} catch (final Exception ex) {
 			ex.printStackTrace();
 			this.getServletContext().getRequestDispatcher("/Cases.jsp").forward(request, response);
+		}
+		
+		if(action != null){
+			switch(action){
+			case "editCase":
+				this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
+				action = null;
+				break;
+			default:
+				break;
+			}
 		}
 
 		this.getServletContext().getRequestDispatcher("/Case.jsp").forward(request, response);
