@@ -66,7 +66,7 @@ public final class DatastoreInterface {
 			casePersonal = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 0 ORDER BY date DESC;"); //TODO: verify
 			caseProperty = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 ORDER BY date DESC;"); //TODO: verify
 			casePersonalOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 0 AND cat.name <> 'assault' ORDER BY date DESC;");
-			casePropertyOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 AND cat.name <> 'thievery' ORDER BY date DESC;");
+			casePropertyOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 AND cat.name <> 'theft' ORDER BY date DESC;");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
