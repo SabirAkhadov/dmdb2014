@@ -48,19 +48,14 @@ public final class CasesServlet extends HttpServlet {
 
 		// Add columns to the new table
 
-		/*
-		 * Column 1: The name of the item (This will probably have to be changed)
-		 */
 		table.addBeanColumn("Title", "title");
-
-		/*
-		 * Columns 2 & 3: Some random fields. These should be replaced by i.e. funding progress, or time remaining
-		 */
 		table.addBeanColumn("Status", "status");
 		table.addBeanColumn("Location", "location");
+		table.addBeanColumn("Description", "description");
+		table.addBeanColumn("Date", "date");
 
 		/*
-		 * Column 4: This is a special column. It adds a link to view the
+		 * Last column: This is a special column. It adds a link to view the
 		 * Project. We need to pass the case identifier to the url.
 		 */
 		table.addLinkColumn(""	/* The header. We will leave it empty */,

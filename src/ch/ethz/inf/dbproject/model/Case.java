@@ -11,36 +11,41 @@ public final class Case {
 	private final String status;
 	private final String location;
 	private final String title;
+	private final String category;
+	
+	private final boolean hasDate;
+	private final boolean hasTime;
 	
 	/**
 	 Construct a new case.
 	 */
 	@SuppressWarnings("deprecation")
-	public Case(final int id, final java.sql.Date date, final int status, final String location, final java.sql.Time time, final String description, final String title) {
+	public Case(final int id, final int status, final String title, final String category, final String description, final String location, final java.sql.Date date, final java.sql.Time time){
 		this.id = id;
-		System.out.println("id succeeded");
 		
 		this.date = new java.util.Date();
 		
-		if(date != null){
+		if(this.hasDate = (date != null)){
 			this.date.setYear(date.getYear());
 			this.date.setMonth(date.getMonth());
 			this.date.setDate(date.getDay());
 		}
-		if(time != null)
+		if(this.hasTime = (time != null))
 			this.date.setTime(time.getTime());
 		
 		this.status = status == 0 ? "closed" : "open";
 		
-		this.location = location;
+		this.location = location == null ? "" : location;
 		
 		this.description = description == null ? "" : description;
 		
-		this.title = title;
+		this.title = title == null ? "" : title;
+		
+		this.category = category == null ? "" : category;
 	}
 	
 	public Case(final ResultSet rs) throws SQLException {
-		this(rs.getInt("CaseID"), rs.getDate("date"), rs.getInt("status"),rs.getString("location"), rs.getTime("time"), rs.getString("description"),rs.getString("Title"));
+		this(rs.getInt("id"), rs.getInt("status"), rs.getString("title"),rs.getString("category"), rs.getString("description"), rs.getString("location"), rs.getDate("date"), rs.getTime("time"));
 	}
 
 	/**
@@ -52,8 +57,14 @@ public final class Case {
 		return id;
 	}
 
-	public java.util.Date getDate() {
-		return date;
+	@SuppressWarnings("deprecation")
+	public String getDate() {
+		return hasDate ? ("" + date.getDay() + "."+date.getMonth()+"."+date.getYear()) : "";
+	}
+	
+	@SuppressWarnings("deprecation")
+	public String getTime(){
+		return hasTime ? ("" + date.getHours() + ":" + date.getMinutes()) : "";
 	}
 
 	public String getStatus() {
@@ -61,14 +72,18 @@ public final class Case {
 	}
 
 	public String getLocation() {
-		return location;
+		return location == null ? "" : location;
 	}
 	
 	public String getDescription(){
-		return description;
+		return description == null ? "" : description;
 	}
 
 	public String getTitle() {
 		return title;
+	}
+	
+	public String getCategory(){
+		return category;
 	}
 }

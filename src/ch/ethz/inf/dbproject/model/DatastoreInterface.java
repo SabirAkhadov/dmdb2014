@@ -16,7 +16,36 @@ import ch.ethz.inf.dbproject.database.MySQLConnection;
  */
 public final class DatastoreInterface {
 
+	/**caseConstr extracts and formats all necessary information into the ResultSet such that a case can be constructed from it"**/
+	//(rs.getInt("id"), rs.getInt("status"), rs.getString("title"),rs.getString("category"), rs.getString("description"), rs.getString("location"), rs.getDate("date"), rs.getTime("time"))
+	private final String caseConstr = "" +
+			"SELECT" +
+			" cas.caseID AS `id`," +
+			" cas.status AS `status`," +
+			" cas.title AS `title`," +
+			" cat.name AS `category`," +
+			" cas.description AS `description`," +
+			" cas.location AS `location`," +
+			" cas.date AS `date`," +
+			" cas.time AS `time`" +
+			" FROM cases AS cas" +
+			" LEFT JOIN CaseCategory AS cc ON cas.caseID = cc.caseID" +
+			" LEFT JOIN category AS cat ON cc.catID = cat.catID" +
+			" "; //do not forget final space
+
 	private PreparedStatement allUsers;
+
+	private PreparedStatement caseByID;
+	private PreparedStatement caseAll;
+	private PreparedStatement caseOpen;
+	private PreparedStatement caseClosed;
+	private PreparedStatement caseMostRecent;
+	private PreparedStatement caseOldestUnresolved;
+	private PreparedStatement caseByCategory;
+	private PreparedStatement casePersonal;
+	private PreparedStatement caseProperty;
+	private PreparedStatement casePersonalOther;
+	private PreparedStatement casePropertyOther;
 
 	private Connection sqlConnection;
 
@@ -26,6 +55,19 @@ public final class DatastoreInterface {
 
 		try {
 			allUsers = sqlConnection.prepareStatement("SELECT * FROM User");
+
+			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE id = ?;");
+			caseAll = sqlConnection.prepareStatement(caseConstr);
+			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
+			caseClosed = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 0;");
+			caseMostRecent = sqlConnection.prepareStatement(caseConstr + "ORDER BY cas.date DESC;");
+			caseOldestUnresolved = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1 ORDER BY cas.date DESC;");
+			caseByCategory = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name = ? ORDER BY date DESC;" );
+			casePersonal = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 0 ORDER BY date DESC;"); //TODO: verify
+			caseProperty = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 ORDER BY date DESC;"); //TODO: verify
+			casePersonalOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 0 AND cat.name <> 'assault' ORDER BY date DESC;");
+			casePropertyOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 AND cat.name <> 'thievery' ORDER BY date DESC;");
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -34,8 +76,8 @@ public final class DatastoreInterface {
 	public final Case getCaseById(final int id) {
 
 		try{
-			final java.sql.Statement stmt = this.sqlConnection.createStatement();
-			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases WHERE caseID = " + id + ";");
+			caseByID.setInt(1, id);
+			final ResultSet rs = caseByID.executeQuery();
 
 			if(rs.next())
 				return new Case(rs);
@@ -52,8 +94,7 @@ public final class DatastoreInterface {
 
 		try {
 
-			final java.sql.Statement stmt = this.sqlConnection.createStatement();
-			final ResultSet rs = stmt.executeQuery("SELECT * FROM  cases;");
+			final ResultSet rs = caseAll.executeQuery();
 
 			final List<Case> cases = new ArrayList<Case>(); 
 			while (rs.next()) {
@@ -61,7 +102,6 @@ public final class DatastoreInterface {
 			}
 
 			rs.close();
-			stmt.close();
 
 			return cases;
 
@@ -73,15 +113,13 @@ public final class DatastoreInterface {
 
 	public final List<Case> getOpenCases(){
 		try{
-			final java.sql.Statement stmt = this.sqlConnection.createStatement();
-			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases WHERE status = 1;");
+			final ResultSet rs = caseOpen.executeQuery();
 
 			final List<Case> cases = new ArrayList<Case>();
 			while(rs.next())
 				cases.add(new Case(rs));
 
 			rs.close();
-			stmt.close();
 
 			return cases;
 		}catch(Exception ex){
@@ -92,15 +130,13 @@ public final class DatastoreInterface {
 
 	public final List<Case> getClosedCases(){
 		try{
-			final java.sql.Statement stmt = this.sqlConnection.createStatement();
-			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases WHERE status = 0;");
+			final ResultSet rs = caseClosed.executeQuery();
 
 			final List<Case> cases = new ArrayList<Case>();
 			while(rs.next())
 				cases.add(new Case(rs));
 
 			rs.close();
-			stmt.close();
 
 			return cases;
 		}catch(Exception ex){
@@ -111,15 +147,13 @@ public final class DatastoreInterface {
 
 	public final List<Case> getMostRecentCases(){
 		try{
-			final java.sql.Statement stmt = this.sqlConnection.createStatement();
-			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases ORDER BY date DESC;");
+			final ResultSet rs = caseMostRecent.executeQuery();
 
 			final List<Case> cases = new ArrayList<Case>();
 			while(rs.next())
 				cases.add(new Case(rs));
 
 			rs.close();
-			stmt.close();
 
 			return cases;
 		}catch(Exception ex){
@@ -127,18 +161,16 @@ public final class DatastoreInterface {
 			return null;
 		}
 	}
-	
+
 	public final List<Case> getOldestUnsolvedCases(){
 		try{
-			final java.sql.Statement stmt = this.sqlConnection.createStatement();
-			final ResultSet rs = stmt.executeQuery("SELECT * FROM cases WHERE status = 1 ORDER BY date DESC;");
+			final ResultSet rs = caseOldestUnresolved.executeQuery();
 
 			final List<Case> cases = new ArrayList<Case>();
 			while(rs.next())
 				cases.add(new Case(rs));
 
 			rs.close();
-			stmt.close();
 
 			return cases;
 		}catch(Exception ex){
@@ -146,24 +178,34 @@ public final class DatastoreInterface {
 			return null;
 		}
 	}
-	
+
 	public final List<Case> getCasesByCategory(String category){
 		try{
-			final java.sql.Statement stmt = this.sqlConnection.createStatement();
-			final ResultSet rs = stmt.executeQuery("" +
-					"SELECT cas.caseID, cas.date, cas.status, cas.location, cas.time, cas.description, cas.title" +
-					" FROM cases AS cas" +
-					" INNER JOIN CaseCategory AS cc ON cas.caseID = cc.caseID" +
-					" INNER JOIN category AS cat ON cc.catID = cat.catID" +
-					" WHERE cat.name = '" + category + "'" +
-					" ORDER BY date DESC;");
-
+			final ResultSet rs;
+			switch(category){
+			case "personal":
+				rs = casePersonal.executeQuery();
+				break;
+			case "property":
+				rs = caseProperty.executeQuery();
+				break;
+			case "otherProp":
+				rs = casePropertyOther.executeQuery();
+				break;
+			case "otherPers":
+				rs = casePersonalOther.executeQuery();
+				break;
+			default:
+				caseByCategory.setString(1, category);
+				rs = caseByCategory.executeQuery();
+				break;
+			}
+			
 			final List<Case> cases = new ArrayList<Case>();
 			while(rs.next())
 				cases.add(new Case(rs));
 
 			rs.close();
-			stmt.close();
 
 			return cases;
 		}catch(Exception ex){
