@@ -1,10 +1,12 @@
 package ch.ethz.inf.dbproject.model;
 
 import java.sql.Connection;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import ch.ethz.inf.dbproject.database.MySQLConnection;
@@ -33,6 +35,15 @@ public final class DatastoreInterface {
 			" LEFT JOIN category AS cat ON cc.catID = cat.catID" +
 			" "; //do not forget final space
 
+	/**categoryConstr extracts and formats all necessary information into the ResultSet such that a category can be constructed from it**/
+	private final String categoryConstr = "" +
+			"SELECT" +
+			" catID," +
+			" name" +
+			" FROM" +
+			" category" +
+			" ";
+
 	private PreparedStatement allUsers;
 
 	private PreparedStatement caseByID;
@@ -42,14 +53,18 @@ public final class DatastoreInterface {
 	private PreparedStatement caseMostRecent;
 	private PreparedStatement caseOldestUnresolved;
 	private PreparedStatement caseByCategory;
-	
-	/* be obsolete as we're changing the menu
-	private PreparedStatement casePersonal;
-	private PreparedStatement caseProperty;
-	private PreparedStatement casePersonalOther;
-	private PreparedStatement casePropertyOther;
-	*/
-	
+
+	private PreparedStatement categoryAll;
+	private PreparedStatement categoryByName;
+	private PreparedStatement categoryByID;
+	private PreparedStatement categoryInsert;
+
+	private PreparedStatement catUnlinkByCaseID;
+	private PreparedStatement catLinkToCaseID;
+
+	private PreparedStatement openLog;
+	private PreparedStatement closeLog;
+
 	private Connection sqlConnection;
 
 	public DatastoreInterface() {
@@ -66,13 +81,17 @@ public final class DatastoreInterface {
 			caseMostRecent = sqlConnection.prepareStatement(caseConstr + "ORDER BY cas.date DESC;");
 			caseOldestUnresolved = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1 ORDER BY cas.date DESC;");
 			caseByCategory = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name = ? ORDER BY date DESC;" );
-			
-			/* will be obsolete as we're changing the menu
-			casePersonal = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 0 ORDER BY date DESC;"); //TODO: verify
-			caseProperty = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 ORDER BY date DESC;"); //TODO: verify
-			casePersonalOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 0 AND cat.name <> 'assault' ORDER BY date DESC;");
-			casePropertyOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 AND cat.name <> 'theft' ORDER BY date DESC;");
-			*/
+
+			categoryAll = sqlConnection.prepareStatement(categoryConstr);
+			categoryByName = sqlConnection.prepareStatement(categoryConstr + "WHERE name = ?;");
+			categoryByID = sqlConnection.prepareStatement(categoryConstr + "WHERE catID = ?;");
+			categoryInsert = sqlConnection.prepareStatement("INSERT INTO category(name) VALUES (?);");
+
+			catUnlinkByCaseID = sqlConnection.prepareStatement("DELETE FROM CaseCategory WHERE CatID = ? AND CaseID = ?;");
+			catLinkToCaseID = sqlConnection.prepareStatement("INSERT INTO Casecategory(catID,caseID) VALUES (?,?);");
+
+			openLog = sqlConnection.prepareStatement("INSERT INTO open(UserID,CaseID) VALUES (?,?);");
+			closeLog = sqlConnection.prepareStatement("INSERT INTO close(UserID,CaseID) VALUES (?,?);");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -189,26 +208,12 @@ public final class DatastoreInterface {
 		try{
 			final ResultSet rs;
 			switch(category){
-			/*will be obsolete as we're changing the menu
-			case "personal":
-				rs = casePersonal.executeQuery();
-				break;
-			case "property":
-				rs = caseProperty.executeQuery();
-				break;
-			case "otherProp":
-				rs = casePropertyOther.executeQuery();
-				break;
-			case "otherPers":
-				rs = casePersonalOther.executeQuery();
-				break;
-			*/
 			default:
 				caseByCategory.setString(1, category);
 				rs = caseByCategory.executeQuery();
 				break;
 			}
-			
+
 			final List<Case> cases = new ArrayList<Case>();
 			while(rs.next())
 				cases.add(new Case(rs));
@@ -253,14 +258,203 @@ public final class DatastoreInterface {
 	 * @param userID the user requesting the update
 	 * @return null if succeeds or error message otherwise
 	 */
-	public String updateCase(Case original, Case Updated, int userID){
-		
-		
-		
-		
-		
-		return "I am testing an error.";
+	public String updateCase(Case original, Case update, int userID){
+		//(int id, int status, String title, String category, String description, String location, String Date date, String time)
+
+		boolean statusChanged = false;
+		boolean categoryChanged = false;
+		try{
+			int catID = -1;
+			if(original.getCategory().toLowerCase().equals(update.getCategory().toLowerCase())){
+				if(update.getCategory().equals(""))
+					return "Invalid category!";
+
+				categoryByName.setString(1, original.getCategory());
+				ResultSet rs =categoryByName.executeQuery();
+
+				if(rs.next())
+					catID = (new Category(rs)).getID();
+				else
+					return "Old category does not exist?! (should be impossible)";
+			}else{
+				categoryChanged = true;
+				catID = insertCategory(update.getCategory());
+			}
+
+			if(catID < 0)
+				return "There was an error inserting the new category.";
+
+			String query = "UPDATE cases SET" + " ";
+
+			//update title
+			if(!original.getTitle().equals(update.getTitle()))
+				query += "title = '" + update.getTitle() + "', ";
+
+			//update status;
+			if(!original.getStatus().equals(update.getStatus())){
+				query += "status = " + (update.getStatus().equals("open") ? 1 : 0) + ", ";
+				statusChanged = true;
+			}
+
+			//update description
+			if(!original.getDescription().equals(update.getDescription()))
+				query += "description = '" + update.getDescription().replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "'" + ", ";
+
+			//update location
+			if(!original.getLocation().equals(update.getLocation()))
+				query += "location = '" + update.getLocation() + "'" + ", ";
+
+			//update date
+			if(!original.getDate().equals(update.getDate())){
+				int year = Integer.parseInt(update.getYear());
+				int month = Integer.parseInt(update.getMonth());
+				int day = Integer.parseInt(update.getDay());
+
+				ArrayList<Integer> monthsWith31Days = new ArrayList<Integer>(){{
+					add(1);
+					add(3);
+					add(5);
+					add(7);
+					add(8);
+					add(10);
+					add(12);
+				}};
+
+				if(year < 1000 || year > Calendar.getInstance().get(Calendar.YEAR))
+					return "Invalid year!\n";
+				if(month < 1 || month > 12)
+					return "Invalid month!\n";
+				if(day < 1 || day > 31)
+					return "Invalid day!\n";
+
+				if((day == 31) && !(monthsWith31Days.indexOf(month) >= 0))
+					return "That month does not have 31 days.";
+				if((month == 2) && (day > 29))
+					return "February has at most 29 days.";
+				if((month == 2) && (day == 29) && (year % 4 != 0))
+					return update.getYear() + " was not a leap year.";
+
+				query += "date = '" + update.getYear() + "-" + update.getMonth() + "-" + update.getDay() + "', ";
+			}//end date update
+
+			//update time
+			if(!original.getTime().equals(update.getTime())){
+				System.out.println(original.getTime() + "!=" + update.getTime());
+				int hours = Integer.parseInt(update.getHours());
+				int mins = Integer.parseInt(update.getMins());
+
+				if(hours < 0 && hours > 23)
+					return "Invalid hours!\n";
+				if(mins < 0 && mins > 59)
+					return "Invalid minutes!\n";
+
+				query += "time = '" + update.getHours()+":"+update.getMins()+":"+"00'" + ", ";
+			}//end update time
+
+
+			if(query.endsWith(", ")){
+				query = query.substring(0,query.length()-2) + " ";
+				query += "WHERE caseID = " + original.getId() + " ";
+
+				query += ";";
+
+				System.out.println(query);
+				Statement stmt = this.sqlConnection.createStatement();
+				stmt.execute(query);
+			}
+
+
+			//log status changes
+			if(statusChanged){ //TODO: fix this crap
+				if(original.getStatus().equals("open")){
+					closeLog.setInt(1, userID);
+					closeLog.setInt(2, original.getId());
+					closeLog.execute();
+				}else{
+					openLog.setInt(1, userID);
+					openLog.setInt(2, original.getId());
+					openLog.execute();
+				}
+
+			}
+
+			//update category
+			if(categoryChanged){
+				categoryByName.setString(1, original.getCategory());
+				ResultSet rs = categoryByName.executeQuery();
+
+				int oldCatID = -1;
+				if(rs.next()){
+					oldCatID = new Category(rs).getID();
+					catUnlinkByCaseID.setInt(1, oldCatID);
+					catUnlinkByCaseID.setInt(2, original.getId());
+					catUnlinkByCaseID.execute();
+				}
+
+				catLinkToCaseID.setInt(1, catID);
+				catLinkToCaseID.setInt(2, original.getId());
+				catLinkToCaseID.execute();
+			}
+
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return "Something went wrong. Please try again and contact us if issue persists.";
+		}
+
+		return null;
 	}
+
+	/**
+	 * inserts a category into the database.
+	 * @param name the new category's name
+	 * @return the new category's catID
+	 */
+	private int insertCategory(String name){
+		try{
+			ResultSet rs;
+
+			categoryByName.setString(1, name);
+			rs=categoryByName.executeQuery();
+			if(rs.next())
+				return rs.getInt("catID");
+
+			categoryInsert.setString(1, name);
+			categoryInsert.execute();
+
+			rs=categoryByName.executeQuery();
+			if(!rs.next())
+				return -1;
+
+			return rs.getInt("catID");
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return -1;
+		}
+	}
+
+	/**
+	 * Creates a list of all categories currently stored in the database.
+	 * @return said list
+	 */
+	private List<Category> getCategories(){
+		try{
+			final ResultSet rs = categoryAll.executeQuery();
+
+			final List<Category>categories = new ArrayList<Category>();
+
+			while(rs.next())
+				categories.add(new Category(rs));
+
+			return categories;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
+	}
+
+
+
+
 
 	//insert user to db, return user object
 	public final User insertUser(String username, String email, String password) throws SQLException {
@@ -305,4 +499,5 @@ public final class DatastoreInterface {
 		return null;
 
 	}
+
 }

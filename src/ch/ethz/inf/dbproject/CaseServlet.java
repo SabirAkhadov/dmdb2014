@@ -25,7 +25,7 @@ import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
  */
 @WebServlet(description = "Displays a specific case.", urlPatterns = { "/Case" })
 public final class CaseServlet extends HttpServlet {
-	
+
 	private final String CASE_EDIT = "/CaseEdit.jsp";
 
 	private static final long serialVersionUID = 1L;
@@ -41,38 +41,42 @@ public final class CaseServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	@SuppressWarnings("deprecation")
 	protected final void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
 		final HttpSession session = request.getSession(true);
 
-		
+
 		final String idString = request.getParameter("id");
 		if (idString == null) {
 			this.getServletContext().getRequestDispatcher("/Cases").forward(request, response);
+			return;
 		}
-		
+
 		final Integer id = Integer.parseInt(idString);
-		
+
 		User user = (User)session.getAttribute("user");
-		
+
 		String action = request.getParameter("action");
-		
+
 		Case origCase;
 		Case eCase = null;
 
 		if(action != null){
 			origCase = (Case)session.getAttribute("case");
-			
+
 			switch(action){
 			case "editCase":
 				if(user == null){
 					this.getServletContext().getRequestDispatcher("/Cases").forward(request, response);
+					action = null;
 					return;
 				}
-				if(origCase != null && origCase.getId() == id)
+				if(origCase != null && origCase.getId() == id){
 					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
+					action = null;
 					return;
+				}
+				break;
 			case "update":
 				if(user == null){
 					session.setAttribute("updateError", "You need to log in");
@@ -82,8 +86,16 @@ public final class CaseServlet extends HttpServlet {
 				}
 				//(int id, int status, String title, String category, String description, String location, java.sql.Date date, java.sql.Time time)
 				eCase = new Case(Integer.parseInt(request.getParameter("id")) , Integer.parseInt(request.getParameter("status")), request.getParameter("title"), request.getParameter("category"), request.getParameter("description"), request.getParameter("location"), String.format("%s-%s-%s", request.getParameter("year"),request.getParameter("month"),request.getParameter("day")), String.format("%s:%s", request.getParameter("hours"), request.getParameter("mins")));
-				if(origCase != null && origCase.getId() == eCase.getId())
-					this.dbInterface.updateCase(origCase, eCase, Integer.parseInt(user.getUserID()));
+				if(origCase != null && origCase.getId() == eCase.getId()){
+					String error = this.dbInterface.updateCase(origCase, eCase, Integer.parseInt(user.getUserID()));
+					if(error != null){
+						session.setAttribute("updateError", error);
+						session.setAttribute("edittedCase", eCase);
+						this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
+						return;
+					}
+					action = null;
+				}
 				break;
 			default:
 				break;
@@ -126,14 +138,14 @@ public final class CaseServlet extends HttpServlet {
 			action = null;
 			ex.printStackTrace();
 			this.getServletContext().getRequestDispatcher("/Cases.jsp").forward(request, response);
+			return;
 		}
-		
+
 		if(action != null){
 			switch(action){
 			case "editCase":
 				this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
-				action = null;
-				break;
+				return;
 			case "update":
 				if(eCase == null){ //should not happen
 					session.setAttribute("updateError", "Unexpected Error - Please try again.");
@@ -145,15 +157,12 @@ public final class CaseServlet extends HttpServlet {
 					session.setAttribute("updateError", error);
 					session.setAttribute("edittedCase", eCase);
 					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
-					return;
 				}
-				action = null;
-				break;
+				return;
 			default:
 				break;
 			}
-		}
-
-		this.getServletContext().getRequestDispatcher("/Case.jsp").forward(request, response);
+		}else
+			this.getServletContext().getRequestDispatcher("/Case.jsp").forward(request, response);
 	}
 }
