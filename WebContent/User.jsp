@@ -13,10 +13,13 @@ if (session.getAttribute("user") != null) {
 	
 	
 	<form action="User" method="get">
-	<input type="hidden" name="action" value="logout" />
+	<input type="hidden" name="action" value="logout"/>
 		<input type="submit" value="Logout" />
 	</form>
-
+	<br>
+	<a href="changeData">Change user data</a>
+	
+	
 
 <%
 //TODO: Display cases opened by the user
@@ -35,7 +38,7 @@ if (session.getAttribute("user") != null) {
 			%>
 
 
-	<form action="User" method="get">
+	<form action="User" method="post">
 	<input type="hidden" name="action" value="login" />
 	<table>
 		<tr>

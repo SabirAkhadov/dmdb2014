@@ -32,6 +32,7 @@ if (user != null) {
 %>
 	<form action="Case" method="get">
 		<input type="hidden" name="action" value="addComment" />
+
 		<input type="hidden" name="user_id" value="<%= user.getUserID() %>" />
 		Add Comment
 		<br />

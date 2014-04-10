@@ -33,8 +33,6 @@ public final class DatastoreInterface {
 			" LEFT JOIN category AS cat ON cc.catID = cat.catID" +
 			" "; //do not forget final space
 
-	private PreparedStatement allUsers;
-
 	private PreparedStatement caseByID;
 	private PreparedStatement caseAll;
 	private PreparedStatement caseOpen;
@@ -57,8 +55,6 @@ public final class DatastoreInterface {
 		this.sqlConnection = MySQLConnection.getInstance().getConnection();
 
 		try {
-			allUsers = sqlConnection.prepareStatement("SELECT * FROM User");
-
 			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
@@ -116,7 +112,6 @@ public final class DatastoreInterface {
 			return null;			
 		}
 	}
-
 	public final List<Case> getOpenCases(){
 		try{
 			final ResultSet rs = caseOpen.executeQuery();
@@ -222,31 +217,6 @@ public final class DatastoreInterface {
 		}
 	}
 
-	public final List<User> getAllUsers() {
-
-		/**
-		 *this method should returns all users in the database
-		 *one can improve it by saving the list and having a flag changed.
-		 */
-		try {
-
-			allUsers.execute();
-			ResultSet rs = allUsers.getResultSet();
-			List <User> list = new ArrayList<User>();
-
-			while (rs.next())
-			{
-				list.add(new User (rs));
-			}
-			allUsers.close();
-			rs.close();
-			return list;
-
-		} catch (final SQLException ex) {			
-			ex.printStackTrace();
-			return null;			
-		}
-	}
 	/**updates a case in the database
 	 * @param original the case as it is stored prior to the update 
 	 * @param Updated the case the stored case should be updated to
@@ -263,31 +233,44 @@ public final class DatastoreInterface {
 	}
 
 	//insert user to db, return user object
-	public final User insertUser(String username, String email, String password) throws SQLException {
+	public final User insertUser(String username, String email, String password) {
 
-		//userID will be auto incremented
-		PreparedStatement s = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
-
+		PreparedStatement s;
+		try {
+			s = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
+		
 		s.setString(1, username);
 		s.setString(2, password);
 		s.setString(3, email);
 		s.execute();
 		s.close();
 
-		PreparedStatement us = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
+		final PreparedStatement us = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
+
 		us.setString(1, username);
 		us.execute();
-		ResultSet rs = us.getResultSet();
 
-		return new User(rs);
-
+		final ResultSet rs = us.getResultSet();
+		if (rs.next()) {
+			return new User(rs);
+		}
+		else {
+			return null;
+		}
+		} catch (SQLException e) { 
+			e.addSuppressed(new Throwable());
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public final User validateUser (String name, String password) {
 
 		PreparedStatement s;
 		try {
-			s = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ?");
+
+			// collation argument depends on server character set. Here we have utf8mb4.
+			s = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ? COLLATE utf8mb4_bin");
 
 			s.setString(1, name);
 			s.setString(2, password);
@@ -303,6 +286,37 @@ public final class DatastoreInterface {
 			e.printStackTrace();
 		}
 		return null;
-
+	}
+	
+	public final User changeData (User user, String username, String email, String password){
+		
+		PreparedStatement s;
+		PreparedStatement t;
+		try {
+			s = sqlConnection.prepareStatement("UPDATE user SET name = ?, password = ?, email = ? " +
+					"WHERE UserID = ?");
+			
+			s.setString(1, username);
+			s.setString(2, password);
+			s.setString(3, email);
+			s.setString(4, user.getUserID());
+			
+			s.execute();
+			
+			t = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
+			t.setString(1, username);
+			t.execute();
+			ResultSet rs = t.getResultSet();
+			if (rs.next()) {
+				return new User (rs);
+			}
+			else {
+				return null;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
