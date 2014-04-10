@@ -1,6 +1,8 @@
 package ch.ethz.inf.dbproject;
 
 import java.io.IOException;
+import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -8,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import ch.ethz.inf.dbproject.model.Case;
 import ch.ethz.inf.dbproject.model.DatastoreInterface;
 import ch.ethz.inf.dbproject.model.User;
 import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
@@ -18,16 +21,12 @@ public final class UserServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final DatastoreInterface dsInterface = new DatastoreInterface();
 
-	public final static String SESSION_USER_LOGGED_IN = "userLoggedIn";
 	public final static String SESSION_USER_DETAILS = "userDetails";
 
 	public UserServlet() {
 		super();
 	}
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected final void doGet(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
@@ -35,11 +34,23 @@ public final class UserServlet extends HttpServlet {
 		final HttpSession session = request.getSession(true);
 		String action = request.getParameter("action");
 
-		User loggedUser = (User) session.getAttribute("user");
+		User user = (User) session.getAttribute("user");
 		
-		if (action != null && action.trim().equals("logout") && loggedUser != null){
+		if (action != null && action.trim().equals("logout") && user != null){
 			session.invalidate();
-		}
+		}	
+		
+		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);
+		
+}
+	
+	protected final void doPost(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
+		final HttpSession session = request.getSession(true);
+		String action = request.getParameter("action");
+
+		User loggedUser = (User) session.getAttribute("user");
 		
 		if (loggedUser == null) {
 			if (action != null && action.trim().equals("login")) {
@@ -50,30 +61,54 @@ public final class UserServlet extends HttpServlet {
 				User user = dsInterface.validateUser(username, password);
 				if (user != null){
 					session.setAttribute("user", user);
+					
+					//display user info
 					final BeanTableHelper<User> userDetails = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
-					userDetails.addBeanColumn(user.getName(), "username");
-					userDetails.addBeanColumn(user.getEmail(), "email");
-					userDetails.addBeanColumn(user.getPassword(), "password");
-					session.setAttribute(SESSION_USER_DETAILS, userDetails);
+					userDetails.addBeanColumn("Username", "Name");
+					userDetails.addBeanColumn("Email", "Email");
+					userDetails.addBeanColumn("Password", "Password");
+					userDetails.addObject(user);
+					session.setAttribute(SESSION_USER_DETAILS, userDetails.generateHtmlCode());
 					
-					//TODO show all the cases oppened by user
-					/*
-					final BeanTableHelper<User> userCases = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
-					userDetails.addBeanColumn(user.getName(), "username");
-					userDetails.addBeanColumn(user.getEmail(), "email");
-					userDetails.addBeanColumn(user.getPassword(), "password");
-					session.setAttribute("userCases", userCases);
-					*/
+					//display cases opened by user
+					List<Case> oCases = dsInterface.getOpenUserCases(user);
+					final BeanTableHelper<Case> oCasesTable = new BeanTableHelper<Case>("cases", "casesTable", Case.class);
+					oCasesTable.addBeanColumn("Title", "Title");
+					oCasesTable.addBeanColumn("Category", "Category");
+					oCasesTable.addBeanColumn("Date", "Date");
+					oCasesTable.addBeanColumn("Time", "Time");
+					oCasesTable.addBeanColumn("Location", "Location");
+					oCasesTable.addBeanColumn("Status", "Status");
+					oCasesTable.addLinkColumn(""	/* The header. We will leave it empty */,
+							"View Case" 	/* What should be displayed in every row */,
+							"Case?id=" 	/* This is the base url. The final url will be composed from the concatenation of this and the parameter below */, 
+							"id" 			/* For every case displayed, the ID will be retrieved and will be attached to the url base above */);
+
+					oCasesTable.addObjects(oCases);
+					session.setAttribute("userOpenCases", oCasesTable);
 					
+
+					//display cases closed by user
+					final BeanTableHelper<Case> cCasesTable = new BeanTableHelper<Case>("cases", "casesTable", Case.class);
+					cCasesTable.addBeanColumn("Title", "Title");
+					cCasesTable.addBeanColumn("Category", "Category");
+					cCasesTable.addBeanColumn("Date", "Date");
+					cCasesTable.addBeanColumn("Time", "Time");
+					cCasesTable.addBeanColumn("Location", "Location");
+					cCasesTable.addBeanColumn("Status", "Status");
+					cCasesTable.addLinkColumn("", "View Case", "Case?id=","id");
+
+					List<Case> cCases = dsInterface.getCloseUserCases(user);
+					cCasesTable.addObjects(cCases);
+					session.setAttribute("userCloseCases",cCasesTable);
 				}
 				else {
 					session.setAttribute("error", "login");
 				}
+		
 			}
-			
-		} 
+		}
 		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);
-
 	}
 
 }

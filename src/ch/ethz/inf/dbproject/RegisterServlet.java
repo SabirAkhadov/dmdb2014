@@ -22,8 +22,6 @@ import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
 public class RegisterServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-
-	public static String SESSION_USER_REGISTERED = "";
 	
 	public RegisterServlet() {
         super();
@@ -40,58 +38,33 @@ public class RegisterServlet extends HttpServlet {
 
 		final HttpSession session = request.getSession(true);
 		DatastoreInterface dsi = new DatastoreInterface();
-		try {
-			
-			List<User> users = new ArrayList<User>();
-			users = dsi.getAllUsers();
 		
-			String username = request.getParameter("username");
-			String password = request.getParameter("password");
-			String email = request.getParameter("email");
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		String email = request.getParameter("email");
 
-			// check for existing user
+		if (username == "" || email == "" || password == ""){
 			
-			//indicates if a user is already in db
-			boolean reg = false;
-			for (User user : users)
-			{
-				if (user.getName().equals(username) || user.getEmail().equals(email)) {
-					session.setAttribute("error", "register");
-					reg = true;
-					this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
-					break;
-				}
-			}
-			if (reg) {}
-			else if (username == "" || email == "" || password == ""){
-				
-				session.setAttribute("error", "emptyString");
-				this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
-			}
-			else {
-			// set attribute User details
-			
-				final BeanTableHelper<User> userDetails = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
-				userDetails.addBeanColumn(username, "username");
-				userDetails.addBeanColumn(email, "email");
-				userDetails.addBeanColumn(password, "password");
-
-				session.setAttribute(UserServlet.SESSION_USER_DETAILS, userDetails);
-				
-				//now insert a new user to db
-				
-				User user = dsi.insertUser(username, email, password);
-				
-				//TODO implement sending email, if we have time
-				
-				session.setAttribute("user", user);
-				session.setAttribute("error", "none");
-				this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
-				
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+			session.setAttribute("error", "emptyString");
+			this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
 		}
+		else {
+			User user = dsi.insertUser(username, email, password);
+			
+			//TODO implement sending email, if we have time
+			
+			if (user == null){
+				session.setAttribute("error", "register");
+				this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
+			}
+				else {
+				session.setAttribute("error", "none");
+				
+				
+				this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
+			}
+		}
+			
 	}
 
 }

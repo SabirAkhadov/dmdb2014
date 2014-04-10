@@ -4,18 +4,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
 
-<% 
-if (session.getAttribute("username")!= null) {
-	// User is logged in. He should log out to register a new user.	
-%>
 
-<h2> You have to log out to register a new user.</h2>
-
-<%} 
-else if (session.getAttribute("error")!= null && session.getAttribute("error").equals("none")){
+<%
+if (session.getAttribute("error")!= null && session.getAttribute("error").equals("none")){
 	%>
 	<h2> You successfully registered a new User.</h2>
-	<h2> Go to User Profile to see the details.</h2>
+	<h2> You can now log in.</h2>
 <%	
 	session.setAttribute("error", null);
 }
@@ -31,7 +25,7 @@ else {
 <% 
 	if (session.getAttribute("error")!= null && session.getAttribute("error").equals("register")){
 %>
-	<font  color="red">The name or email are already registered!</font>	
+	<font  color="red">The name is already registered!</font>	
 	<br>	
 	<%	
 		session.setAttribute("error", null);
