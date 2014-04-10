@@ -18,7 +18,6 @@ public final class UserServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final DatastoreInterface dsInterface = new DatastoreInterface();
 
-	public final static String SESSION_USER_LOGGED_IN = "userLoggedIn";
 	public final static String SESSION_USER_DETAILS = "userDetails";
 
 	public UserServlet() {
@@ -35,11 +34,41 @@ public final class UserServlet extends HttpServlet {
 		final HttpSession session = request.getSession(true);
 		String action = request.getParameter("action");
 
-		User loggedUser = (User) session.getAttribute("user");
+		User user = (User) session.getAttribute("user");
 		
-		if (action != null && action.trim().equals("logout") && loggedUser != null){
+		if (action != null && action.trim().equals("logout") && user != null){
 			session.invalidate();
+		}	
+		
+		else if (user != null){
+			final BeanTableHelper<User> userDetails = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
+			userDetails.addBeanColumn(user.getName(), "username");
+			userDetails.addBeanColumn(user.getEmail(), "email");
+			userDetails.addBeanColumn(user.getPassword(), "password");
+			session.setAttribute(SESSION_USER_DETAILS, userDetails);
+			
+			//TODO show all the cases opened by user
+			/*
+			final BeanTableHelper<User> userCases = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
+			userDetails.addBeanColumn(user.getName(), "username");
+			userDetails.addBeanColumn(user.getEmail(), "email");
+			userDetails.addBeanColumn(user.getPassword(), "password");
+			session.setAttribute("userCases", userCases);
+			*/
+			
 		}
+
+		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);
+		
+}
+	
+	protected final void doPost(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
+		final HttpSession session = request.getSession(true);
+		String action = request.getParameter("action");
+
+		User loggedUser = (User) session.getAttribute("user");
 		
 		if (loggedUser == null) {
 			if (action != null && action.trim().equals("login")) {
@@ -50,30 +79,21 @@ public final class UserServlet extends HttpServlet {
 				User user = dsInterface.validateUser(username, password);
 				if (user != null){
 					session.setAttribute("user", user);
+					
 					final BeanTableHelper<User> userDetails = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
 					userDetails.addBeanColumn(user.getName(), "username");
 					userDetails.addBeanColumn(user.getEmail(), "email");
 					userDetails.addBeanColumn(user.getPassword(), "password");
 					session.setAttribute(SESSION_USER_DETAILS, userDetails);
 					
-					//TODO show all the cases oppened by user
-					/*
-					final BeanTableHelper<User> userCases = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
-					userDetails.addBeanColumn(user.getName(), "username");
-					userDetails.addBeanColumn(user.getEmail(), "email");
-					userDetails.addBeanColumn(user.getPassword(), "password");
-					session.setAttribute("userCases", userCases);
-					*/
-					
 				}
 				else {
 					session.setAttribute("error", "login");
 				}
+		
 			}
-			
-		} 
+		}
 		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);
-
 	}
 
 }
