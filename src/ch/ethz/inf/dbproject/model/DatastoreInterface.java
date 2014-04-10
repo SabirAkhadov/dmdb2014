@@ -42,11 +42,14 @@ public final class DatastoreInterface {
 	private PreparedStatement caseMostRecent;
 	private PreparedStatement caseOldestUnresolved;
 	private PreparedStatement caseByCategory;
+	
+	/* be obsolete as we're changing the menu
 	private PreparedStatement casePersonal;
 	private PreparedStatement caseProperty;
 	private PreparedStatement casePersonalOther;
 	private PreparedStatement casePropertyOther;
-
+	*/
+	
 	private Connection sqlConnection;
 
 	public DatastoreInterface() {
@@ -63,10 +66,13 @@ public final class DatastoreInterface {
 			caseMostRecent = sqlConnection.prepareStatement(caseConstr + "ORDER BY cas.date DESC;");
 			caseOldestUnresolved = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1 ORDER BY cas.date DESC;");
 			caseByCategory = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name = ? ORDER BY date DESC;" );
+			
+			/* will be obsolete as we're changing the menu
 			casePersonal = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 0 ORDER BY date DESC;"); //TODO: verify
 			caseProperty = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 ORDER BY date DESC;"); //TODO: verify
 			casePersonalOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 0 AND cat.name <> 'assault' ORDER BY date DESC;");
 			casePropertyOther = sqlConnection.prepareStatement(caseConstr + "WHERE cat.supercat = 1 AND cat.name <> 'theft' ORDER BY date DESC;");
+			*/
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -183,6 +189,7 @@ public final class DatastoreInterface {
 		try{
 			final ResultSet rs;
 			switch(category){
+			/*will be obsolete as we're changing the menu
 			case "personal":
 				rs = casePersonal.executeQuery();
 				break;
@@ -195,6 +202,7 @@ public final class DatastoreInterface {
 			case "otherPers":
 				rs = casePersonalOther.executeQuery();
 				break;
+			*/
 			default:
 				caseByCategory.setString(1, category);
 				rs = caseByCategory.executeQuery();
