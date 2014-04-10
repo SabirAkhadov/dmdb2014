@@ -239,6 +239,20 @@ public final class DatastoreInterface {
 			return null;			
 		}
 	}
+	/**updates a case in the database
+	 * @param original the case as it is stored prior to the update 
+	 * @param Updated the case the stored case should be updated to
+	 * @param userID the user requesting the update
+	 * @return null if succeeds or error message otherwise
+	 */
+	public String updateCase(Case original, Case Updated, int userID){
+		
+		
+		
+		
+		
+		return "I am testing an error.";
+	}
 
 	//insert user to db, return user object
 	public final User insertUser(String username, String email, String password) throws SQLException {
