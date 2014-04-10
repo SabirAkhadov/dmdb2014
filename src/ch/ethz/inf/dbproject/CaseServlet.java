@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
+
 import ch.ethz.inf.dbproject.model.Conviction;
 import ch.ethz.inf.dbproject.model.Comment;
 import ch.ethz.inf.dbproject.model.DatastoreInterface;
@@ -54,6 +56,9 @@ public final class CaseServlet extends HttpServlet {
 
 		final Integer id = Integer.parseInt(idString);
 
+		if((User)session.getAttribute("user") == null) //TODO: make sure login is working again and remove this
+			session.setAttribute("user", this.dbInterface.validateUser("Roger", "123"));
+		
 		User user = (User)session.getAttribute("user");
 
 		String action = request.getParameter("action");

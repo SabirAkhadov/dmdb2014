@@ -382,7 +382,7 @@ public final class DatastoreInterface {
 
 
 			//log status changes
-			if(statusChanged){ //TODO: fix this crap
+			if(statusChanged){
 				if(original.getStatus().equals("open")){
 					closeLog.setInt(1, userID);
 					closeLog.setInt(2, original.getId());
