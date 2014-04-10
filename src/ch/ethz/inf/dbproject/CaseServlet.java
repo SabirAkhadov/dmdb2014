@@ -81,7 +81,7 @@ public final class CaseServlet extends HttpServlet {
 					return;
 				}
 				//(int id, int status, String title, String category, String description, String location, java.sql.Date date, java.sql.Time time)
-				eCase = new Case(Integer.parseInt(request.getParameter("id")) , Integer.parseInt(request.getParameter("status")), request.getParameter("title"), request.getParameter("category"), request.getParameter("description"), request.getParameter("location"), new java.sql.Date(Integer.parseInt(request.getParameter("year")), Integer.parseInt(request.getParameter("month")), Integer.parseInt(request.getParameter("day"))), new java.sql.Time(Integer.parseInt(request.getParameter("hours")),Integer.parseInt(request.getParameter("mins")),0));
+				eCase = new Case(Integer.parseInt(request.getParameter("id")) , Integer.parseInt(request.getParameter("status")), request.getParameter("title"), request.getParameter("category"), request.getParameter("description"), request.getParameter("location"), String.format("%s-%s-%s", request.getParameter("year"),request.getParameter("month"),request.getParameter("day")), String.format("%s:%s", request.getParameter("hours"), request.getParameter("mins")));
 				if(origCase != null && origCase.getId() == eCase.getId())
 					this.dbInterface.updateCase(origCase, eCase, Integer.parseInt(user.getUserID()));
 				break;

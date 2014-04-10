@@ -6,32 +6,28 @@ import java.sql.SQLException;
 public final class Case {
 	
 	private final int id;
-	private final java.util.Date date; //I'm not importing it so we can differentiate it from java.sql.Date
+	private final String date;
+	private String year;
+	private String month;
+	private String day;
+	private final String time;
+	private String hours;
+	private String mins;
 	private final String description;
 	private final String status;
 	private final String location;
 	private final String title;
 	private final String category;
 	
-	private final boolean hasDate;
-	private final boolean hasTime;
-	
 	/**
 	 Construct a new case.
 	 */
-	@SuppressWarnings("deprecation")
-	public Case(final int id, final int status, final String title, final String category, final String description, final String location, final java.sql.Date date, final java.sql.Time time){
+	public Case(final int id, final int status, final String title, final String category, final String description, final String location, final String date, final String time){
 		this.id = id;
 		
-		this.date = new java.util.Date();
+		this.date = (date == null) ? "" : formatDate(date);
 		
-		if(this.hasDate = (date != null)){
-			this.date.setYear(date.getYear());
-			this.date.setMonth(date.getMonth());
-			this.date.setDate(date.getDay());
-		}
-		if(this.hasTime = (time != null))
-			this.date.setTime(time.getTime());
+		this.time = (time == null) ? "" : formatTime(time);
 		
 		this.status = status == 0 ? "closed" : "open";
 		
@@ -45,7 +41,24 @@ public final class Case {
 	}
 	
 	public Case(final ResultSet rs) throws SQLException {
-		this(rs.getInt("id"), rs.getInt("status"), rs.getString("title"),rs.getString("category"), rs.getString("description"), rs.getString("location"), rs.getDate("date"), rs.getTime("time"));
+		this(rs.getInt("id"), rs.getInt("status"), rs.getString("title"),rs.getString("category"), rs.getString("description"), rs.getString("location"), rs.getString("date"), rs.getString("time"));
+	}
+	
+	private String formatDate(String sDate){
+		String[] arr = sDate.split("\\-");
+		this.year = arr[0];
+		this.month = arr[1];
+		this.day = arr[2];
+		
+		return String.format("%s.%s.%s", day,month,year);
+	}
+	
+	private String formatTime(String sTime){
+		String[] arr = sTime.split("\\:");
+		this.hours = arr[0];
+		this.mins = arr[1];
+		
+		return String.format("%s:%s", hours,mins);
 	}
 
 	/**
@@ -56,15 +69,33 @@ public final class Case {
 	public int getId() {
 		return id;
 	}
-
-	@SuppressWarnings("deprecation")
-	public String getDate() {
-		return hasDate ? ("" + date.getDay() + "."+date.getMonth()+"."+date.getYear()) : "";
-	}
 	
-	@SuppressWarnings("deprecation")
-	public String getTime(){
-		return hasTime ? ("" + date.getHours() + ":" + date.getMinutes()) : "";
+	public String getDate() {
+		return date;
+	}
+
+	public String getYear() {
+		return date.equals("") ? "" : year;
+	}
+
+	public String getMonth() {
+		return date.equals("") ? "" : month;
+	}
+
+	public String getDay() {
+		return date.equals("") ? "" : day;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public String getHours() {
+		return time.equals("") ? "" : hours;
+	}
+
+	public String getMins() {
+		return time.equals("") ? "" : mins;
 	}
 
 	public String getStatus() {

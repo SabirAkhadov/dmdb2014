@@ -37,31 +37,31 @@ Please log in.
 	int day = 0;
 	int month = 0;
 	int year = 0;
-	if(!(sDate = aCase.getDate()).equals("")){ 
-		String[] date = sDate.split("\\.");
-		int day1 = Integer.parseInt(date[0]);
+	if(!(sDate = aCase.getDate()).equals("")){
+		//System.out.println(String.format("-%s.%s.%s-",aCase.getDay(),aCase.getMonth(),aCase.getYear()));
+		int day1 = Integer.parseInt(aCase.getDay());
 		day = day1 < 32 && day1 > 0 ? day1 : 0;
 		
-		int month1 = Integer.parseInt(date[1]);
+		int month1 = Integer.parseInt(aCase.getMonth());
 		month = month1 <13 && month1 > 0 ? month1 : 0;
 		
-		int year1 = Integer.parseInt(date[2]);
+		int year1 = Integer.parseInt(aCase.getYear());
 		year = year1 > 0 ? year1 : 0;
 	}%>
 	Date: <select name="day">
 	<% for(int i = 1; i < 32; i++){ 
 		if(i == day){%>
-		<option value=<%=i%> selected = selected><%=String.format("%02d", i)%></option>
+		<option value=<%=String.format("%02d", i)%> selected = selected><%=String.format("%02d", i)%></option>
 		<%}else{%>
-		<option value=<%=i%>><%=String.format("%02d", i)%></option>
+		<option value=<%=String.format("%02d", i)%>><%=String.format("%02d", i)%></option>
 		<%}//end if%>
 	<%}//end for%>
 	</select> . <select name = "month">
 	<% for(int i = 1; i < 13; i++){ 
-		if(i == day){%>
-		<option value=<%=i%> selected = selected><%=String.format("%02d", i)%></option>
+		if(i == month){%>
+		<option value=<%=String.format("%02d", i)%> selected = selected><%=String.format("%02d", i)%></option>
 		<%}else{%>
-		<option value=<%=i%>><%=String.format("%02d", i)%></option>
+		<option value=<%=String.format("%02d", i)%>><%=String.format("%02d", i)%></option>
 		<%}//end if%>
 	<%}//end for%>
 	</select> . <input type = text name = "year" size = 4 value = "<%=String.format("%04d", year)%>">
@@ -69,9 +69,8 @@ Please log in.
 			int hours = 0;
 			int mins = 0;
 	   if(!sTime.equals("")){
-			String[] time = sTime.split("\\:");
-			int hours1 = Integer.parseInt(time[0]);
-			int mins1 = Integer.parseInt(time[1]);
+			int hours1 = Integer.parseInt(aCase.getHours());
+			int mins1 = Integer.parseInt(aCase.getMins());
 			
 			hours = hours1 >= 0 && hours1 < 25 ? hours1 : 0;
 			mins = mins1 >= 0 && mins1 < 61 ? mins1 : 0;
@@ -80,17 +79,17 @@ Please log in.
 	at <select name="hours">
 	<% for(int i = 0; i < 24; i++){ 
 		if(i == hours){%>
-		<option  value=<%=i%> selected = selected><%=String.format("%02d", i)%></option>
+		<option  value=<%=String.format("%02d", i)%> selected = selected><%=String.format("%02d", i)%></option>
 		<%}else{%>
-		<option value=<%=i%>><%=String.format("%02d", i)%></option>
+		<option value=<%=String.format("%02d", i)%>><%=String.format("%02d", i)%></option>
 		<%}//end if%>
 	<%}//end for%>
 	</select> : <select name="mins">
 	<% for(int i = 0; i < 60; i++){ 
 		if(i == mins){%>
-		<option value=<%=i%> selected = selected><%=String.format("%02d", i)%></option>
+		<option value=<%=String.format("%02d", i)%> selected = selected><%=String.format("%02d", i)%></option>
 		<%}else{%>
-		<option value=<%=i%>><%=String.format("%02d", i)%></option>
+		<option value=<%=String.format("%02d", i)%>><%=String.format("%02d", i)%></option>
 		<%}//end if%>
 	<%}//end for%>
 	</select>
