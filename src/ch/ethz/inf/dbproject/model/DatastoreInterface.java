@@ -216,6 +216,49 @@ public final class DatastoreInterface {
 			return null;
 		}
 	}
+	
+	public List<Case> getOpenUserCases (User user) {
+		
+		List <Case> cases = new ArrayList <Case>();
+		try {
+			PreparedStatement caseIDs  = sqlConnection.prepareStatement("SELECT CaseID From open WHERE UserID = ?");
+			caseIDs.setString(1, user.getUserID());
+			caseIDs.execute();
+			ResultSet rs = caseIDs.getResultSet();
+			
+			while (rs.next())
+			{
+				cases.add(getCaseById(rs.getInt(1)));
+			}
+			return cases;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	public List<Case> getCloseUserCases (User user) {
+		
+		List <Case> cases = new ArrayList <Case>();
+		try {
+			PreparedStatement caseIDs  = sqlConnection.prepareStatement("SELECT CaseID From close WHERE UserID = ?");
+			caseIDs.setString(1, user.getUserID());
+			caseIDs.execute();
+			ResultSet rs = caseIDs.getResultSet();
+			
+			while (rs.next())
+			{
+				cases.add(getCaseById(rs.getInt(1)));
+			}
+			return cases;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
 
 	/**updates a case in the database
 	 * @param original the case as it is stored prior to the update 
@@ -314,7 +357,6 @@ public final class DatastoreInterface {
 				return null;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}

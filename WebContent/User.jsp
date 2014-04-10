@@ -8,7 +8,6 @@
 if (session.getAttribute("user") != null) {
 	// User is logged in. Display the details:
 %>
-	Username Email Password <br> 
 <%= session.getAttribute(UserServlet.SESSION_USER_DETAILS) %>
 	
 	
@@ -19,10 +18,14 @@ if (session.getAttribute("user") != null) {
 	<br>
 	<a href="changeData">Change user data</a>
 	
-	
+	<h2> Cases opened by user</h2>
+<%= session.getAttribute("userOpenCases") %>
+
+
+	<h2> Cases closed by user</h2>
+<%= session.getAttribute("userCloseCases") %>
 
 <%
-//TODO: Display cases opened by the user
 
 //TODO: Add possibility to create new case (requires a form) 
 	

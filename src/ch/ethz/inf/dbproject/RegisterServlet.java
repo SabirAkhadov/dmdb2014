@@ -58,8 +58,9 @@ public class RegisterServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
 			}
 				else {
-				session.setAttribute("user", user);
 				session.setAttribute("error", "none");
+				
+				
 				this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
 			}
 		}
