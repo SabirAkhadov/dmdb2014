@@ -112,6 +112,7 @@ public final class CaseServlet extends HttpServlet {
 
 		try {
 			final Case aCase = this.dbInterface.getCaseById(id);
+			final List<Comment> commentList = this.dbInterface.getCommentsToCaseByID(id);
 
 
 			/*******************************************************
@@ -138,6 +139,19 @@ public final class CaseServlet extends HttpServlet {
 
 			session.setAttribute("caseTable", table);
 			session.setAttribute("case", aCase);
+			
+			final BeanTableHelper<Comment> commentTable = new BeanTableHelper<Comment>(
+					"comments" 		/* The table html id property */,
+					"commentTable" /* The table html class property */,
+					Comment.class 	/* The class of the objects (rows) that will be displayed */
+					);
+			
+			commentTable.addBeanColumn("", "username");
+			commentTable.addBeanColumn("", "comment");
+			
+			commentTable.addObjects(commentList);
+			
+			session.setAttribute("commentTable", commentTable);
 
 		} catch (final Exception ex) {
 			action = null;

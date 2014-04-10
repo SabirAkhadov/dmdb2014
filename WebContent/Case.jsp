@@ -44,9 +44,6 @@ if (user != null) {
 }
 %>
 
-<%
-	//TODO Display existing comments
-	//session.getAttribute("commentTable")
-%>
+<%=	session.getAttribute("commentTable")%>
 
 <%@ include file="Footer.jsp"%>
