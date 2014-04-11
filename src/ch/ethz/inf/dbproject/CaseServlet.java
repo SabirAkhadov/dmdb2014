@@ -100,11 +100,13 @@ public final class CaseServlet extends HttpServlet {
 					session.setAttribute("newComment", comment == null ? "": comment);
 				}
 
-				String error = this.dbInterface.addCommentToCase(comment, Integer.parseInt(request.getParameter("caseID")), Integer.parseInt(user.getUserID()));
+				String error = this.dbInterface.addCommentToCase(comment, Integer.parseInt(request.getParameter("id")), Integer.parseInt(user.getUserID()));
 
 				if(error != null){
-					session.setAttribute("cseCommentError", error);
+					session.setAttribute("caseCommentError", error);
 					session.setAttribute("newComment", comment == null ? "": comment);
+					this.getServletContext().getRequestDispatcher("/Case.jsp").forward(request, response);
+					return;
 				}
 			}
 		}//end action!= null
@@ -178,6 +180,8 @@ public final class CaseServlet extends HttpServlet {
 					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
 				}
 				return;
+			}else if(action.equals("addComment")){
+				this.getServletContext().getRequestDispatcher("/Case.jsp").forward(request, response);
 			}//end action != null
 		}else
 			this.getServletContext().getRequestDispatcher("/Case.jsp").forward(request, response);

@@ -579,13 +579,19 @@ public final class DatastoreInterface {
 
 	public final String addCommentToCase(String commentStr, int caseID, int userID){
 		try{
+			//System.out.println("Trying to insert a new comment.");
+			
 			//String comment = commentStr.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_"); //may not be necessary
-			String comment = commentStr;
+			String comment = commentStr.replace("'", "\\'");
+			if(comment.isEmpty())
+				return "You cannot add empty comments.";
 			
 			int noteID = insertNote(userID, comment);
 			
 			if(noteID < 0)
 				return "Whops, we cannot find your comment after inserting it.\nThis should not happen...";
+			
+			//System.out.println("Inserted comment. NoteID = " + noteID);
 			
 			commentInsertNC.setInt(1, noteID);
 			commentInsertNC.setInt(2, caseID);

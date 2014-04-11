@@ -7,7 +7,16 @@
 <% final Case aCase = (Case)session.getAttribute("case"); %>
 
 <h1>Case Details</h1>
-
+<%
+String errorMsg = (String)session.getAttribute("caseCommentError");
+if(errorMsg != null){
+%>
+<font color="red"><%=errorMsg%></font>
+<br /><br />
+<%
+session.setAttribute("caseCommentError", null);
+}
+%>
 <%=session.getAttribute("caseTable")%>
 
 <%
@@ -32,7 +41,7 @@ if (user != null) {
 %>
 	<form action="Case" method="get">
 		<input type="hidden" name="action" value="addComment" />
-		<input type="hidden" name = "caseID" value = <%= aCase.getId() %> />
+		<input type="hidden" name = "id" value = <%= aCase.getId() %> />
 		<input type="hidden" name="userID" value="<%= user.getUserID() %>" />
 		Add Comment
 		<br />
