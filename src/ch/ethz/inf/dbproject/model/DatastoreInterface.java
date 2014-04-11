@@ -689,8 +689,8 @@ public final class DatastoreInterface {
 				" cas.description AS `description`," +
 				" cas.location AS `location`," +
 				" cas.date AS `date`," +
-				" cas.time AS `time` " +
-				" t.lastStatusChange AS `lastStatusChange` ";
+				" cas.time AS `time`, " +
+				" cas.lastStatusChange AS `lastStatusChange` ";
 		
 		//FROM table setup
 		StatementS += "FROM ";
