@@ -24,10 +24,7 @@
 </form>
 
 <hr/>
-<%  
-	//TODO Display search results 
-	// session.getAttribute("results");
-%>
+<%=session.getAttribute("results")%>
 
 <hr/>
 
