@@ -225,7 +225,6 @@ public final class DatastoreInterface {
 			caseIDs.setString(1, user.getUserID());
 			caseIDs.execute();
 			ResultSet rs = caseIDs.getResultSet();
-			
 			while (rs.next())
 			{
 				cases.add(getCaseById(rs.getInt(1)));
@@ -275,6 +274,31 @@ public final class DatastoreInterface {
 		return "I am testing an error.";
 	}
 
+	
+	public final boolean openCase (String title, String date, String time, String description, String location) {
+
+		PreparedStatement s;
+		
+		try {
+			s = sqlConnection.prepareStatement("INSERT INTO cases Values (null, ?, 1, ?, ? ,?, ?)");
+			s.setString(1, date);
+			s.setString(2, location);
+			s.setString(3, time);
+			s.setString(4, description);
+			s.setString(5, title);
+			s.execute();
+			
+			//TODO insert a new entry in casecategory
+			// also make a user choose a category
+			//consider using trigger for auto inserting in category table and open table
+			
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	//insert user to db, return user object
 	public final User insertUser(String username, String email, String password) {
 
