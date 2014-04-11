@@ -92,7 +92,7 @@ public final class DatastoreInterface {
 
 		try {
 			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
-			closeCaseIDs  = sqlConnection.prepareStatement("SELECT DISCTINCT CaseID From close WHERE UserID = ?");
+			closeCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From close WHERE UserID = ?");
 			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
@@ -291,6 +291,12 @@ public final class DatastoreInterface {
 		}
 
 	}
+	
+	
+	public String insertNewCase(NewCaseData nCase){
+		
+		return "";
+	}
 
 	/**updates a case in the database
 	 * @param original the case as it is stored prior to the update 
@@ -328,7 +334,7 @@ public final class DatastoreInterface {
 
 			//update title
 			if(!original.getTitle().equals(update.getTitle()))
-				query += "title = '" + update.getTitle() + "', ";
+				query += "title = '" + update.getTitle().replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "', ";
 
 			//update status;
 			if(!original.getStatus().equals(update.getStatus())){
@@ -342,7 +348,7 @@ public final class DatastoreInterface {
 
 			//update location
 			if(!original.getLocation().equals(update.getLocation()))
-				query += "location = '" + update.getLocation() + "'" + ", ";
+				query += "location = '" + update.getLocation().replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "'" + ", ";
 
 			//update date
 			if(!original.getDate().equals(update.getDate())){

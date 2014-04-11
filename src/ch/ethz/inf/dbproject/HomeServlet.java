@@ -28,6 +28,12 @@ public final class HomeServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		String action = (String)request.getAttribute("action");
+		
+		if(action != null && action.equals("newCase"))
+			session.setAttribute("homeMsg", "We have successfully created your new case.");
+		
         this.getServletContext().getRequestDispatcher("/Home.jsp").forward(request, response);	        
 	}
 }

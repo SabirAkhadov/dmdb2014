@@ -27,7 +27,7 @@
 					<div class="menuDiv1"></div>
 					<div class="menuDiv1"><a href="Home">Home</a></div>
 					<% if (session.getAttribute("user")!= null) {%>
-					<div class="menuDiv1"><a hreft="CaseNew.jsp">New Case</a></div>
+					<div class="menuDiv1"><a href="CaseNew.jsp">New Case</a></div>
 					<%}%>
 					<div class="menuDiv1"><a href="Cases">All cases</a></div>
 					<div class="menuDiv2"><a href="Cases?filter=open">Open</a></div>
