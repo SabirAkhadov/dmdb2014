@@ -58,8 +58,6 @@ public final class DatastoreInterface {
 			" "; //do not forget final space
 			
 
-	private PreparedStatement allUsers;
-
 	private PreparedStatement caseByID;
 	private PreparedStatement caseAll;
 	private PreparedStatement caseOpen;
@@ -83,6 +81,8 @@ public final class DatastoreInterface {
 	private PreparedStatement commentInsert;
 	private PreparedStatement commentInsertHelper;
 	private PreparedStatement commentInsertNC;
+	private PreparedStatement openCaseIDs;
+	private PreparedStatement closeCaseIDs;
 	
 	private Connection sqlConnection;
 
@@ -91,6 +91,8 @@ public final class DatastoreInterface {
 		this.sqlConnection = MySQLConnection.getInstance().getConnection();
 
 		try {
+			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
+			closeCaseIDs  = sqlConnection.prepareStatement("SELECT DISCTINCT CaseID From close WHERE UserID = ?");
 			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
@@ -253,10 +255,10 @@ public final class DatastoreInterface {
 
 		List <Case> cases = new ArrayList <Case>();
 		try {
-			PreparedStatement caseIDs  = sqlConnection.prepareStatement("SELECT CaseID From open WHERE UserID = ?");
-			caseIDs.setString(1, user.getUserID());
-			caseIDs.execute();
-			ResultSet rs = caseIDs.getResultSet();
+	
+			openCaseIDs.setString(1, user.getUserID());
+			openCaseIDs.execute();
+			ResultSet rs = openCaseIDs.getResultSet();
 			while (rs.next())
 			{
 				cases.add(getCaseById(rs.getInt(1)));
@@ -273,10 +275,9 @@ public final class DatastoreInterface {
 
 		List <Case> cases = new ArrayList <Case>();
 		try {
-			PreparedStatement caseIDs  = sqlConnection.prepareStatement("SELECT CaseID From close WHERE UserID = ?");
-			caseIDs.setString(1, user.getUserID());
-			caseIDs.execute();
-			ResultSet rs = caseIDs.getResultSet();
+			closeCaseIDs.setString(1, user.getUserID());
+			closeCaseIDs.execute();
+			ResultSet rs = closeCaseIDs.getResultSet();
 
 			while (rs.next())
 			{
@@ -661,6 +662,60 @@ public final class DatastoreInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+	
+	public final List<Case> searchForCases(String firstname, String lastname, String category, String conv_date, String conv_type) {
+
+		String StatementS = "SELECT DISTINCT * FROM Cases ca";
+		
+		if(!firstname.equals("") || !lastname.equals("")){
+			StatementS += " ,PersonOfInterest poi, Victim vic, Convicted con, Suspected sus, Witnessed wit, Related rel";
+		}
+		if(!category.equals("")){
+			StatementS += " , Category cat, CaseCategory cc";
+		}
+		if((!conv_date.equals("") || !conv_type.equals("")) && !firstname.equals("") && !lastname.equals("")){
+			StatementS += " ,PersonOfInterest poi, Convicted con";
+		}
+		
+		StatementS += " WHERE 1=1";
+		
+		if(!firstname.equals("")){
+			StatementS += " AND poi.firstname = '"+firstname+"'";
+		}
+		if(!lastname.equals("")){
+			StatementS += " AND poi.lastname = '"+lastname+"'";
+		}
+		if(!firstname.equals("") || !lastname.equals("")){
+			StatementS += " AND (";
+			StatementS += "poi.PersID = vic.PersID AND vic.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = con.PersID AND con.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = sus.PersID AND sus.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = wit.PersID AND wit.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = rel.PersID AND rel.CaseID = ca.CaseID OR ";
+			StatementS += ")";
+		}
+		
+		
+		try {
+			PreparedStatement s;
+			s = sqlConnection.prepareStatement(StatementS);
+			s.execute();
+			ResultSet rs = s.getResultSet();
+
+			final List<Case> cases = new ArrayList<Case>(); 
+			while (rs.next()) {
+				cases.add(new Case(rs));
+			}
+
+			rs.close();
+
+			return cases;
+
+		} catch (final SQLException ex) {			
+			ex.printStackTrace();
+			return null;			
 		}
 	}
 }

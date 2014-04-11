@@ -12,14 +12,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 
-import ch.ethz.inf.dbproject.model.Conviction;
 import ch.ethz.inf.dbproject.model.Comment;
 import ch.ethz.inf.dbproject.model.DatastoreInterface;
 import ch.ethz.inf.dbproject.model.Case;
 import ch.ethz.inf.dbproject.model.User;
-import ch.ethz.inf.dbproject.util.UserManagement;
 import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
 
 /**
