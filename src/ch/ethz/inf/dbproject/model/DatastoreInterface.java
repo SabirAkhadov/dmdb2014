@@ -663,22 +663,6 @@ public final class DatastoreInterface {
 	
 	//Search query:
 	public final List<Case> searchForCases(String firstname, String lastname, String category, String conv_date, String conv_type) {
-
-		String local_caseConstr = "" +
-				"SELECT" +
-				" cas.caseID AS `id`," +
-				" cas.status AS `status`," +
-				" cas.title AS `title`," +
-				" cat.name AS `category`," +
-				" cas.description AS `description`," +
-				" cas.location AS `location`," +
-				" cas.date AS `date`," +
-				" cas.time AS `time`" +
-				" t.lastStatusChange AS `lastStatusChange`" +
-				" FROM cases AS cas" +
-				" LEFT JOIN CaseCategory AS cc ON cas.caseID = cc.caseID" +
-				" LEFT JOIN category AS cat ON cc.catID = cat.catID" +
-				" "; //do not forget final space
 		
 		//Selection statement
 		String StatementS = "SELECT DISTINCT " +
