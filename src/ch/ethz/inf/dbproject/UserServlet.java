@@ -79,6 +79,7 @@ public final class UserServlet extends HttpServlet {
 					oCasesTable.addBeanColumn("Time", "Time");
 					oCasesTable.addBeanColumn("Location", "Location");
 					oCasesTable.addBeanColumn("Status", "Status");
+					oCasesTable.addBeanColumn("last change", "lastStatusChange");
 					oCasesTable.addLinkColumn(""	/* The header. We will leave it empty */,
 							"View Case" 	/* What should be displayed in every row */,
 							"Case?id=" 	/* This is the base url. The final url will be composed from the concatenation of this and the parameter below */, 

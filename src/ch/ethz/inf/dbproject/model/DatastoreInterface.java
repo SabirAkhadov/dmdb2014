@@ -56,8 +56,6 @@ public final class DatastoreInterface {
 			" "; //do not forget final space
 			
 
-	private PreparedStatement allUsers;
-
 	private PreparedStatement caseByID;
 	private PreparedStatement caseAll;
 	private PreparedStatement caseOpen;
@@ -81,6 +79,8 @@ public final class DatastoreInterface {
 	private PreparedStatement commentInsert;
 	private PreparedStatement commentInsertHelper;
 	private PreparedStatement commentInsertNC;
+	private PreparedStatement openCaseIDs;
+	private PreparedStatement closeCaseIDs;
 	
 	private Connection sqlConnection;
 
@@ -89,6 +89,8 @@ public final class DatastoreInterface {
 		this.sqlConnection = MySQLConnection.getInstance().getConnection();
 
 		try {
+			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
+			closeCaseIDs  = sqlConnection.prepareStatement("SELECT DISCTINCT CaseID From close WHERE UserID = ?");
 			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
@@ -251,10 +253,10 @@ public final class DatastoreInterface {
 
 		List <Case> cases = new ArrayList <Case>();
 		try {
-			PreparedStatement caseIDs  = sqlConnection.prepareStatement("SELECT CaseID From open WHERE UserID = ?");
-			caseIDs.setString(1, user.getUserID());
-			caseIDs.execute();
-			ResultSet rs = caseIDs.getResultSet();
+	
+			openCaseIDs.setString(1, user.getUserID());
+			openCaseIDs.execute();
+			ResultSet rs = openCaseIDs.getResultSet();
 			while (rs.next())
 			{
 				cases.add(getCaseById(rs.getInt(1)));
@@ -271,10 +273,9 @@ public final class DatastoreInterface {
 
 		List <Case> cases = new ArrayList <Case>();
 		try {
-			PreparedStatement caseIDs  = sqlConnection.prepareStatement("SELECT CaseID From close WHERE UserID = ?");
-			caseIDs.setString(1, user.getUserID());
-			caseIDs.execute();
-			ResultSet rs = caseIDs.getResultSet();
+			closeCaseIDs.setString(1, user.getUserID());
+			closeCaseIDs.execute();
+			ResultSet rs = closeCaseIDs.getResultSet();
 
 			while (rs.next())
 			{
