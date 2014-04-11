@@ -59,11 +59,11 @@ public class NewCaseServlet extends HttpServlet {
 				add(12);
 			}};
 			
-			String dayStr = (String)request.getAttribute("day");
-			String monthStr = (String)request.getAttribute("month");
-			String yearStr = (String)request.getAttribute("year");
-			String hoursStr = (String)request.getAttribute("hours");
-			String minsStr = (String)request.getAttribute("mins");
+			String dayStr = (String)request.getParameter("day");
+			String monthStr = (String)request.getParameter("month");
+			String yearStr = (String)request.getParameter("year");
+			String hoursStr = (String)request.getParameter("hours");
+			String minsStr = (String)request.getParameter("mins");
 			
 			day = dayStr == null ? -1 :Integer.parseInt(dayStr);
 			month = monthStr == null ? -1 :Integer.parseInt(monthStr);
@@ -71,10 +71,10 @@ public class NewCaseServlet extends HttpServlet {
 			hours = hoursStr == null ? -1 :Integer.parseInt(hoursStr);
 			mins = minsStr == null ? -1 : Integer.parseInt(minsStr);
 			
-			title = ((String)request.getAttribute("title")).replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
-			location = ((String)request.getAttribute("location")).replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
-			category = ((String)request.getAttribute("category")).replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
-			description = ((String)request.getAttribute("description")).replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+			title = ((String)request.getParameter("title"));//.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+			location = ((String)request.getParameter("location"));//.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+			category = ((String)request.getParameter("category"));//.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+			description = ((String)request.getParameter("description"));//.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
 			
 			NewCaseData nCase = new NewCaseData(Integer.parseInt(user.getUserID()), day, month, year, hours, mins, title, category, location, description);
 			session.setAttribute("newCase", nCase);
