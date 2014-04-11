@@ -617,7 +617,7 @@ public final class DatastoreInterface {
 		try {
 
 			// collation argument depends on server character set. Here we have utf8mb4.
-			s = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ? COLLATE utf8mb4_bin");
+			s = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ? ");
 
 			s.setString(1, name);
 			s.setString(2, password);
