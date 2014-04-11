@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
+
 import ch.ethz.inf.dbproject.model.Conviction;
 import ch.ethz.inf.dbproject.model.Comment;
 import ch.ethz.inf.dbproject.model.DatastoreInterface;
@@ -53,7 +55,7 @@ public final class CaseServlet extends HttpServlet {
 		}
 
 		final Integer id = Integer.parseInt(idString);
-
+		
 		User user = (User)session.getAttribute("user");
 
 		String action = request.getParameter("action");
@@ -97,6 +99,20 @@ public final class CaseServlet extends HttpServlet {
 					action = null;
 				}
 				break;
+			case "addComment":
+				String comment = request.getParameter("comment");
+				if(user == null){
+					session.setAttribute("caseCommentError", "You need to log in");
+					session.setAttribute("newComment", comment == null ? "": comment);
+				}
+				
+				String error = this.dbInterface.addCommentToCase(comment, Integer.parseInt(request.getParameter("caseID")), Integer.parseInt(user.getUserID()));
+				
+				if(error != null){
+					session.setAttribute("cseCommentError", error);
+					session.setAttribute("newComment", comment == null ? "": comment);
+				}
+				break;
 			default:
 				break;
 			}
@@ -107,6 +123,7 @@ public final class CaseServlet extends HttpServlet {
 
 		try {
 			final Case aCase = this.dbInterface.getCaseById(id);
+			final List<Comment> commentList = this.dbInterface.getCommentsToCaseByID(id);
 
 
 			/*******************************************************
@@ -133,6 +150,19 @@ public final class CaseServlet extends HttpServlet {
 
 			session.setAttribute("caseTable", table);
 			session.setAttribute("case", aCase);
+			
+			final BeanTableHelper<Comment> commentTable = new BeanTableHelper<Comment>(
+					"comments" 		/* The table html id property */,
+					"commentTable" /* The table html class property */,
+					Comment.class 	/* The class of the objects (rows) that will be displayed */
+					);
+			
+			commentTable.addBeanColumn("", "username");
+			commentTable.addBeanColumn("", "comment");
+			
+			commentTable.addObjects(commentList);
+			
+			session.setAttribute("commentTable", commentTable);
 
 		} catch (final Exception ex) {
 			action = null;
@@ -159,6 +189,8 @@ public final class CaseServlet extends HttpServlet {
 					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
 				}
 				return;
+				
+			case "addComment":
 			default:
 				break;
 			}

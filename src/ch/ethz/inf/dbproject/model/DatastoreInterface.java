@@ -42,7 +42,19 @@ public final class DatastoreInterface {
 			" name" +
 			" FROM" +
 			" category" +
-			" ";
+			" "; //do not forget final space
+	
+	private final String commentConstr = "" +
+			"SELECT" +
+			" u.name AS username," +
+			" nc.caseID AS caseID," +
+			" n.content AS comment" +
+			" FROM" +
+			" notes AS n" +
+			" INNER JOIN NoteCase AS nc ON n.NoteID = nc.NoteID" +
+			" LEFT JOIN User AS u ON n.UserID = u.UserID" +
+			" "; //do not forget final space
+			
 
 	private PreparedStatement allUsers;
 
@@ -65,6 +77,11 @@ public final class DatastoreInterface {
 	private PreparedStatement openLog;
 	private PreparedStatement closeLog;
 
+	private PreparedStatement commentByCaseID;
+	private PreparedStatement commentInsert;
+	private PreparedStatement commentInsertHelper;
+	private PreparedStatement commentInsertNC;
+	
 	private Connection sqlConnection;
 
 	public DatastoreInterface() {
@@ -91,6 +108,11 @@ public final class DatastoreInterface {
 
 			openLog = sqlConnection.prepareStatement("INSERT INTO open(UserID,CaseID) VALUES (?,?);");
 			closeLog = sqlConnection.prepareStatement("INSERT INTO close(UserID,CaseID) VALUES (?,?);");
+			
+			commentByCaseID = sqlConnection.prepareStatement(commentConstr + "WHERE caseID = ?");
+			commentInsert = sqlConnection.prepareStatement("INSERT INTO notes(userID, content) VALUES (?,?);");
+			commentInsertHelper = sqlConnection.prepareStatement("SELECT * FROM notes WHERE userID = ? AND content = ? ORDER BY timestamp DESC LIMIT 1;");
+			commentInsertNC = sqlConnection.prepareStatement("INSERT INTO notecase(noteid, caseid) VALUES (?,?)");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -225,48 +247,48 @@ public final class DatastoreInterface {
 			return null;
 		}
 	}
-	
+
 	public List<Case> getOpenUserCases (User user) {
-		
+
 		List <Case> cases = new ArrayList <Case>();
 		try {
 			PreparedStatement caseIDs  = sqlConnection.prepareStatement("SELECT CaseID From open WHERE UserID = ?");
 			caseIDs.setString(1, user.getUserID());
 			caseIDs.execute();
 			ResultSet rs = caseIDs.getResultSet();
-			
+
 			while (rs.next())
 			{
 				cases.add(getCaseById(rs.getInt(1)));
 			}
 			return cases;
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 	}
 	public List<Case> getCloseUserCases (User user) {
-		
+
 		List <Case> cases = new ArrayList <Case>();
 		try {
 			PreparedStatement caseIDs  = sqlConnection.prepareStatement("SELECT CaseID From close WHERE UserID = ?");
 			caseIDs.setString(1, user.getUserID());
 			caseIDs.execute();
 			ResultSet rs = caseIDs.getResultSet();
-			
+
 			while (rs.next())
 			{
 				cases.add(getCaseById(rs.getInt(1)));
 			}
 			return cases;
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 	}
 
 	/**updates a case in the database
@@ -382,7 +404,7 @@ public final class DatastoreInterface {
 
 
 			//log status changes
-			if(statusChanged){ //TODO: fix this crap
+			if(statusChanged){
 				if(original.getStatus().equals("open")){
 					closeLog.setInt(1, userID);
 					closeLog.setInt(2, original.getId());
@@ -469,8 +491,65 @@ public final class DatastoreInterface {
 		}
 	}
 
+	public final List<Comment> getCommentsToCaseByID(int caseID){
+		try{
+			commentByCaseID.setInt(1, caseID);
+			final ResultSet rs = commentByCaseID.executeQuery();
+			
+			final List<Comment> comments = new ArrayList<Comment>();
+			
+			while(rs.next())
+				comments.add(new Comment(rs));
+			
+			return comments;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return null;
+		}
+	}
 
-
+	public final String addCommentToCase(String commentStr, int caseID, int userID){
+		try{
+			//String comment = commentStr.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_"); //may not be necessary
+			String comment = commentStr;
+			
+			int noteID = insertNote(userID, comment);
+			
+			if(noteID < 0)
+				return "Whops, we cannot find your comment after inserting it.\nThis should not happen...";
+			
+			commentInsertNC.setInt(1, noteID);
+			commentInsertNC.setInt(2, caseID);
+			commentInsertNC.execute();
+			
+			return null;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return "There was an error adding your comment.";
+		}
+	}
+	
+	/**
+	 * Inserts a note into the notes table and returns the resulting noteID
+	 * @param userID the user adding a comment
+	 * @param comment a String
+	 * @return the noteID of the inserted comment
+	 */
+	private int insertNote(int userID, String comment) throws SQLException{
+		
+		commentInsert.setInt(1, userID);
+		commentInsert.setString(2, comment);
+		commentInsert.execute();
+		
+		commentInsertHelper.setInt(1, userID);
+		commentInsertHelper.setString(2, comment);
+		ResultSet rs = commentInsertHelper.executeQuery();
+		
+		if(rs.next())
+			return rs.getInt("noteID");
+		
+		return -1;
+	}
 
 
 	//insert user to db, return user object
@@ -479,25 +558,25 @@ public final class DatastoreInterface {
 		PreparedStatement s;
 		try {
 			s = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
-		
-		s.setString(1, username);
-		s.setString(2, password);
-		s.setString(3, email);
-		s.execute();
-		s.close();
 
-		final PreparedStatement us = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
+			s.setString(1, username);
+			s.setString(2, password);
+			s.setString(3, email);
+			s.execute();
+			s.close();
 
-		us.setString(1, username);
-		us.execute();
+			final PreparedStatement us = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
 
-		final ResultSet rs = us.getResultSet();
-		if (rs.next()) {
-			return new User(rs);
-		}
-		else {
-			return null;
-		}
+			us.setString(1, username);
+			us.execute();
+
+			final ResultSet rs = us.getResultSet();
+			if (rs.next()) {
+				return new User(rs);
+			}
+			else {
+				return null;
+			}
 		} catch (SQLException e) { 
 			e.addSuppressed(new Throwable());
 			e.printStackTrace();
@@ -528,22 +607,22 @@ public final class DatastoreInterface {
 		}
 		return null;
 	}
-	
+
 	public final User changeData (User user, String username, String email, String password){
-		
+
 		PreparedStatement s;
 		PreparedStatement t;
 		try {
 			s = sqlConnection.prepareStatement("UPDATE user SET name = ?, password = ?, email = ? " +
 					"WHERE UserID = ?");
-			
+
 			s.setString(1, username);
 			s.setString(2, password);
 			s.setString(3, email);
 			s.setString(4, user.getUserID());
-			
+
 			s.execute();
-			
+
 			t = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
 			t.setString(1, username);
 			t.execute();
