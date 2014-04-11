@@ -55,9 +55,6 @@ public final class CaseServlet extends HttpServlet {
 		}
 
 		final Integer id = Integer.parseInt(idString);
-
-		if((User)session.getAttribute("user") == null) //TODO: make sure login is working again and remove this
-			session.setAttribute("user", this.dbInterface.validateUser("Roger", "123"));
 		
 		User user = (User)session.getAttribute("user");
 
@@ -100,6 +97,20 @@ public final class CaseServlet extends HttpServlet {
 						return;
 					}
 					action = null;
+				}
+				break;
+			case "addComment":
+				String comment = request.getParameter("comment");
+				if(user == null){
+					session.setAttribute("caseCommentError", "You need to log in");
+					session.setAttribute("newComment", comment == null ? "": comment);
+				}
+				
+				String error = this.dbInterface.addCommentToCase(comment, Integer.parseInt(request.getParameter("caseID")), Integer.parseInt(user.getUserID()));
+				
+				if(error != null){
+					session.setAttribute("cseCommentError", error);
+					session.setAttribute("newComment", comment == null ? "": comment);
 				}
 				break;
 			default:
@@ -178,6 +189,8 @@ public final class CaseServlet extends HttpServlet {
 					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
 				}
 				return;
+				
+			case "addComment":
 			default:
 				break;
 			}
