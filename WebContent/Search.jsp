@@ -15,11 +15,11 @@
 	Category: <input type="text" name="category" /><br><br>
 	
 	<b>By conviction</b><br>
-	Date: <input type="text" name="conv_date" /><br>
+	Date: <input type="text" name="conv_date" /> (Format: YYYY-MM-DD)<br>
 	Type: <input type="text" name="conv_type" />
 	
-	<input type="submit" value="Search" title="Search" /><br>
-	(A case must match ALL the entered data. Empty fields get ignored)
+	<input type="submit" value="Search" title="Search" /><br><br>
+	Note: A case must match ALL the entered data. Empty fields get ignored.<br>Use "%" to match any number of unknown characters and "_" to match exactly one unknown character.
 </div>
 </form>
 

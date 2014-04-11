@@ -72,19 +72,8 @@ public final class SearchServlet extends HttpServlet {
 		final String conv_type = request.getParameter("conv_type");
 		
 		if(firstname != null && lastname != null && category != null && conv_date != null && conv_type != null){
-			//TODO: Query writing, correct dbInterface function.
 			table.addObjects(this.dbInterface.searchForCases(firstname, lastname, category, conv_date, conv_type));
 		}
-		
-		//*********This is obsolete TODO code.
-		// The filter parameter defines what to show on the cases page
-		//final String filter = request.getParameter("filter");
-
-		//if (filter != null) {
-		//if(filter.equals("description")) {
-		//final String name = request.getParameter("name");
-		//table.addObjects(this.dbInterface.searchByName(name));
-		//************end of obsolete TODO code.
 
 		// Finally, proceed to the Seaech.jsp page which will render the search results
         this.getServletContext().getRequestDispatcher("/Search.jsp").forward(request, response);	        
