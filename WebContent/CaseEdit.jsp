@@ -15,7 +15,7 @@ Please log in.
 
 <%if(errorMsg != null){ %>
 <font color="red"><%=errorMsg%></font>
-<br>
+<br/>
 <%session.setAttribute("updateError", null);}%>
 
 <div><form action = "Case" method = "get" >

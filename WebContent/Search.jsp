@@ -1,46 +1,30 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
 
-<h1>Search</h1>
+<h1>Search for case</h1>
 
 <hr/>
 
 <form method="get" action="Search">
 <div>
-	<input type="hidden" name="filter" value="description" />
-	Search By Name:
-	<input type="text" name="description" />
-	<input type="submit" value="Search" title="Search by Description" />
+	<b>By person of interest</b><br>
+	First name: <input type="text" name="firstname" /><br>
+	Last name: <input type="text" name="lastname" /><br><br>
+	
+	<b>By case category</b><br>
+	Category: <input type="text" name="category" /><br><br>
+	
+	<b>By conviction</b><br>
+	Date: <input type="text" name="conv_date" /><br>
+	Type: <input type="text" name="conv_type" />
+	
+	<input type="submit" value="Search" title="Search" /><br>
+	(A case must match ALL the entered data. Empty fields get ignored)
 </div>
 </form>
 
 <hr/>
-
-<form method="get" action="Search">
-<div>
-	<input type="hidden" name="filter" value="category" />
-	Search By Category:
-	<input type="text" name="category" />
-	<input type="submit" value="Search" title="Search by Category" />
-</div>
-</form>
-
-<hr/>
-
-<form method="get" action="Search">
-<div>
-	<input type="hidden" name="filter" value="attribute" />
-	Search By Attribute:
-	<input type="text" name="attribute" />
-	<input type="submit" value="Search" title="Search by Attribute" />
-</div>
-</form>
-
-<hr/>
-<%  
-	//TODO Display search results 
-	// session.getAttribute("results");
-%>
+<%=session.getAttribute("results")%>
 
 <hr/>
 
