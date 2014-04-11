@@ -55,7 +55,7 @@ public final class CaseServlet extends HttpServlet {
 		}
 
 		final Integer id = Integer.parseInt(idString);
-		
+
 		User user = (User)session.getAttribute("user");
 
 		String action = request.getParameter("action");
@@ -66,8 +66,7 @@ public final class CaseServlet extends HttpServlet {
 		if(action != null){
 			origCase = (Case)session.getAttribute("case");
 
-			switch(action){
-			case "editCase":
+			if(action.equals("editCase")){
 				if(user == null){
 					this.getServletContext().getRequestDispatcher("/Cases").forward(request, response);
 					action = null;
@@ -78,8 +77,7 @@ public final class CaseServlet extends HttpServlet {
 					action = null;
 					return;
 				}
-				break;
-			case "update":
+			}else if(action.equals("update")){
 				if(user == null){
 					session.setAttribute("updateError", "You need to log in");
 					session.setAttribute("edittedCase", eCase);
@@ -98,27 +96,21 @@ public final class CaseServlet extends HttpServlet {
 					}
 					action = null;
 				}
-				break;
-			case "addComment":
+			}else if (action.equals("addComment")){
 				String comment = request.getParameter("comment");
 				if(user == null){
 					session.setAttribute("caseCommentError", "You need to log in");
 					session.setAttribute("newComment", comment == null ? "": comment);
 				}
-				
+
 				String error = this.dbInterface.addCommentToCase(comment, Integer.parseInt(request.getParameter("caseID")), Integer.parseInt(user.getUserID()));
-				
+
 				if(error != null){
 					session.setAttribute("cseCommentError", error);
 					session.setAttribute("newComment", comment == null ? "": comment);
 				}
-				break;
-			default:
-				break;
 			}
-
-
-		}
+		}//end action!= null
 
 
 		try {
@@ -150,18 +142,18 @@ public final class CaseServlet extends HttpServlet {
 
 			session.setAttribute("caseTable", table);
 			session.setAttribute("case", aCase);
-			
+
 			final BeanTableHelper<Comment> commentTable = new BeanTableHelper<Comment>(
 					"comments" 		/* The table html id property */,
 					"commentTable" /* The table html class property */,
 					Comment.class 	/* The class of the objects (rows) that will be displayed */
 					);
-			
+
 			commentTable.addBeanColumn("", "username");
 			commentTable.addBeanColumn("", "comment");
-			
+
 			commentTable.addObjects(commentList);
-			
+
 			session.setAttribute("commentTable", commentTable);
 
 		} catch (final Exception ex) {
@@ -172,11 +164,10 @@ public final class CaseServlet extends HttpServlet {
 		}
 
 		if(action != null){
-			switch(action){
-			case "editCase":
+			if(action.equals("editCase")){
 				this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
 				return;
-			case "update":
+			}else if(action.equals("update")){
 				if(eCase == null){ //should not happen
 					session.setAttribute("updateError", "Unexpected Error - Please try again.");
 					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
@@ -189,11 +180,7 @@ public final class CaseServlet extends HttpServlet {
 					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
 				}
 				return;
-				
-			case "addComment":
-			default:
-				break;
-			}
+			}//end action != null
 		}else
 			this.getServletContext().getRequestDispatcher("/Case.jsp").forward(request, response);
 	}

@@ -227,12 +227,11 @@ public final class DatastoreInterface {
 	public final List<Case> getCasesByCategory(String category){
 		try{
 			final ResultSet rs;
-			switch(category){
-
-			default:
+			if(category.equals("other")){
+				rs = null;//TODO: handle "other"
+			}else{
 				caseByCategory.setString(1, category);
 				rs = caseByCategory.executeQuery();
-				break;
 			}
 
 			final List<Case> cases = new ArrayList<Case>();

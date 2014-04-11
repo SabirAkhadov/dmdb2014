@@ -26,18 +26,16 @@
 					
 					<div class="menuDiv1"></div>
 					<div class="menuDiv1"><a href="Home">Home</a></div>
+					<div class="menuDiv1"><a hreft="CaseNew.jsp">New Case</a></div>
 					<div class="menuDiv1"><a href="Cases">All cases</a></div>
 					<div class="menuDiv2"><a href="Cases?filter=open">Open</a></div>
 					<div class="menuDiv2"><a href="Cases?filter=closed">Closed</a></div>
 					<div class="menuDiv2"><a href="Cases?filter=recent">Recent</a></div>
 					<div class="menuDiv2"><a href="Cases?filter=oldest">Oldest Unsolved</a></div>
 					<div class="menuDiv1">Categories</div>
-					<div class="menuDiv2"><a href="Cases?category=personal">Personal Crimes</a></div>
-					<div class="menuDiv3"><a href="Cases?category=assault">Assault</a></div>
-					<div class="menuDiv3"><a href="Cases?category=otherPers">Other</a></div>
-					<div class="menuDiv2"><a href="Cases?category=property">Property Crimes</a></div>
-					<div class="menuDiv3"><a href="Cases?category=theft">Theft</a></div>
-					<div class="menuDiv3"><a href="Cases?category=otherProp">Other</a></div>
+					<div class="menuDiv2"><a href="Cases?category=assault">Assault</a></div>
+					<div class="menuDiv2"><a href="Cases?category=theft">Theft</a></div>
+					<div class="menuDiv2"><a href="Cases?category=other">Other</a></div>
 					<div class="menuDiv1"><a href="Search">Search</a></div>
 					<div class="menuDiv1"><a href="User">User Profile</a></div>
 					
