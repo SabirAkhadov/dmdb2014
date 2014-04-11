@@ -16,7 +16,9 @@ final User user = (User) session.getAttribute("user");
 if (user != null) {
 	if (session.getAttribute ("ChangeError") == "true") {
 		%>
-		<font  color="red">Could not change data!</font>	
+		<font  color="red">Could not change data!</font>
+		<font  color="red">No empty Strings!</font>
+			
 	<br>	
 	<%
 		session.setAttribute("ChangeError", null);
@@ -48,7 +50,14 @@ if (user != null) {
 	</table>
 </form>
 
-<%} else {
+<%} else if (session.getAttribute("ChangeError") == "none") {
+	%>
+	<h2> Data change successful.</h2>
+	<h3> You may now log in.</h3>
+	<% 
+}
+
+else {
 %>
 <h2>You have to be logged in.</h2>
 

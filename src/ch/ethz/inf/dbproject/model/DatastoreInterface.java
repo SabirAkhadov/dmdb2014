@@ -56,8 +56,17 @@ public final class DatastoreInterface {
 			" INNER JOIN NoteCase AS nc ON n.NoteID = nc.NoteID" +
 			" LEFT JOIN User AS u ON n.UserID = u.UserID" +
 			" "; //do not forget final space
-			
-
+	
+	private final String persConstr = " Select" +
+			" pers.PersID as PersID," +
+			" pers.firstname as FirstName," +
+			" pers.lastname as LastName," +
+			" pers.birthday as Birthday," +
+			" pers.alive as alive" +
+			" FROM" +
+			" personofinterest as pers";
+	
+	
 	private PreparedStatement caseByID;
 	private PreparedStatement caseAll;
 	private PreparedStatement caseOpen;
@@ -82,7 +91,10 @@ public final class DatastoreInterface {
 	private PreparedStatement commentInsertHelper;
 	private PreparedStatement commentInsertNC;
 	private PreparedStatement openCaseIDs;
-	private PreparedStatement closeCaseIDs;
+
+	private PreparedStatement AllPersons;
+	private PreparedStatement personById;
+	private PreparedStatement concernsById;
 	
 	private Connection sqlConnection;
 
@@ -91,8 +103,14 @@ public final class DatastoreInterface {
 		this.sqlConnection = MySQLConnection.getInstance().getConnection();
 
 		try {
+			
+			//Persons
+			AllPersons = sqlConnection.prepareStatement(persConstr + ";");
+			personById = sqlConnection.prepareStatement(persConstr + " WHERE pers.PersID = ?");
+			concernsById = sqlConnection.prepareStatement("SELECT CaseID as concernCaseIDs From concerns WHERE PersID = ?;");
+			
+			//Cases
 			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
-			closeCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From close WHERE UserID = ?");
 			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
@@ -696,4 +714,54 @@ public final class DatastoreInterface {
 			return null;			
 		}
 	}
+	/*
+	 * Persons Of Interest
+	 */
+	public List <PersonOfInterest> getAllPersonsOfInterest (){
+		List <PersonOfInterest> personsList = new ArrayList<PersonOfInterest> ();
+		try {
+			AllPersons.execute();
+			ResultSet rs = AllPersons.getResultSet();
+			
+			while (rs.next()) {
+				concernsById.setString(1, rs.getString("PersID"));
+				concernsById.execute();
+				ResultSet cr = concernsById.getResultSet();
+				personsList.add(new PersonOfInterest (rs, cr));
+				cr.close();
+			}
+			
+			rs.close();
+			return personsList;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	public PersonOfInterest getPersonById (String Id) {
+		
+		try {
+			personById.setString(1, Id);
+			personById.execute();
+			ResultSet rs = personById.getResultSet();
+			
+			concernsById.setString(1, Id);
+			concernsById.execute();
+			ResultSet CaseIds = concernsById.getResultSet();
+			
+			if (rs.next()) {
+				return new PersonOfInterest (rs, CaseIds);
+			}
+			else {
+				return null;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
 }
