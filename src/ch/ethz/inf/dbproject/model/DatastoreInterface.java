@@ -661,38 +661,90 @@ public final class DatastoreInterface {
 		}
 	}
 	
+	//Search query:
 	public final List<Case> searchForCases(String firstname, String lastname, String category, String conv_date, String conv_type) {
 
-		String StatementS = "SELECT DISTINCT * FROM Cases ca";
+		String local_caseConstr = "" +
+				"SELECT" +
+				" cas.caseID AS `id`," +
+				" cas.status AS `status`," +
+				" cas.title AS `title`," +
+				" cat.name AS `category`," +
+				" cas.description AS `description`," +
+				" cas.location AS `location`," +
+				" cas.date AS `date`," +
+				" cas.time AS `time`" +
+				" t.lastStatusChange AS `lastStatusChange`" +
+				" FROM cases AS cas" +
+				" LEFT JOIN CaseCategory AS cc ON cas.caseID = cc.caseID" +
+				" LEFT JOIN category AS cat ON cc.catID = cat.catID" +
+				" "; //do not forget final space
 		
-		if(!firstname.equals("") || !lastname.equals("")){
-			StatementS += " ,PersonOfInterest poi, Victim vic, Convicted con, Suspected sus, Witnessed wit, Related rel";
+		//Selection statement
+		String StatementS = "SELECT DISTINCT " +
+				" cas.id AS `id`," +
+				" cas.status AS `status`," +
+				" cas.title AS `title`," +
+				" cas.category AS `category`," +
+				" cas.description AS `description`," +
+				" cas.location AS `location`," +
+				" cas.date AS `date`," +
+				" cas.time AS `time` " +
+				" t.lastStatusChange AS `lastStatusChange` ";
+		
+		//FROM table setup
+		StatementS += "FROM ";
+		
+		//The conviction date/type matching tables
+		if(!conv_date.equals("") || !conv_type.equals("")){
+			//We have to filter the cases by conviction first! Nameclash with "date", thus rename to "COdate"
+			StatementS += "(SELECT * FROM (" + caseConstr + ") sub_ca, (SELECT CaseID, date AS `COdate`, type FROM Convicted) sub_co WHERE sub_ca.id = sub_co.CaseID ";
+			if(!conv_date.equals("")){
+				StatementS += "AND sub_co.COdate LIKE '" + conv_date + "' ";
+			}
+			if(!conv_type.equals("")){
+				StatementS += "AND sub_co.type LIKE '" + conv_type + "' ";
+			}
+			StatementS += ") cas ";
+		}else{
+			//No filtering by conviction here, we just take the whole case table!
+			StatementS += "(" + caseConstr + ") cas ";
 		}
+		
+		//The name matching tables
+		if(!firstname.equals("") || !lastname.equals("")){
+			//Union all the tables that link people to cases.
+			StatementS += ", ((SELECT PersID, CaseID FROM Victim) " +
+					"UNION (SELECT PersID, CaseID FROM Convicted) " +
+					"UNION (SELECT PersID, CaseID FROM Suspected) " +
+					"UNION (SELECT PersID, CaseID FROM Concerns) " +
+					"UNION (SELECT PersID, CaseID FROM Witnessed)) pc, " +
+					"PersonOfInterest poi ";
+		}
+
+		//WHERE query setup
+		StatementS += "WHERE 1=1 ";
+
+		if(!firstname.equals("") || !lastname.equals("")){
+			//Actual name filtering.
+			if(!firstname.equals("")){
+				StatementS += "AND poi.firstname LIKE '" + firstname + "' ";
+			}
+			if(!lastname.equals("")){
+				StatementS += "AND poi.lastname LIKE '" + lastname + "' ";
+			}
+			StatementS += "AND poi.PersID = pc.PersID AND pc.CaseID = cas.id ";
+		}
+		
 		if(!category.equals("")){
-			StatementS += " , Category cat, CaseCategory cc";
-		}
-		if((!conv_date.equals("") || !conv_type.equals("")) && !firstname.equals("") && !lastname.equals("")){
-			StatementS += " ,PersonOfInterest poi, Convicted con";
+			//Category filter
+			StatementS += "AND cas.category LIKE '" + category + "' ";
 		}
 		
-		StatementS += " WHERE 1=1";
+		StatementS += ";";
 		
-		if(!firstname.equals("")){
-			StatementS += " AND poi.firstname = '"+firstname+"'";
-		}
-		if(!lastname.equals("")){
-			StatementS += " AND poi.lastname = '"+lastname+"'";
-		}
-		if(!firstname.equals("") || !lastname.equals("")){
-			StatementS += " AND (";
-			StatementS += "poi.PersID = vic.PersID AND vic.CaseID = ca.CaseID OR ";
-			StatementS += "poi.PersID = con.PersID AND con.CaseID = ca.CaseID OR ";
-			StatementS += "poi.PersID = sus.PersID AND sus.CaseID = ca.CaseID OR ";
-			StatementS += "poi.PersID = wit.PersID AND wit.CaseID = ca.CaseID OR ";
-			StatementS += "poi.PersID = rel.PersID AND rel.CaseID = ca.CaseID OR ";
-			StatementS += ")";
-		}
 		
+		//System.out.print(StatementS);//Debugging
 		
 		try {
 			PreparedStatement s;
@@ -709,7 +761,7 @@ public final class DatastoreInterface {
 
 			return cases;
 
-		} catch (final SQLException ex) {			
+		} catch (final SQLException ex) {
 			ex.printStackTrace();
 			return null;			
 		}
