@@ -67,6 +67,7 @@ public final class DatastoreInterface {
 			" personofinterest as pers";
 	
 	
+	private PreparedStatement userValidate;
 	private PreparedStatement caseByID;
 	private PreparedStatement caseAll;
 	private PreparedStatement caseOpen;
@@ -105,6 +106,8 @@ public final class DatastoreInterface {
 		this.sqlConnection = MySQLConnection.getInstance().getConnection();
 
 		try {
+			
+			userValidate = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ? COLLATE utf8mb4_bin");
 			
 			//Persons
 			AllPersons = sqlConnection.prepareStatement(persConstr + ";");
@@ -613,16 +616,14 @@ public final class DatastoreInterface {
 
 	public final User validateUser (String name, String password) {
 
-		PreparedStatement s;
 		try {
 
 			// collation argument depends on server character set. Here we have utf8mb4.
-			s = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ? COLLATE utf8mb4_bin");
 
-			s.setString(1, name);
-			s.setString(2, password);
-			s.execute();
-			ResultSet rs = s.getResultSet();
+			userValidate.setString(1, name);
+			userValidate.setString(2, password);
+			userValidate.execute();
+			ResultSet rs = userValidate.getResultSet();
 			if (rs.next()) {
 				return new User (rs);
 			}
