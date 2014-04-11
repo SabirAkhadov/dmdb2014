@@ -12,9 +12,7 @@ import javax.servlet.http.HttpSession;
 import ch.ethz.inf.dbproject.model.DatastoreInterface;
 import ch.ethz.inf.dbproject.model.User;
 
-/**
- * Servlet implementation class changeData
- */
+
 @WebServlet(description = "Chage User data", urlPatterns = { "/changeData" })
 public class changeDataServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -46,15 +44,23 @@ public class changeDataServlet extends HttpServlet {
 		String password = request.getParameter("password");
 		String email = request.getParameter("email");
 		
-		User newUser = dsi.changeData(user, username, email, password);
-		if (newUser == null){
+		if (username.equals("") | password.equals("") |email.equals(""))
+		{
 			session.setAttribute("ChangeError", "true");
-
 			this.getServletContext().getRequestDispatcher("/changeData.jsp").forward(request, response);
 		}
 		else {
-			session.setAttribute("user", newUser);
-			this.getServletContext().getRequestDispatcher("/Home.jsp").forward(request, response);
+			User newUser = dsi.changeData(user, username, email, password);
+			if (newUser == null){
+				session.setAttribute("ChangeError", "true");
+	
+				this.getServletContext().getRequestDispatcher("/changeData.jsp").forward(request, response);
+			}
+			else {
+				session.setAttribute("user", null);
+				session.setAttribute("ChangeError", "none");
+				this.getServletContext().getRequestDispatcher("/changeData.jsp").forward(request, response);
+			}
 		}
 	}
 

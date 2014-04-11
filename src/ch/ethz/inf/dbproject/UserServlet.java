@@ -71,7 +71,7 @@ public final class UserServlet extends HttpServlet {
 					session.setAttribute(SESSION_USER_DETAILS, userDetails.generateHtmlCode());
 					
 					//display cases opened by user
-					List<Case> oCases = dsInterface.getOpenUserCases(user);
+					List<Case> oCases = dsInterface.getUserCases(user);
 					final BeanTableHelper<Case> oCasesTable = new BeanTableHelper<Case>("cases", "casesTable", Case.class);
 					oCasesTable.addBeanColumn("Title", "Title");
 					oCasesTable.addBeanColumn("Category", "Category");
@@ -86,22 +86,8 @@ public final class UserServlet extends HttpServlet {
 							"id" 			/* For every case displayed, the ID will be retrieved and will be attached to the url base above */);
 
 					oCasesTable.addObjects(oCases);
-					session.setAttribute("userOpenCases", oCasesTable);
+					session.setAttribute("userCases", oCasesTable);
 					
-
-					//display cases closed by user
-					final BeanTableHelper<Case> cCasesTable = new BeanTableHelper<Case>("cases", "casesTable", Case.class);
-					cCasesTable.addBeanColumn("Title", "Title");
-					cCasesTable.addBeanColumn("Category", "Category");
-					cCasesTable.addBeanColumn("Date", "Date");
-					cCasesTable.addBeanColumn("Time", "Time");
-					cCasesTable.addBeanColumn("Location", "Location");
-					cCasesTable.addBeanColumn("Status", "Status");
-					cCasesTable.addLinkColumn("", "View Case", "Case?id=","id");
-
-					List<Case> cCases = dsInterface.getCloseUserCases(user);
-					cCasesTable.addObjects(cCases);
-					session.setAttribute("userCloseCases",cCasesTable);
 				}
 				else {
 					session.setAttribute("error", "login");

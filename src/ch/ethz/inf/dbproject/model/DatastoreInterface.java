@@ -56,8 +56,18 @@ public final class DatastoreInterface {
 			" INNER JOIN NoteCase AS nc ON n.NoteID = nc.NoteID" +
 			" LEFT JOIN User AS u ON n.UserID = u.UserID" +
 			" "; //do not forget final space
-			
-
+	
+	private final String persConstr = " Select" +
+			" pers.PersID as PersID," +
+			" pers.firstname as FirstName," +
+			" pers.lastname as LastName," +
+			" pers.birthday as Birthday," +
+			" pers.alive as alive" +
+			" FROM" +
+			" personofinterest as pers";
+	
+	
+	private PreparedStatement userValidate;
 	private PreparedStatement caseByID;
 	private PreparedStatement caseAll;
 	private PreparedStatement caseOpen;
@@ -84,7 +94,12 @@ public final class DatastoreInterface {
 	private PreparedStatement commentInsertHelper;
 	private PreparedStatement commentInsertNC;
 	private PreparedStatement openCaseIDs;
-	private PreparedStatement closeCaseIDs;
+
+	private PreparedStatement AllPersons;
+	private PreparedStatement personById;
+	private PreparedStatement concernsById;
+	private PreparedStatement personNotes;
+	private PreparedStatement relatedPerson;
 	
 	private Connection sqlConnection;
 
@@ -93,8 +108,19 @@ public final class DatastoreInterface {
 		this.sqlConnection = MySQLConnection.getInstance().getConnection();
 
 		try {
+			
+			userValidate = sqlConnection.prepareStatement("SELECT * FROM user WHERE BINARY name = ? and BINARY password = ?");
+			
+			//Persons
+			AllPersons = sqlConnection.prepareStatement(persConstr + ";");
+			personById = sqlConnection.prepareStatement(persConstr + " WHERE pers.PersID = ?");
+			concernsById = sqlConnection.prepareStatement("SELECT CaseID as concernCaseIDs, reason From concerns WHERE PersID = ?");
+			relatedPerson = sqlConnection.prepareStatement("SELECT PersID2, firstname, lastname, relationship FROM related, personofinterest WHERE PersID2 = PersID AND PersID1 = ?");
+			personNotes = sqlConnection.prepareStatement("SELECT content, name, timestamp FROM noteperson AS np, notes AS n, user AS u " +
+					"WHERE np.NoteID = n.NoteID AND n.UserID = u.UserID AND np.PersID = ?");
+			
+			//Cases
 			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
-			closeCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From close WHERE UserID = ?");
 			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
@@ -254,11 +280,11 @@ public final class DatastoreInterface {
 		}
 	}
 
-	public List<Case> getOpenUserCases (User user) {
+	public List<Case> getUserCases (User user) {
 
 		List <Case> cases = new ArrayList <Case>();
 		try {
-	
+
 			openCaseIDs.setString(1, user.getUserID());
 			openCaseIDs.execute();
 			ResultSet rs = openCaseIDs.getResultSet();
@@ -274,24 +300,7 @@ public final class DatastoreInterface {
 		}
 
 	}
-	public List<Case> getCloseUserCases (User user) {
 
-		List <Case> cases = new ArrayList <Case>();
-		try {
-			closeCaseIDs.setString(1, user.getUserID());
-			closeCaseIDs.execute();
-			ResultSet rs = closeCaseIDs.getResultSet();
-
-			while (rs.next())
-			{
-				cases.add(getCaseById(rs.getInt(1)));
-			}
-			return cases;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
 
 	}
 	
@@ -607,7 +616,6 @@ public final class DatastoreInterface {
 		
 		return -1;
 	}
-	
 	//insert user to db, return user object
 	public final User insertUser(String username, String email, String password) {
 
@@ -642,16 +650,14 @@ public final class DatastoreInterface {
 
 	public final User validateUser (String name, String password) {
 
-		PreparedStatement s;
 		try {
 
 			// collation argument depends on server character set. Here we have utf8mb4.
-			s = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ? and password = ? COLLATE utf8mb4_bin");
 
-			s.setString(1, name);
-			s.setString(2, password);
-			s.execute();
-			ResultSet rs = s.getResultSet();
+			userValidate.setString(1, name);
+			userValidate.setString(2, password);
+			userValidate.execute();
+			ResultSet rs = userValidate.getResultSet();
 			if (rs.next()) {
 				return new User (rs);
 			}
@@ -695,38 +701,74 @@ public final class DatastoreInterface {
 		}
 	}
 	
+	//Search query:
 	public final List<Case> searchForCases(String firstname, String lastname, String category, String conv_date, String conv_type) {
+		
+		//Selection statement
+		String StatementS = "SELECT DISTINCT " +
+				" cas.id AS `id`," +
+				" cas.status AS `status`," +
+				" cas.title AS `title`," +
+				" cas.category AS `category`," +
+				" cas.description AS `description`," +
+				" cas.location AS `location`," +
+				" cas.date AS `date`," +
+				" cas.time AS `time`, " +
+				" cas.lastStatusChange AS `lastStatusChange` ";
+		
+		//FROM table setup
+		StatementS += "FROM ";
+		
+		//The conviction date/type matching tables
+		if(!conv_date.equals("") || !conv_type.equals("")){
+			//We have to filter the cases by conviction first! Nameclash with "date", thus rename to "COdate"
+			StatementS += "(SELECT * FROM (" + caseConstr + ") sub_ca, (SELECT CaseID, date AS `COdate`, type FROM Convicted) sub_co WHERE sub_ca.id = sub_co.CaseID ";
+			if(!conv_date.equals("")){
+				StatementS += "AND sub_co.COdate LIKE '" + conv_date + "' ";
+			}
+			if(!conv_type.equals("")){
+				StatementS += "AND sub_co.type LIKE '" + conv_type + "' ";
+			}
+			StatementS += ") cas ";
+		}else{
+			//No filtering by conviction here, we just take the whole case table!
+			StatementS += "(" + caseConstr + ") cas ";
+		}
+		
+		//The name matching tables
+		if(!firstname.equals("") || !lastname.equals("")){
+			//Union all the tables that link people to cases.
+			StatementS += ", ((SELECT PersID, CaseID FROM Victim) " +
+					"UNION (SELECT PersID, CaseID FROM Convicted) " +
+					"UNION (SELECT PersID, CaseID FROM Suspected) " +
+					"UNION (SELECT PersID, CaseID FROM Concerns) " +
+					"UNION (SELECT PersID, CaseID FROM Witnessed)) pc, " +
+					"PersonOfInterest poi ";
+		}
 
-		String StatementS = "SELECT DISTINCT * FROM Cases ca";
-		
+		//WHERE query setup
+		StatementS += "WHERE 1=1 ";
+
 		if(!firstname.equals("") || !lastname.equals("")){
-			StatementS += " ,PersonOfInterest poi, Victim vic, Convicted con, Suspected sus, Witnessed wit, Related rel";
+			//Actual name filtering.
+			if(!firstname.equals("")){
+				StatementS += "AND poi.firstname LIKE '" + firstname + "' ";
+			}
+			if(!lastname.equals("")){
+				StatementS += "AND poi.lastname LIKE '" + lastname + "' ";
+			}
+			StatementS += "AND poi.PersID = pc.PersID AND pc.CaseID = cas.id ";
 		}
+		
 		if(!category.equals("")){
-			StatementS += " , Category cat, CaseCategory cc";
-		}
-		if((!conv_date.equals("") || !conv_type.equals("")) && !firstname.equals("") && !lastname.equals("")){
-			StatementS += " ,PersonOfInterest poi, Convicted con";
+			//Category filter
+			StatementS += "AND cas.category LIKE '" + category + "' ";
 		}
 		
-		StatementS += " WHERE 1=1";
+		StatementS += ";";
 		
-		if(!firstname.equals("")){
-			StatementS += " AND poi.firstname = '"+firstname+"'";
-		}
-		if(!lastname.equals("")){
-			StatementS += " AND poi.lastname = '"+lastname+"'";
-		}
-		if(!firstname.equals("") || !lastname.equals("")){
-			StatementS += " AND (";
-			StatementS += "poi.PersID = vic.PersID AND vic.CaseID = ca.CaseID OR ";
-			StatementS += "poi.PersID = con.PersID AND con.CaseID = ca.CaseID OR ";
-			StatementS += "poi.PersID = sus.PersID AND sus.CaseID = ca.CaseID OR ";
-			StatementS += "poi.PersID = wit.PersID AND wit.CaseID = ca.CaseID OR ";
-			StatementS += "poi.PersID = rel.PersID AND rel.CaseID = ca.CaseID OR ";
-			StatementS += ")";
-		}
 		
+		//System.out.print(StatementS);//Debugging
 		
 		try {
 			PreparedStatement s;
@@ -743,9 +785,77 @@ public final class DatastoreInterface {
 
 			return cases;
 
-		} catch (final SQLException ex) {			
+		} catch (final SQLException ex) {
 			ex.printStackTrace();
 			return null;			
 		}
 	}
+	/*
+	 * Persons Of Interest
+	 */
+	public List <PersonOfInterest> getAllPersonsOfInterest (){
+		List <PersonOfInterest> personsList = new ArrayList<PersonOfInterest> ();
+		try {
+			AllPersons.execute();
+			ResultSet rs = AllPersons.getResultSet();
+			
+			while (rs.next()) {
+				String id = rs.getString("PersID");
+				concernsById.setString(1, id);
+				concernsById.execute();
+				ResultSet cr = concernsById.getResultSet();
+				
+				personNotes.setString(1, id);
+				personNotes.execute();
+				ResultSet nr = personNotes.getResultSet();
+				
+				relatedPerson.setString(1, id);
+				relatedPerson.execute();
+				ResultSet rr = personNotes.getResultSet();
+				
+				personsList.add(new PersonOfInterest (rs, cr, nr, rr));
+				cr.close();
+			}
+			
+			rs.close();
+			return personsList;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	public PersonOfInterest getPersonById (String Id) {
+		
+		try {
+			personById.setString(1, Id);
+			personById.execute();
+			ResultSet rs = personById.getResultSet();
+			
+			concernsById.setString(1, Id);
+			concernsById.execute();
+			ResultSet CaseIds = concernsById.getResultSet();
+
+			personNotes.setString(1, Id);
+			personNotes.execute();
+			ResultSet nr = personNotes.getResultSet();
+			
+			relatedPerson.setString(1, Id);
+			relatedPerson.execute();
+			ResultSet rr = relatedPerson.getResultSet();
+			
+			if (rs.next()) {
+				return new PersonOfInterest (rs, CaseIds, nr, rr);
+			}
+			else {
+				return null;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
 }

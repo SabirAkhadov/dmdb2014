@@ -34,6 +34,7 @@
 					<div class="menuDiv2"><a href="Cases?filter=closed">Closed</a></div>
 					<div class="menuDiv2"><a href="Cases?filter=recent">Recent</a></div>
 					<div class="menuDiv2"><a href="Cases?filter=oldest">Oldest Unsolved</a></div>
+					<div class="menuDiv1"><a href="PersonsOfInterest">Persons of Interest</a></div>
 					<div class="menuDiv1">Categories</div>
 					<div class="menuDiv2"><a href="Cases?category=assault">Assault</a></div>
 					<div class="menuDiv2"><a href="Cases?category=theft">Theft</a></div>
