@@ -15,6 +15,7 @@ public final class Case {
 	private String mins;
 	private final String description;
 	private final String status;
+	private final String lastStatusChange;
 	private final String location;
 	private final String title;
 	private final String category;
@@ -22,7 +23,7 @@ public final class Case {
 	/**
 	 Construct a new case.
 	 */
-	public Case(final int id, final int status, final String title, final String category, final String description, final String location, final String date, final String time){
+	public Case(final int id, final int status, final String title, final String category, final String description, final String location, final String date, final String time, final String lastStatusChange){
 		this.id = id;
 		
 		this.date = (date == null) ? "" : formatDate(date);
@@ -30,6 +31,8 @@ public final class Case {
 		this.time = (time == null) ? "" : formatTime(time);
 		
 		this.status = status == 0 ? "closed" : "open";
+		
+		this.lastStatusChange = lastStatusChange == null ? "" : lastStatusChange;
 		
 		this.location = location == null ? "" : location;
 		
@@ -41,7 +44,7 @@ public final class Case {
 	}
 	
 	public Case(final ResultSet rs) throws SQLException {
-		this(rs.getInt("id"), rs.getInt("status"), rs.getString("title"),rs.getString("category"), rs.getString("description"), rs.getString("location"), rs.getString("date"), rs.getString("time"));
+		this(rs.getInt("id"), rs.getInt("status"), rs.getString("title"),rs.getString("category"), rs.getString("description"), rs.getString("location"), rs.getString("date"), rs.getString("time"), null);
 	}
 	
 	private String formatDate(String sDate){
@@ -100,6 +103,10 @@ public final class Case {
 
 	public String getStatus() {
 		return status;
+	}
+
+	public String getLastStatusChange() {
+		return lastStatusChange;
 	}
 
 	public String getLocation() {

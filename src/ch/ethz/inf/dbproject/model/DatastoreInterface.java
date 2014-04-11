@@ -29,10 +29,12 @@ public final class DatastoreInterface {
 			" cas.description AS `description`," +
 			" cas.location AS `location`," +
 			" cas.date AS `date`," +
-			" cas.time AS `time`" +
+			" cas.time AS `time`," +
+			" t.lastStatusChange AS `lastStatusChange`" +
 			" FROM cases AS cas" +
 			" LEFT JOIN CaseCategory AS cc ON cas.caseID = cc.caseID" +
 			" LEFT JOIN category AS cat ON cc.catID = cat.catID" +
+			" LEFT JOIN (SELECT `caseID`, MAX(`timestamp`) AS lastStatusChange FROM ((SELECT * FROM `open`) UNION (SELECT * FROM `close`)) AS `table` GROUP BY `caseID`) AS t ON cas.caseID = t.caseID" +
 			" "; //do not forget final space
 
 	/**categoryConstr extracts and formats all necessary information into the ResultSet such that a category can be constructed from it**/
