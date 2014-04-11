@@ -300,9 +300,6 @@ public final class DatastoreInterface {
 		}
 
 	}
-
-
-	}
 	
 	/**
 	 * Inserts a new case into the database.
