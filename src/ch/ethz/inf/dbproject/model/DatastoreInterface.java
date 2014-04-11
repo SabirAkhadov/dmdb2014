@@ -390,7 +390,7 @@ public final class DatastoreInterface {
 
 			//update title
 			if(!original.getTitle().equals(update.getTitle()))
-				query += "title = '" + update.getTitle().replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "', ";
+				query += "title = '" + update.getTitle().replace("'", "\\'") + "', ";
 
 			//update status;
 			if(!original.getStatus().equals(update.getStatus())){
@@ -400,11 +400,11 @@ public final class DatastoreInterface {
 
 			//update description
 			if(!original.getDescription().equals(update.getDescription()))
-				query += "description = '" + update.getDescription().replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "'" + ", ";
+				query += "description = '" + update.getDescription().replace("'", "\\'") + "'" + ", ";
 
 			//update location
 			if(!original.getLocation().equals(update.getLocation()))
-				query += "location = '" + update.getLocation().replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "'" + ", ";
+				query += "location = '" + update.getLocation().replace("'", "\\'") + "'" + ", ";
 
 			//update date
 			if(!original.getDate().equals(update.getDate())){

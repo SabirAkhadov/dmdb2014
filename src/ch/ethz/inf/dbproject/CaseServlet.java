@@ -78,7 +78,7 @@ public final class CaseServlet extends HttpServlet {
 				if(user == null){
 					session.setAttribute("updateError", "You need to log in");
 					session.setAttribute("edittedCase", eCase);
-					this.getServletContext().getRequestDispatcher("CASE_EDIT").forward(request, response);
+					this.getServletContext().getRequestDispatcher(CASE_EDIT).forward(request, response);
 					return;
 				}
 				//(int id, int status, String title, String category, String description, String location, java.sql.Date date, java.sql.Time time)
