@@ -78,6 +78,9 @@ public final class DatastoreInterface {
 	private PreparedStatement closeLog;
 
 	private PreparedStatement commentByCaseID;
+	private PreparedStatement commentInsert;
+	private PreparedStatement commentInsertHelper;
+	private PreparedStatement commentInsertNC;
 	
 	private Connection sqlConnection;
 
@@ -106,7 +109,10 @@ public final class DatastoreInterface {
 			openLog = sqlConnection.prepareStatement("INSERT INTO open(UserID,CaseID) VALUES (?,?);");
 			closeLog = sqlConnection.prepareStatement("INSERT INTO close(UserID,CaseID) VALUES (?,?);");
 			
-			commentByCaseID = sqlConnection.prepareStatement(commentConstr + "WHERE caseID = ?"); //TODO: add timestamp to comments
+			commentByCaseID = sqlConnection.prepareStatement(commentConstr + "WHERE caseID = ?");
+			commentInsert = sqlConnection.prepareStatement("INSERT INTO notes(userID, content) VALUES (?,?);");
+			commentInsertHelper = sqlConnection.prepareStatement("SELECT * FROM notes WHERE userID = ? AND content = ? ORDER BY timestamp DESC LIMIT 1;");
+			commentInsertNC = sqlConnection.prepareStatement("INSERT INTO notecase(noteid, caseid) VALUES (?,?)");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -502,6 +508,48 @@ public final class DatastoreInterface {
 		}
 	}
 
+	public final String addCommentToCase(String commentStr, int caseID, int userID){
+		try{
+			//String comment = commentStr.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_"); //may not be necessary
+			String comment = commentStr;
+			
+			int noteID = insertNote(userID, comment);
+			
+			if(noteID < 0)
+				return "Whops, we cannot find your comment after inserting it.\nThis should not happen...";
+			
+			commentInsertNC.setInt(1, noteID);
+			commentInsertNC.setInt(2, caseID);
+			commentInsertNC.execute();
+			
+			return null;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return "There was an error adding your comment.";
+		}
+	}
+	
+	/**
+	 * Inserts a note into the notes table and returns the resulting noteID
+	 * @param userID the user adding a comment
+	 * @param comment a String
+	 * @return the noteID of the inserted comment
+	 */
+	private int insertNote(int userID, String comment) throws SQLException{
+		
+		commentInsert.setInt(1, userID);
+		commentInsert.setString(2, comment);
+		commentInsert.execute();
+		
+		commentInsertHelper.setInt(1, userID);
+		commentInsertHelper.setString(2, comment);
+		ResultSet rs = commentInsertHelper.executeQuery();
+		
+		if(rs.next())
+			return rs.getInt("noteID");
+		
+		return -1;
+	}
 
 
 	//insert user to db, return user object
