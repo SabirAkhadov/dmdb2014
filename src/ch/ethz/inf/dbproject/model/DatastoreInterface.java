@@ -78,6 +78,7 @@ public final class DatastoreInterface {
 	private PreparedStatement caseMostRecent;
 	private PreparedStatement caseOldestUnresolved;
 	private PreparedStatement caseByCategory;
+	private PreparedStatement caseOthers;
 	private PreparedStatement caseInsert;
 	private PreparedStatement caseInsertHelper;
 
@@ -133,7 +134,8 @@ public final class DatastoreInterface {
 			caseClosed = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 0;");
 			caseMostRecent = sqlConnection.prepareStatement(caseConstr + "ORDER BY cas.date DESC;");
 			caseOldestUnresolved = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1 ORDER BY cas.date DESC;");
-			caseByCategory = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name = ? ORDER BY date DESC;" );
+			caseByCategory = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name = ? ORDER BY cas.date DESC;" );
+			caseOthers = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name NOT IN ('Assault','Theft') ORDER BY cas.date DESC");
 			caseInsert = sqlConnection.prepareStatement("INSERT INTO cases(date,status,location,time,description,title) VALUES (?,1,?,?,?,?)");
 			caseInsertHelper = sqlConnection.prepareStatement("SELECT * from cases WHERE date = ? AND status = 1 AND location = ? AND time = ? AND description = ? AND title = ? LIMIT 1");
 			
@@ -267,7 +269,7 @@ public final class DatastoreInterface {
 		try{
 			final ResultSet rs;
 			if(category.equals("other")){
-				rs = null;//TODO: handle "other"
+				rs = caseOthers.executeQuery();
 			}else{
 				caseByCategory.setString(1, category);
 				rs = caseByCategory.executeQuery();
