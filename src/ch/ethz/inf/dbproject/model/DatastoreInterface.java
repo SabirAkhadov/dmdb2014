@@ -78,6 +78,8 @@ public final class DatastoreInterface {
 	private PreparedStatement caseMostRecent;
 	private PreparedStatement caseOldestUnresolved;
 	private PreparedStatement caseByCategory;
+	private PreparedStatement caseInsert;
+	private PreparedStatement caseInsertHelper;
 
 	private PreparedStatement categoryAll;
 	private PreparedStatement categoryByName;
@@ -132,8 +134,9 @@ public final class DatastoreInterface {
 			caseMostRecent = sqlConnection.prepareStatement(caseConstr + "ORDER BY cas.date DESC;");
 			caseOldestUnresolved = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1 ORDER BY cas.date DESC;");
 			caseByCategory = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name = ? ORDER BY date DESC;" );
-
-
+			caseInsert = sqlConnection.prepareStatement("INSERT INTO cases(date,status,location,time,description,title) VALUES (?,1,?,?,?,?)");
+			caseInsertHelper = sqlConnection.prepareStatement("SELECT * from cases WHERE date = ? AND status = 1 AND location = ? AND time = ? AND description = ? AND title = ? LIMIT 1");
+			
 			categoryAll = sqlConnection.prepareStatement(categoryConstr);
 			categoryByName = sqlConnection.prepareStatement(categoryConstr + "WHERE name = ?;");
 			categoryByID = sqlConnection.prepareStatement(categoryConstr + "WHERE catID = ?;");
@@ -303,6 +306,59 @@ public final class DatastoreInterface {
 		}
 
 	}
+	
+	/**
+	 * Inserts a new case into the database.
+	 * @param nCase a helper object, storing all the information necessary.
+	 * @return null if succeeds or a string containing an error message otherwise.
+	 */
+	public String insertNewCase(NewCaseData nCase){
+		try{
+			int caseID = -1;
+			int catID = -1;
+			if(nCase.getCategory() != null)
+				catID = insertCategory(nCase.getCategory());
+			
+			//insert into cases (date,status,location,time,description,title)
+			caseInsert.setString(1, "" + nCase.getYear() + "-" + nCase.getMonth() + "-" + nCase.getDay());
+			caseInsert.setString(2, nCase.getLocation());
+			caseInsert.setString(3, "" + nCase.getHours() + ":" + nCase.getMins() + ":" + "00");
+			caseInsert.setString(4, nCase.getDescription());
+			caseInsert.setString(5, nCase.getTitle());
+			
+			caseInsert.execute();
+			
+			//get caseID
+			caseInsertHelper.setString(1, "" + nCase.getYear() + "-" + nCase.getMonth() + "-" + nCase.getDay());
+			caseInsertHelper.setString(2, nCase.getLocation());
+			caseInsertHelper.setString(3, "" + nCase.getHours() + ":" + nCase.getMins() + ":" + "00");
+			caseInsertHelper.setString(4, nCase.getDescription());
+			caseInsertHelper.setString(5, nCase.getTitle());
+			
+			ResultSet rs = caseInsertHelper.executeQuery();
+			
+			if(rs.next())
+				caseID = rs.getInt("caseID");
+			else
+				return "There was an error inserting the case. Please try again or contact us if the issue persists";
+			
+			//insert into open
+			openLog.setInt(1, nCase.getUserID());
+			openLog.setInt(2, caseID);
+			openLog.execute();
+			
+			//link case to its category
+			catLinkToCaseID.setInt(1, catID);
+			catLinkToCaseID.setInt(2, caseID);
+			catLinkToCaseID.execute();
+			
+			return null;
+			
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return "There was an unexpected error. Please try again or contact us if the issue persists.";
+		}
+	}
 
 	/**updates a case in the database
 	 * @param original the case as it is stored prior to the update 
@@ -340,7 +396,7 @@ public final class DatastoreInterface {
 
 			//update title
 			if(!original.getTitle().equals(update.getTitle()))
-				query += "title = '" + update.getTitle() + "', ";
+				query += "title = '" + update.getTitle().replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "', ";
 
 			//update status;
 			if(!original.getStatus().equals(update.getStatus())){
@@ -354,7 +410,7 @@ public final class DatastoreInterface {
 
 			//update location
 			if(!original.getLocation().equals(update.getLocation()))
-				query += "location = '" + update.getLocation() + "'" + ", ";
+				query += "location = '" + update.getLocation().replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "'" + ", ";
 
 			//update date
 			if(!original.getDate().equals(update.getDate())){
@@ -563,31 +619,6 @@ public final class DatastoreInterface {
 		
 		return -1;
 	}
-	
-	public final boolean openCase (String title, String date, String time, String description, String location) {
-
-		PreparedStatement s;
-		
-		try {
-			s = sqlConnection.prepareStatement("INSERT INTO cases Values (null, ?, 1, ?, ? ,?, ?)");
-			s.setString(1, date);
-			s.setString(2, location);
-			s.setString(3, time);
-			s.setString(4, description);
-			s.setString(5, title);
-			s.execute();
-			
-			//TODO insert a new entry in casecategory
-			// also make a user choose a category
-			//consider using trigger for auto inserting in category table and open table
-			
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
 	//insert user to db, return user object
 	public final User insertUser(String username, String email, String password) {
 		

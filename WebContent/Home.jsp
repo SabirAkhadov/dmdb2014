@@ -16,8 +16,14 @@ final User user = (User) session.getAttribute("user");
 MySQLConnection inst = MySQLConnection.getInstance();
 Connection conn = inst.getConnection();
 
-
-if (user != null) {
+String homeMsg = (String)session.getAttribute("homeMsg");
+if(homeMsg != null){
+%>
+<br/>
+<font color="green"><%=homeMsg%></font>
+<br/>
+<%session.setAttribute("homeMsg", null);
+}else if (user != null) {
 	// There is a user logged in! Display a greeting!
 %>
 	Welcome back <%=user.getName()%>

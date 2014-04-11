@@ -19,7 +19,7 @@ Please log in.
 <%session.setAttribute("updateError", null);}%>
 
 <div><form action = "Case" method = "get" >
-	<input type = hidden name = "action" value = "update">
+	<input type = "hidden" name = "action" value = "update">
 	<input type ="hidden" name = "id" value = "<%= aCase.getId() %>" />
 	Title: <input type=text name="title" size=60 value = "<%= aCase.getTitle() %>"><br/>
 	<%if(aCase.getStatus().equals("open")){ %>
@@ -29,7 +29,7 @@ Please log in.
 	Status: <div><input type=radio name="status" value = 1>Open<br/>
 			<input type=radio name="status" value=0 checked="checked">Closed</div><br/>
 	<%}%>
-	Category: <input type=text name="category" value = "<%= aCase.getCategory() %>"><br/> <%//TODO: change this to a selection %> 
+	Category: <input type=text name="category" value = "<%= aCase.getCategory() %>"><br/>
 	Location: <input type=text name="location" value = "<%= aCase.getLocation() %>"><br/>
 	
 	<%
