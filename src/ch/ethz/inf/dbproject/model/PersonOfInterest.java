@@ -13,18 +13,41 @@ public class PersonOfInterest {
 	private String BirthDay;
 	
 	private List <String> concernCaseIds;
+	private List <String> concernReason;
+	private String notes;
+	private String related;
 	
 	private boolean alive;
 	
-	public PersonOfInterest (ResultSet rs, ResultSet concernIds) throws SQLException{
+	public PersonOfInterest (ResultSet rs, ResultSet concern, ResultSet notes, ResultSet related) throws SQLException{
+		
 		this.Id = (rs.getString("PersID"));
 		this.setFirstName(rs.getString("firstname"));
 		this.setLastName(rs.getString("lastname"));
 		this.setBirthDay(rs.getString("birthday"));
 		this.setAlive(rs.getBoolean("alive"));
+		
 		this.concernCaseIds = new ArrayList <String>();
-		while (concernIds.next()){
-			concernCaseIds.add(concernIds.getString("concernCaseIds"));
+		this.concernReason = new ArrayList <String>();
+		
+		while (concern.next()){
+			concernReason.add(concern.getString("reason"));
+			concernCaseIds.add(concern.getString("concernCaseIds"));
+		}
+		
+		this.notes = "";
+		while (notes.next()){
+			String s = "<i>" + notes.getString("content") + "</i><br><br>Added by " + notes.getString("name") + " on <br><br>" + notes.getString("timestamp");
+			this.notes += s;
+		}
+		
+		this.related = "";
+		while (related.next()){
+			String s = "First name: " + related.getString("firstname") + "<br>Last name: " + related.getString("lastname") + 
+					"<br>Relationship: " +  related.getString("relationship") + 
+					"<br><a href = \"PersonOfInterest?id=" + related.getString("PersID2") + "\">View person</a> <br><br>";
+			
+			this.related +=s;
 		}
 		
 	}
@@ -70,15 +93,25 @@ public class PersonOfInterest {
 	}
 
 	//dirty tricks incoming
-	public String getConcernCaseIds() {
+	public String getConcernCase() {
 		String Ids = "";
 		if (concernCaseIds != null){
 			for (String id : concernCaseIds){
-				String s = "<a href=\"Case?id=" + id.toString() +  "\">View case</a><br>";
+				String reason = concernReason.iterator().next();
+				String s = "<a href=\"Case?id=" + id.toString() +  "\">View case</a> <br> Reason for concern: <i>" + reason + "</i><br>";
 				Ids += s;
 			}
 		}
 		return Ids;
 	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public String getRelated() {
+		return related;
+	}
+
 
 }

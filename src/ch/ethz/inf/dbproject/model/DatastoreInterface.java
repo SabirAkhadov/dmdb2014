@@ -95,6 +95,8 @@ public final class DatastoreInterface {
 	private PreparedStatement AllPersons;
 	private PreparedStatement personById;
 	private PreparedStatement concernsById;
+	private PreparedStatement personNotes;
+	private PreparedStatement relatedPerson;
 	
 	private Connection sqlConnection;
 
@@ -107,7 +109,10 @@ public final class DatastoreInterface {
 			//Persons
 			AllPersons = sqlConnection.prepareStatement(persConstr + ";");
 			personById = sqlConnection.prepareStatement(persConstr + " WHERE pers.PersID = ?");
-			concernsById = sqlConnection.prepareStatement("SELECT CaseID as concernCaseIDs From concerns WHERE PersID = ?;");
+			concernsById = sqlConnection.prepareStatement("SELECT CaseID as concernCaseIDs, reason From concerns WHERE PersID = ?");
+			relatedPerson = sqlConnection.prepareStatement("SELECT PersID2, firstname, lastname, relationship FROM related, personofinterest WHERE PersID2 = PersID AND PersID1 = ?");
+			personNotes = sqlConnection.prepareStatement("SELECT content, name, timestamp FROM noteperson AS np, notes AS n, user AS u " +
+					"WHERE np.NoteID = n.NoteID AND n.UserID = u.UserID AND np.PersID = ?");
 			
 			//Cases
 			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
@@ -724,10 +729,20 @@ public final class DatastoreInterface {
 			ResultSet rs = AllPersons.getResultSet();
 			
 			while (rs.next()) {
-				concernsById.setString(1, rs.getString("PersID"));
+				String id = rs.getString("PersID");
+				concernsById.setString(1, id);
 				concernsById.execute();
 				ResultSet cr = concernsById.getResultSet();
-				personsList.add(new PersonOfInterest (rs, cr));
+				
+				personNotes.setString(1, id);
+				personNotes.execute();
+				ResultSet nr = personNotes.getResultSet();
+				
+				relatedPerson.setString(1, id);
+				relatedPerson.execute();
+				ResultSet rr = personNotes.getResultSet();
+				
+				personsList.add(new PersonOfInterest (rs, cr, nr, rr));
 				cr.close();
 			}
 			
@@ -750,9 +765,17 @@ public final class DatastoreInterface {
 			concernsById.setString(1, Id);
 			concernsById.execute();
 			ResultSet CaseIds = concernsById.getResultSet();
+
+			personNotes.setString(1, Id);
+			personNotes.execute();
+			ResultSet nr = personNotes.getResultSet();
+			
+			relatedPerson.setString(1, Id);
+			relatedPerson.execute();
+			ResultSet rr = relatedPerson.getResultSet();
 			
 			if (rs.next()) {
-				return new PersonOfInterest (rs, CaseIds);
+				return new PersonOfInterest (rs, CaseIds, nr, rr);
 			}
 			else {
 				return null;
