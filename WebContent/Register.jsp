@@ -9,7 +9,6 @@
 if (session.getAttribute("error")!= null && session.getAttribute("error").equals("none")){
 	%>
 	<h2> You successfully registered a new User.</h2>
-	<h2> You can now log in.</h2>
 <%	
 	session.setAttribute("error", null);
 }

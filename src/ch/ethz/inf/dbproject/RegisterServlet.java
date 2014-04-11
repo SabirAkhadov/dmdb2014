@@ -46,7 +46,6 @@ public class RegisterServlet extends HttpServlet {
 		if (username == "" || email == "" || password == ""){
 			
 			session.setAttribute("error", "emptyString");
-			this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
 		}
 		else {
 			User user = dsi.insertUser(username, email, password);
@@ -55,16 +54,14 @@ public class RegisterServlet extends HttpServlet {
 			
 			if (user == null){
 				session.setAttribute("error", "register");
-				this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
 			}
 				else {
 				session.setAttribute("error", "none");
-				
-				
-				this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
+				session.setAttribute("user", user);
 			}
-		}
 			
+		}
+		this.getServletContext().getRequestDispatcher("/Register.jsp").forward(request, response);
 	}
 
 }

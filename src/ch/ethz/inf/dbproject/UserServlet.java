@@ -38,8 +38,12 @@ public final class UserServlet extends HttpServlet {
 		
 		if (action != null && action.trim().equals("logout") && user != null){
 			session.invalidate();
+			return;
 		}	
-		
+		if (user != null)
+		{
+			updateUserTables (user, session);
+		}
 		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);
 		
 }
@@ -62,31 +66,7 @@ public final class UserServlet extends HttpServlet {
 				if (user != null){
 					session.setAttribute("user", user);
 					
-					//display user info
-					final BeanTableHelper<User> userDetails = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
-					userDetails.addBeanColumn("Username", "Name");
-					userDetails.addBeanColumn("Email", "Email");
-					userDetails.addBeanColumn("Password", "Password");
-					userDetails.addObject(user);
-					session.setAttribute(SESSION_USER_DETAILS, userDetails.generateHtmlCode());
-					
-					//display cases opened by user
-					List<Case> oCases = dsInterface.getUserCases(user);
-					final BeanTableHelper<Case> oCasesTable = new BeanTableHelper<Case>("cases", "casesTable", Case.class);
-					oCasesTable.addBeanColumn("Title", "Title");
-					oCasesTable.addBeanColumn("Category", "Category");
-					oCasesTable.addBeanColumn("Date", "Date");
-					oCasesTable.addBeanColumn("Time", "Time");
-					oCasesTable.addBeanColumn("Location", "Location");
-					oCasesTable.addBeanColumn("Status", "Status");
-					oCasesTable.addBeanColumn("last change", "lastStatusChange");
-					oCasesTable.addLinkColumn(""	/* The header. We will leave it empty */,
-							"View Case" 	/* What should be displayed in every row */,
-							"Case?id=" 	/* This is the base url. The final url will be composed from the concatenation of this and the parameter below */, 
-							"id" 			/* For every case displayed, the ID will be retrieved and will be attached to the url base above */);
-
-					oCasesTable.addObjects(oCases);
-					session.setAttribute("userCases", oCasesTable);
+					updateUserTables (user, session);
 					
 				}
 				else {
@@ -96,6 +76,32 @@ public final class UserServlet extends HttpServlet {
 			}
 		}
 		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);
+	}
+	
+	private void updateUserTables (User user, HttpSession session){
+		
+		List<Case> cases = dsInterface.getUserCases(user);
+		//display user info
+		final BeanTableHelper<User> userDetails = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
+		userDetails.addBeanColumn("Username", "Name");
+		userDetails.addBeanColumn("Email", "Email");
+		userDetails.addBeanColumn("Password", "Password");
+		userDetails.addObject(user);
+		session.setAttribute(SESSION_USER_DETAILS, userDetails.generateHtmlCode());
+		
+		//display cases opened by user
+		final BeanTableHelper<Case> oCasesTable = new BeanTableHelper<Case>("cases", "casesTable", Case.class);
+		oCasesTable.addBeanColumn("Title", "Title");
+		oCasesTable.addBeanColumn("Category", "Category");
+		oCasesTable.addBeanColumn("Date", "Date");
+		oCasesTable.addBeanColumn("Time", "Time");
+		oCasesTable.addBeanColumn("Location", "Location");
+		oCasesTable.addBeanColumn("Status", "Status");
+		oCasesTable.addBeanColumn("last change", "lastStatusChange");
+		oCasesTable.addLinkColumn("", "View Case" ,"Case?id=", "id");
+
+		oCasesTable.addObjects(cases);
+		session.setAttribute("userCases", oCasesTable);
 	}
 
 }
