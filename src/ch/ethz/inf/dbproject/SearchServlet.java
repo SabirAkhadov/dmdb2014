@@ -73,7 +73,7 @@ public final class SearchServlet extends HttpServlet {
 		
 		if(firstname != null && lastname != null && category != null && conv_date != null && conv_type != null){
 			//TODO: Query writing, correct dbInterface function.
-			table.addObjects(this.dbInterface.getAllCases());
+			table.addObjects(this.dbInterface.searchForCases(firstname, lastname, category, conv_date, conv_type));
 		}
 		
 		//*********This is obsolete TODO code.

@@ -662,4 +662,58 @@ public final class DatastoreInterface {
 			return null;
 		}
 	}
+	
+	public final List<Case> searchForCases(String firstname, String lastname, String category, String conv_date, String conv_type) {
+
+		String StatementS = "SELECT DISTINCT * FROM Cases ca";
+		
+		if(!firstname.equals("") || !lastname.equals("")){
+			StatementS += " ,PersonOfInterest poi, Victim vic, Convicted con, Suspected sus, Witnessed wit, Related rel";
+		}
+		if(!category.equals("")){
+			StatementS += " , Category cat, CaseCategory cc";
+		}
+		if((!conv_date.equals("") || !conv_type.equals("")) && !firstname.equals("") && !lastname.equals("")){
+			StatementS += " ,PersonOfInterest poi, Convicted con";
+		}
+		
+		StatementS += " WHERE 1=1";
+		
+		if(!firstname.equals("")){
+			StatementS += " AND poi.firstname = '"+firstname+"'";
+		}
+		if(!lastname.equals("")){
+			StatementS += " AND poi.lastname = '"+lastname+"'";
+		}
+		if(!firstname.equals("") || !lastname.equals("")){
+			StatementS += " AND (";
+			StatementS += "poi.PersID = vic.PersID AND vic.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = con.PersID AND con.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = sus.PersID AND sus.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = wit.PersID AND wit.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = rel.PersID AND rel.CaseID = ca.CaseID OR ";
+			StatementS += ")";
+		}
+		
+		
+		try {
+			PreparedStatement s;
+			s = sqlConnection.prepareStatement(StatementS);
+			s.execute();
+			ResultSet rs = s.getResultSet();
+
+			final List<Case> cases = new ArrayList<Case>(); 
+			while (rs.next()) {
+				cases.add(new Case(rs));
+			}
+
+			rs.close();
+
+			return cases;
+
+		} catch (final SQLException ex) {			
+			ex.printStackTrace();
+			return null;			
+		}
+	}
 }
