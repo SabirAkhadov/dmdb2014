@@ -18,7 +18,7 @@ public class PersonsOfInterest extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		
-		dsi
+		
 		this.getServletContext().getRequestDispatcher("/PersonsOfInterest.jsp").forward(request, response);
 	}
 

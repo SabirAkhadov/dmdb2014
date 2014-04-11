@@ -29,10 +29,12 @@ public final class DatastoreInterface {
 			" cas.description AS `description`," +
 			" cas.location AS `location`," +
 			" cas.date AS `date`," +
-			" cas.time AS `time`" +
+			" cas.time AS `time`," +
+			" t.lastStatusChange AS `lastStatusChange`" +
 			" FROM cases AS cas" +
 			" LEFT JOIN CaseCategory AS cc ON cas.caseID = cc.caseID" +
 			" LEFT JOIN category AS cat ON cc.catID = cat.catID" +
+			" LEFT JOIN (SELECT `caseID`, MAX(`timestamp`) AS lastStatusChange FROM ((SELECT * FROM `open`) UNION (SELECT * FROM `close`)) AS `table` GROUP BY `caseID`) AS t ON cas.caseID = t.caseID" +
 			" "; //do not forget final space
 
 	/**categoryConstr extracts and formats all necessary information into the ResultSet such that a category can be constructed from it**/
@@ -90,7 +92,7 @@ public final class DatastoreInterface {
 
 		try {
 			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
-			closeCaseIDs  = sqlConnection.prepareStatement("SELECT DISCTINCT CaseID From close WHERE UserID = ?");
+			closeCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From close WHERE UserID = ?");
 			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
@@ -249,34 +251,14 @@ public final class DatastoreInterface {
 		}
 	}
 
-	public List<Case> getOpenUserCases (User user) {
+	public List<Case> getUserCases (User user) {
 
 		List <Case> cases = new ArrayList <Case>();
 		try {
-	
+
 			openCaseIDs.setString(1, user.getUserID());
 			openCaseIDs.execute();
 			ResultSet rs = openCaseIDs.getResultSet();
-			while (rs.next())
-			{
-				cases.add(getCaseById(rs.getInt(1)));
-			}
-			return cases;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-	}
-	public List<Case> getCloseUserCases (User user) {
-
-		List <Case> cases = new ArrayList <Case>();
-		try {
-			closeCaseIDs.setString(1, user.getUserID());
-			closeCaseIDs.execute();
-			ResultSet rs = closeCaseIDs.getResultSet();
-
 			while (rs.next())
 			{
 				cases.add(getCaseById(rs.getInt(1)));
@@ -549,8 +531,6 @@ public final class DatastoreInterface {
 		
 		return -1;
 	}
-
-
 	
 	public final boolean openCase (String title, String date, String time, String description, String location) {
 
@@ -663,5 +643,57 @@ public final class DatastoreInterface {
 		}
 	}
 	
-	public List<>
+	public final List<Case> searchForCases(String firstname, String lastname, String category, String conv_date, String conv_type) {
+
+		String StatementS = "SELECT DISTINCT * FROM Cases ca";
+		
+		if(!firstname.equals("") || !lastname.equals("")){
+			StatementS += " ,PersonOfInterest poi, Victim vic, Convicted con, Suspected sus, Witnessed wit, Related rel";
+		}
+		if(!category.equals("")){
+			StatementS += " , Category cat, CaseCategory cc";
+		}
+		if((!conv_date.equals("") || !conv_type.equals("")) && !firstname.equals("") && !lastname.equals("")){
+			StatementS += " ,PersonOfInterest poi, Convicted con";
+		}
+		
+		StatementS += " WHERE 1=1";
+		
+		if(!firstname.equals("")){
+			StatementS += " AND poi.firstname = '"+firstname+"'";
+		}
+		if(!lastname.equals("")){
+			StatementS += " AND poi.lastname = '"+lastname+"'";
+		}
+		if(!firstname.equals("") || !lastname.equals("")){
+			StatementS += " AND (";
+			StatementS += "poi.PersID = vic.PersID AND vic.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = con.PersID AND con.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = sus.PersID AND sus.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = wit.PersID AND wit.CaseID = ca.CaseID OR ";
+			StatementS += "poi.PersID = rel.PersID AND rel.CaseID = ca.CaseID OR ";
+			StatementS += ")";
+		}
+		
+		
+		try {
+			PreparedStatement s;
+			s = sqlConnection.prepareStatement(StatementS);
+			s.execute();
+			ResultSet rs = s.getResultSet();
+
+			final List<Case> cases = new ArrayList<Case>(); 
+			while (rs.next()) {
+				cases.add(new Case(rs));
+			}
+
+			rs.close();
+
+			return cases;
+
+		} catch (final SQLException ex) {			
+			ex.printStackTrace();
+			return null;			
+		}
+	}
 }

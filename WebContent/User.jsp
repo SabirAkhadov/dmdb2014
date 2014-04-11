@@ -18,17 +18,11 @@ if (session.getAttribute("user") != null) {
 	<br>
 	<a href="changeData">Change user data</a>
 	
-	<h2> Cases opened by user</h2>
-<%= session.getAttribute("userOpenCases") %>
-
-
-	<h2> Cases closed by user</h2>
-<%= session.getAttribute("userCloseCases") %>
+	<h2> Cases managed by user</h2>
+<%= session.getAttribute("userCases") %>
 
 <%
 
-//TODO: Add possibility to create new case (requires a form) 
-	
 } else {
 	//User not logged in
 	if (session.getAttribute("error")!= null && session.getAttribute("error").equals("login")) {
