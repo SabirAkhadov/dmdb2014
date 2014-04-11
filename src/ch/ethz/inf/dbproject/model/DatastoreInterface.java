@@ -68,6 +68,9 @@ public final class DatastoreInterface {
 	
 	
 	private PreparedStatement userValidate;
+	private PreparedStatement userNamest;
+	private PreparedStatement insertUserst;
+	
 	private PreparedStatement caseByID;
 	private PreparedStatement caseAll;
 	private PreparedStatement caseOpen;
@@ -109,6 +112,9 @@ public final class DatastoreInterface {
 
 		try {
 			
+			//Users
+			userNamest = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
+			insertUserst = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
 			userValidate = sqlConnection.prepareStatement("SELECT * FROM user WHERE BINARY name = ? and BINARY password = ?");
 			
 			//Persons
@@ -615,23 +621,20 @@ public final class DatastoreInterface {
 	}
 	//insert user to db, return user object
 	public final User insertUser(String username, String email, String password) {
-
-		PreparedStatement s;
+		
 		try {
-			s = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
+			insertUserst = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
 
-			s.setString(1, username);
-			s.setString(2, password);
-			s.setString(3, email);
-			s.execute();
-			s.close();
+			insertUserst.setString(1, username);
+			insertUserst.setString(2, password);
+			insertUserst.setString(3, email);
+			insertUserst.execute();
+			insertUserst.close();
 
-			final PreparedStatement us = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
+			userNamest.setString(1, username);
+			userNamest.execute();
 
-			us.setString(1, username);
-			us.execute();
-
-			final ResultSet rs = us.getResultSet();
+			final ResultSet rs = userNamest.getResultSet();
 			if (rs.next()) {
 				return new User(rs);
 			}
@@ -639,7 +642,6 @@ public final class DatastoreInterface {
 				return null;
 			}
 		} catch (SQLException e) { 
-			e.addSuppressed(new Throwable());
 			e.printStackTrace();
 			return null;
 		}
@@ -648,8 +650,6 @@ public final class DatastoreInterface {
 	public final User validateUser (String name, String password) {
 
 		try {
-
-			// collation argument depends on server character set. Here we have utf8mb4.
 
 			userValidate.setString(1, name);
 			userValidate.setString(2, password);
