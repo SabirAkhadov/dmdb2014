@@ -82,7 +82,7 @@ public final class CaseServlet extends HttpServlet {
 					return;
 				}
 				//(int id, int status, String title, String category, String description, String location, java.sql.Date date, java.sql.Time time)
-				eCase = new Case(Integer.parseInt(request.getParameter("id")) , Integer.parseInt(request.getParameter("status")), request.getParameter("title"), request.getParameter("category"), request.getParameter("description"), request.getParameter("location"), String.format("%s-%s-%s", request.getParameter("year"),request.getParameter("month"),request.getParameter("day")), String.format("%s:%s", request.getParameter("hours"), request.getParameter("mins")), request.getParameter("lastStatusChange"));
+				eCase = new Case(Integer.parseInt(request.getParameter("id")) , Integer.parseInt(request.getParameter("status")), request.getParameter("title"), request.getParameter("category"), request.getParameter("description"), request.getParameter("location"), String.format("%s-%s-%s", request.getParameter("year"),request.getParameter("month"),request.getParameter("day")), String.format("%s:%s", request.getParameter("hours"), request.getParameter("mins")), null);
 				if(origCase != null && origCase.getId() == eCase.getId()){
 					String error = this.dbInterface.updateCase(origCase, eCase, Integer.parseInt(user.getUserID()));
 					if(error != null){
@@ -127,6 +127,7 @@ public final class CaseServlet extends HttpServlet {
 			// Add columns to the new table			
 			table.addBeanColumn("Title", "title");
 			table.addBeanColumn("Status", "status");
+			table.addBeanColumn("Last Status Change", "lastStatusChange");
 			table.addBeanColumn("Category", "category");
 			table.addBeanColumn("Location", "location");
 			table.addBeanColumn("Date", "date");

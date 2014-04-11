@@ -44,7 +44,7 @@ public final class Case {
 	}
 	
 	public Case(final ResultSet rs) throws SQLException {
-		this(rs.getInt("id"), rs.getInt("status"), rs.getString("title"),rs.getString("category"), rs.getString("description"), rs.getString("location"), rs.getString("date"), rs.getString("time"), null);
+		this(rs.getInt("id"), rs.getInt("status"), rs.getString("title"),rs.getString("category"), rs.getString("description"), rs.getString("location"), rs.getString("date"), rs.getString("time"), rs.getString("lastStatusChange"));
 	}
 	
 	private String formatDate(String sDate){
