@@ -39,7 +39,8 @@
 					<div class="menuDiv2"><a href="Cases?category=assault">Assault</a></div>
 					<div class="menuDiv2"><a href="Cases?category=theft">Theft</a></div>
 					<div class="menuDiv2"><a href="Cases?category=other">Other</a></div>
-					<div class="menuDiv1"><a href="Search">Search for Cases</a></div>
+					<div class="menuDiv1"><a href="Search?for=cases">Search for Cases</a></div>
+					<div class="menuDiv1"><a href="Search?for=persons">Search for Persons</a></div>
 					<div class="menuDiv1"><a href="PersonsOfInterest">Persons of Interest</a></div>
 					<div class="menuDiv1"><a href="User">User Profile</a></div>
 					

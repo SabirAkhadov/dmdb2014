@@ -35,11 +35,6 @@ Welcome!
 }
 %>
 
-<form action="Home.jsp" method="post">
-<input type="text" name="test">
-<input type="submit" value="go">
-</form>
-
 <br />
 <br />
 See all available

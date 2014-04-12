@@ -36,7 +36,7 @@ public final class PersonOfInterestServlet extends HttpServlet {
 
 		final String idString = request.getParameter("id");
 		if (idString == null) {
-			this.getServletContext().getRequestDispatcher("/Cases").forward(request, response);
+			this.getServletContext().getRequestDispatcher("/PersonsOfInterest").forward(request, response);
 			return;
 		}
 
@@ -65,7 +65,7 @@ public final class PersonOfInterestServlet extends HttpServlet {
 		PersonOfInterest aPerson = dsi.getPersonById(id.toString());
 		personTable.addObject(aPerson);
 		personTable.setVertical(true);			
-		
-			this.getServletContext().getRequestDispatcher("/PersonOfInterest.jsp").forward(request, response);
+		session.setAttribute("personID", aPerson.getId());
+		this.getServletContext().getRequestDispatcher("/PersonOfInterest.jsp").forward(request, response);
 	}
 }

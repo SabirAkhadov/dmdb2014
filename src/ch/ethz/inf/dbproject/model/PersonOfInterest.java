@@ -100,6 +100,42 @@ public class PersonOfInterest {
 		
 	}
 
+	public PersonOfInterest (ResultSet rs) throws SQLException{
+			
+		this.Id = (rs.getString("PersID"));
+		String s = rs.getString("firstname");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setFirstName(s);
+		
+		s = rs.getString("lastname");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setLastName(s);
+		
+		s = rs.getString("birthday");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setBirthDay(s);
+		
+		s = rs.getString("alive");
+		if (s == null){
+			s = "unknown";
+		}
+		if (s.equals("1")){
+			s = "yes";
+		}
+		if (s.equals("0")){
+			s = "no";
+		}
+		this.setAlive(s);
+		
+		
+	}
+
 	public String getFirstName() {
 		return FirstName;
 	}
