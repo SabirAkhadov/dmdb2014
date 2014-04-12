@@ -16,7 +16,7 @@ if (session.getAttribute("user") != null) {
 		<input type="submit" value="Logout" />
 	</form>
 	<br>
-	<a href="changeData">Change user data</a>
+	<a href="ChangeData">Change user data</a>
 	
 	<h2> Cases managed by user</h2>
 <%= session.getAttribute("userCases") %>

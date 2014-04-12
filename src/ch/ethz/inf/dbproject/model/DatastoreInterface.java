@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.el.lang.FunctionMapperImpl.Function;
+
 import ch.ethz.inf.dbproject.database.MySQLConnection;
 
 /**
@@ -104,6 +106,7 @@ public final class DatastoreInterface {
 	private PreparedStatement concernsById;
 	private PreparedStatement personNotes;
 	private PreparedStatement relatedPerson;
+	private PreparedStatement insertPersonst;
 	
 	private Connection sqlConnection;
 
@@ -115,10 +118,11 @@ public final class DatastoreInterface {
 			
 			//Users
 			userNamest = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
-			insertUserst = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
+			insertUserst = sqlConnection.prepareStatement("INSERT INTO user VALUES (null, ?, ?, ?)");
 			userValidate = sqlConnection.prepareStatement("SELECT * FROM user WHERE BINARY name = ? and BINARY password = ?");
 			
 			//Persons
+			insertPersonst = sqlConnection.prepareStatement("INSERT INTO personofinterest VALUES (null, ?, ?, ?, ?)");
 			AllPersons = sqlConnection.prepareStatement(persConstr + ";");
 			personById = sqlConnection.prepareStatement(persConstr + " WHERE pers.PersID = ?");
 			concernsById = sqlConnection.prepareStatement("SELECT CaseID as concernCaseIDs, reason From concerns WHERE PersID = ?");
@@ -861,6 +865,23 @@ public final class DatastoreInterface {
 			return null;
 		}
 		
+	}
+	
+	public boolean insertPerson (String firstname, String lastname, String birthday, String alive){
+		
+		//insert to db
+		try {
+			insertPersonst.setString(1, firstname);
+			insertPersonst.setString(2, lastname);
+			insertPersonst.setString(3, birthday);
+			insertPersonst.setString(4, alive);
+			
+			insertPersonst.execute();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 }
