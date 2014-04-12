@@ -25,7 +25,8 @@ final String PAGE_URL = "http://localhost:8080/IntroDBProject";
 	<input type="hidden" name="type" value = "<%=fType%>">
 	<input type="submit" value="Add New">
 </form>
-}
+<%}%>
+
 <%
 if((String)session.getAttribute("noPersons") != null){ %>
 No such persons of interest registered.
