@@ -23,32 +23,32 @@ import ch.ethz.inf.dbproject.model.NewCaseData;
 @WebServlet(description = "open new case", urlPatterns = { "/NewCase" })
 public class NewCaseServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+
 	final DatastoreInterface dbInterface;
-	
-    public NewCaseServlet() {
-        super();
-        dbInterface = new DatastoreInterface();
-    }
+
+	public NewCaseServlet() {
+		super();
+		dbInterface = new DatastoreInterface();
+	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		boolean hasYearError = false;
 
-		
 		final HttpSession session = request.getSession(true);
 		String action = request.getParameter("action");
-		
+
 		if(action != null && action.equals("newCase")){
 			User user = (User)session.getAttribute("user");
-			
+
 			if(user == null){
 				session.setAttribute("newCaseError", "You cannot open new cases while you are not logged in.");
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
 			}
-			
+
 			int day,month, year, hours, mins;
 			String title,location,description,category;
-			
+
 			ArrayList<Integer> monthsWith31Days = new ArrayList<Integer>(){{
 				add(1);
 				add(3);
@@ -58,27 +58,39 @@ public class NewCaseServlet extends HttpServlet {
 				add(10);
 				add(12);
 			}};
-			
+
 			String dayStr = (String)request.getParameter("day");
 			String monthStr = (String)request.getParameter("month");
-			String yearStr = (String)request.getParameter("year");
+			String yearStr = ((String)request.getParameter("year")).trim();
 			String hoursStr = (String)request.getParameter("hours");
 			String minsStr = (String)request.getParameter("mins");
-			
+
 			day = dayStr == null ? -1 :Integer.parseInt(dayStr);
 			month = monthStr == null ? -1 :Integer.parseInt(monthStr);
-			year = yearStr == null ? -1 :Integer.parseInt(yearStr);
+			try{
+				year = yearStr == null ? -1 :Integer.parseInt(yearStr);
+			}catch(Exception ex){
+				hasYearError = true;
+				year = Calendar.getInstance().get(Calendar.YEAR);
+			}
 			hours = hoursStr == null ? -1 :Integer.parseInt(hoursStr);
 			mins = minsStr == null ? -1 : Integer.parseInt(minsStr);
-			
+
 			title = ((String)request.getParameter("title")).replace("'", "\\'");//.replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
 			location = ((String)request.getParameter("location")).replace("'", "\\'");//.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
 			category = ((String)request.getParameter("category")).replace("'", "\\'");//.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
 			description = ((String)request.getParameter("description")).replace("'", "\\'");//.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
 			
+			if(hasYearError){//e.g year contains non-numeric chars
+				session.setAttribute("newCase", new NewCaseData(Integer.parseInt(user.getUserID()), day, month, 0, hours, mins, title, category, location, description));
+				session.setAttribute("newCaseError", "Invalid year!");
+				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
+				return;
+			}
+			
 			NewCaseData nCase = new NewCaseData(Integer.parseInt(user.getUserID()), day, month, year, hours, mins, title, category, location, description);
 			session.setAttribute("newCase", nCase);
-			
+
 			if(year < 1000 || year > Calendar.getInstance().get(Calendar.YEAR)){ //may happen
 				session.setAttribute("newCaseError", "Invalid year!");
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
@@ -105,12 +117,12 @@ public class NewCaseServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
 			}
-			if((month == 2) && (day == 29) && (year % 4 != 0)){ //may happen
+			if((month == 2) && (day == 29) && ((year % 4 != 0) || (year % 100 == 0 &&  year % 400 != 0 ))){ //may happen
 				session.setAttribute("newCaseError", year + " was not a leap year.");
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
 			}
-			
+
 			if(hours < 0 && hours > 23){ //should never happen
 				session.setAttribute("newCaseError", "Invalid hours!");
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
@@ -121,7 +133,7 @@ public class NewCaseServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
 			}
-			
+
 			if(title.isEmpty()){
 				session.setAttribute("newCaseError", "You need to enter a case title.");
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
@@ -140,14 +152,14 @@ public class NewCaseServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
 			}
-			
+
 			String error = this.dbInterface.insertNewCase(nCase);
 			if(error != null){
 				session.setAttribute("newCaseError", error);
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
 			}
-			
+
 			session.setAttribute("homeMsg", "We have successfully created your new case.");
 		}
 		this.getServletContext().getRequestDispatcher("/Home").forward(request, response);
