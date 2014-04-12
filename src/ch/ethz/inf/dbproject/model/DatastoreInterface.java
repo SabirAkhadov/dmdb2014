@@ -1087,12 +1087,10 @@ public final class DatastoreInterface {
 	}
 	
 	public final String insertPersonCaseRelation(int caseID) {
-		
+		return "";
 	}
 
 	public final String deletePersonCaseRelation(String caseID, String persID, String type) {
-	
+		return "";
 	}
-}
-
 }
