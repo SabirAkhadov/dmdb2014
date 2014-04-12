@@ -17,37 +17,85 @@ public class PersonOfInterest {
 	private String notes;
 	private String related;
 	
-	private boolean alive;
+	private String alive;
 	
 	public PersonOfInterest (ResultSet rs, ResultSet concern, ResultSet notes, ResultSet related) throws SQLException{
 		
 		this.Id = (rs.getString("PersID"));
-		this.setFirstName(rs.getString("firstname"));
-		this.setLastName(rs.getString("lastname"));
-		this.setBirthDay(rs.getString("birthday"));
-		this.setAlive(rs.getBoolean("alive"));
+		String s = rs.getString("firstname");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setFirstName(s);
+		
+		s = rs.getString("lastname");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setLastName(s);
+		
+		s = rs.getString("birthday");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setBirthDay(s);
+		
+		s = rs.getString("alive");
+		if (s == null){
+			s = "unknown";
+		}
+		if (s.equals("1")){
+			s = "yes";
+		}
+		if (s.equals("0")){
+			s = "no";
+		}
+		this.setAlive(s);
 		
 		this.concernCaseIds = new ArrayList <String>();
 		this.concernReason = new ArrayList <String>();
 		
 		while (concern.next()){
-			concernReason.add(concern.getString("reason"));
-			concernCaseIds.add(concern.getString("concernCaseIds"));
+			String s1 = concern.getString("reason");
+			if (s1 == null){
+				s1 = "unknown";
+			}
+			concernReason.add(s1);
+
+			s1 =  concern.getString("concernCaseIds");
+			if (s1 == null){
+				s1 = "unknown";
+			}
+			concernCaseIds.add(s1);
 		}
 		
 		this.notes = "";
 		while (notes.next()){
-			String s = "<i>" + notes.getString("content") + "</i><br><br>Added by " + notes.getString("name") + " on <br><br>" + notes.getString("timestamp");
-			this.notes += s;
+			String s1 = "<i>" + notes.getString("content") + "</i><br><br>Added by " + notes.getString("name") + " on <br><br>" + notes.getString("timestamp");
+			this.notes += s1;
 		}
 		
 		this.related = "";
 		while (related.next()){
-			String s = "First name: " + related.getString("firstname") + "<br>Last name: " + related.getString("lastname") + 
-					"<br>Relationship: " +  related.getString("relationship") + 
+			String s2 = related.getString("firstname");
+			if (s2 == null){
+				s2 = "unknown";
+			}
+			String s3 = related.getString("lastname");
+			if (s3 == null){
+				s3 = "unknown";
+			}
+			
+			String s4 = related.getString("relationship");
+			if (s4 == null){
+				s4 = "unknown";
+			}
+			
+			String s1 = "First name: " + s2 + "<br>Last name: " + s3 + 
+					"<br>Relationship: " +  s4 + 
 					"<br><a href = \"PersonOfInterest?id=" + related.getString("PersID2") + "\">View person</a> <br><br>";
 			
-			this.related +=s;
+			this.related +=s1;
 		}
 		
 	}
@@ -76,12 +124,12 @@ public class PersonOfInterest {
 		BirthDay = birthDate;
 	}
 
-	public boolean getAlive() {
+	public String getAlive() {
 		return alive;
 	}
 
-	public void setAlive(boolean alive) {
-		this.alive = alive;
+	public void setAlive(String s) {
+		this.alive = s;
 	}
 
 	public String getId() {

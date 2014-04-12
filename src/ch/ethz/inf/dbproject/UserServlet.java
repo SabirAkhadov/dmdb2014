@@ -15,7 +15,7 @@ import ch.ethz.inf.dbproject.model.DatastoreInterface;
 import ch.ethz.inf.dbproject.model.User;
 import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
 
-@WebServlet(description = "Page that displays the user login / logout options.", urlPatterns = { "/User" })
+@WebServlet(description = "Page that displays the user login / logout options and user details.", urlPatterns = { "/User" })
 public final class UserServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -37,8 +37,8 @@ public final class UserServlet extends HttpServlet {
 		User user = (User) session.getAttribute("user");
 		
 		if (action != null && action.trim().equals("logout") && user != null){
+			user = null;
 			session.invalidate();
-			return;
 		}	
 		if (user != null)
 		{

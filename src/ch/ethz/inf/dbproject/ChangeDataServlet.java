@@ -13,14 +13,14 @@ import ch.ethz.inf.dbproject.model.DatastoreInterface;
 import ch.ethz.inf.dbproject.model.User;
 
 
-@WebServlet(description = "Chage User data", urlPatterns = { "/changeData" })
-public class changeDataServlet extends HttpServlet {
+@WebServlet(description = "Chage User data", urlPatterns = { "/ChangeData" })
+public class ChangeDataServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public changeDataServlet() {
+    public ChangeDataServlet() {
         super();
     }
 
@@ -29,7 +29,7 @@ public class changeDataServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		this.getServletContext().getRequestDispatcher("/changeData.jsp").forward(request, response);
+		this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class changeDataServlet extends HttpServlet {
 			else {
 				session.setAttribute("user", null);
 				session.setAttribute("ChangeError", "none");
-				this.getServletContext().getRequestDispatcher("/changeData.jsp").forward(request, response);
+				this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
 			}
 		}
 	}
