@@ -37,13 +37,6 @@ public final class CasePersonsServlet extends  HttpServlet {
 
 		final HttpSession session = request.getSession(true);
 
-		String type = request.getParameter("type");
-
-		if(type == null){
-			this.getServletContext().getRequestDispatcher("/Case").forward(request, response);
-			return;
-		}
-
 		String caseIDstr = request.getParameter("id");
 		int caseID = -1;
 		if(caseIDstr == null){
@@ -58,7 +51,20 @@ public final class CasePersonsServlet extends  HttpServlet {
 			return;
 		}
 		
+		String type = request.getParameter("type");
+		if(type == null){
+			this.getServletContext().getRequestDispatcher("/Case").forward(request, response);
+			return;
+		}
+		
+		String status = request.getParameter("status");
+		if(status == null){
+			this.getServletContext().getRequestDispatcher("/Case").forward(request, response);
+			return;
+		}
+		
 		session.setAttribute("lastCase", caseID);
+		session.setAttribute("status", status);
 
 		final BeanTableHelper<PersonOfInterest> personsTable = new BeanTableHelper<PersonOfInterest>(
 				"persons" 		/* The table html id property */,

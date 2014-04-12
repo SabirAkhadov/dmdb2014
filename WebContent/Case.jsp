@@ -34,11 +34,11 @@ if(user != null) {
 	}
 %>
 <br />
-<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=victims">Victims</a><br/>
-<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=suspects">Suspects</a><br/>
-<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=witnesses">Witnesses</a><br/>
-<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=convicts">Convicts</a><br/>
-<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=others">Other Persons of Interest</a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&status=<%=aCase.getStatus()%>&type=victims">Victims</a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&status=<%=aCase.getStatus()%>&type=witnesses">Witnesses</a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&status=<%=aCase.getStatus()%>&type=suspects"><%=aCase.getStatus().equals("open") ? "Suspects" : "Perpetrators"%></a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&status=<%=aCase.getStatus()%>&type=convicts">Convicts</a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&status=<%=aCase.getStatus()%>&type=others">Other Persons of Interest</a><br/>
 <br/>
 <%
 if (user != null) {

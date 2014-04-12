@@ -6,8 +6,9 @@
 <%@ include file="Header.jsp" %>
 <% final User user = (User) session.getAttribute("user");
 String type = (String) session.getAttribute("persType");
-type = type == null ? "" : type;
-final String fType = type;
+final String originalType = type == null ? "" : type;
+final String caseStatus = (String) session.getAttribute("status");
+type = type.equals("suspects") ? (caseStatus.equals("open") ? "suspects" : "perpetrators") : type;
 String upType = type.isEmpty() ? "" : Character.toUpperCase(type.charAt(0)) + type.substring(1);
 int caseID = (Integer)session.getAttribute("lastCase");
 final String PAGE_URL = "http://localhost:8080/IntroDBProject";
@@ -22,7 +23,7 @@ final String PAGE_URL = "http://localhost:8080/IntroDBProject";
 <% if(user != null){ %>
 <form action = "AddPersonOfInterest" method = "get" >
 	<input type="hidden" name="caseID" value ="<%=caseID%>">
-	<input type="hidden" name="type" value ="<%=fType%>">
+	<input type="hidden" name="type" value ="<%=type%>">
 	<input type="submit" value="Add New">
 </form>
 <%}%>
