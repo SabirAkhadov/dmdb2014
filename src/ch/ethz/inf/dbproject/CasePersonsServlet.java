@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import ch.ethz.inf.dbproject.model.DatastoreInterface;
 import ch.ethz.inf.dbproject.model.Case;
 import ch.ethz.inf.dbproject.model.PersonOfInterest;
+import ch.ethz.inf.dbproject.model.User;
 import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
 
 @WebServlet(description = "View Persons of Interest linked to a Case", urlPatterns = {"/CasePersons"})
@@ -36,6 +37,7 @@ public final class CasePersonsServlet extends  HttpServlet {
 			throws ServletException, IOException {
 
 		final HttpSession session = request.getSession(true);
+		final User user = (User) session.getAttribute("user");
 
 		String caseIDstr = request.getParameter("id");
 		int caseID = -1;
@@ -77,6 +79,8 @@ public final class CasePersonsServlet extends  HttpServlet {
 		personsTable.addBeanColumn("Birthdate", "BirthDay");
 		personsTable.addBeanColumn("still alive?", "alive");
 		personsTable.addLinkColumn("",	"View Person"	, "PersonOfInterest?id=", "Id");
+		if(user != null)
+			personsTable.addLinkColumn("", "unlink", "RemovePersonOfInterest?caseID="+caseID+"&persID=","Id");
 
 		List<PersonOfInterest> personList = null;
 		if(type.equals("convicts")){
