@@ -35,6 +35,7 @@ public final class PersonOfInterestServlet extends HttpServlet {
 		final DatastoreInterface dsi = new DatastoreInterface();
 
 		final String idString = request.getParameter("id");
+		
 		if (idString == null) {
 			this.getServletContext().getRequestDispatcher("/PersonsOfInterest").forward(request, response);
 			return;

@@ -85,7 +85,7 @@ public final class UserServlet extends HttpServlet {
 		final BeanTableHelper<User> userDetails = new BeanTableHelper<User>("userDetails", "userDetails", User.class);
 		userDetails.addBeanColumn("Username", "Name");
 		userDetails.addBeanColumn("Email", "Email");
-		userDetails.addBeanColumn("Password", "Password");
+		//userDetails.addBeanColumn("Password", "Password"); don't display password
 		userDetails.addObject(user);
 		session.setAttribute(SESSION_USER_DETAILS, userDetails.generateHtmlCode());
 		
