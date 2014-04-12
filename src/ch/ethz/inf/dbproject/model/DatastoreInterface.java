@@ -130,8 +130,15 @@ public final class DatastoreInterface {
 			//Persons
 			insertPersonst = sqlConnection.prepareStatement("INSERT INTO personofinterest VALUES (null, ?, ?, ?, ?)");
 			AllPersons = sqlConnection.prepareStatement(persConstr + ";");
-			personById = sqlConnection.prepareStatement(persConstr + "WHERE pers.PersID = ?");
-			concernsById = sqlConnection.prepareStatement("SELECT CaseID as concernCaseIDs, reason From concerns WHERE PersID = ?");
+
+			personById = sqlConnection.prepareStatement(persConstr + " WHERE pers.PersID = ?");
+			concernsById = sqlConnection.prepareStatement("SELECT * FROM (SELECT CaseID as CaseIDs, PersID From concerns UNION " +
+					"SELECT CaseID as CaseIDs, PersID From convicted UNION " +
+					"SELECT CaseID as CaseIDs, PersID From suspected UNION " +
+					"SELECT CaseID as CaseIDs, PersID From victim UNION " +
+					"SELECT CaseID as CaseIDs, PersID From witnessed ) AS a " +
+					"WHERE a.PersID = ?");
+			
 			relatedPerson = sqlConnection.prepareStatement("SELECT PersID2, firstname, lastname, relationship FROM related, personofinterest WHERE PersID2 = PersID AND PersID1 = ?");
 			personNotes = sqlConnection.prepareStatement("SELECT content, name, timestamp FROM noteperson AS np, notes AS n, user AS u " +
 					"WHERE np.NoteID = n.NoteID AND n.UserID = u.UserID AND np.PersID = ?");
