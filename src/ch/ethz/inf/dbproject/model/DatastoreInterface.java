@@ -114,6 +114,18 @@ public final class DatastoreInterface {
 	private PreparedStatement personSuspectsByCaseID;
 	private PreparedStatement personWitnessesByCaseID;
 	private PreparedStatement personOthersByCaseID;
+	
+	private PreparedStatement insertVictim;
+	private PreparedStatement insertConvicted;
+	private PreparedStatement insertSuspect; 
+	private PreparedStatement insertWitnessed; 
+	private PreparedStatement insertConcerns;
+	
+	private PreparedStatement deleteVictim;
+	private PreparedStatement deleteConvicted;
+	private PreparedStatement deleteSuspect; 
+	private PreparedStatement deleteWitnessed; 
+	private PreparedStatement deleteConcerns;
 
 	private Connection sqlConnection;
 
@@ -183,6 +195,20 @@ public final class DatastoreInterface {
 			commentInsert = sqlConnection.prepareStatement("INSERT INTO notes(userID, content) VALUES (?,?);");
 			commentInsertHelper = sqlConnection.prepareStatement("SELECT * FROM notes WHERE userID = ? AND content = ? ORDER BY timestamp DESC LIMIT 1;");
 			commentInsertNC = sqlConnection.prepareStatement("INSERT INTO notecase(noteid, caseid) VALUES (?,?)");
+			
+			//Insert relations:
+			insertVictim = sqlConnection.prepareStatement("INSERT INTO Victim (CaseID, PersID) VALUES (?, ?);");
+			insertConvicted = sqlConnection.prepareStatement("INSERT INTO Convicted (CaseID, PersID, type, sentence, date, enddate) VALUES (?, ?, ?, ?, ?, ?);");
+			insertSuspect = sqlConnection.prepareStatement("INSERT INTO Suspected (CaseID, PersID, reason) VALUES (?, ?, ?);");
+			insertWitnessed = sqlConnection.prepareStatement("INSERT INTO Witnessed (CaseID, PersID) VALUES (?, ?);");
+			insertConcerns = sqlConnection.prepareStatement("INSERT INTO Concerns (CaseID, PersID, reason) VALUES (?, ?, ?);");
+			
+			//Delete relations:
+			deleteVictim = sqlConnection.prepareStatement("DELETE FROM Victim WHERE CaseID = ? AND PersID = ?;");
+			deleteConvicted = sqlConnection.prepareStatement("DELETE FROM Convicted WHERE CaseID = ? AND PersID = ?;");
+			deleteSuspect = sqlConnection.prepareStatement("DELETE FROM Suspected WHERE CaseID = ? AND PersID = ?;");
+			deleteWitnessed = sqlConnection.prepareStatement("DELETE FROM Witnessed WHERE CaseID = ? AND PersID = ?;");
+			deleteConcerns = sqlConnection.prepareStatement("DELETE FROM Concerns WHERE CaseID = ? AND PersID = ?;");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1059,5 +1085,14 @@ public final class DatastoreInterface {
 			}
 			return null;
 	}
+	
+	public final String insertPersonCaseRelation(int caseID) {
+		
+	}
+
+	public final String deletePersonCaseRelation(String caseID, String persID, String type) {
+	
+	}
+}
 
 }

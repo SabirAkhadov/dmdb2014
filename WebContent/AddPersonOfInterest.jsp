@@ -46,23 +46,22 @@ Please log in.
 			<input type="hidden" name="caseID" value="<%=caseID%>"/>
 			<input type="hidden" name="type" value="<%=type%>"/>
 			<%if(type.equals("convicts")){//CaseID, PersID, type, sentence, date, enddate%>
-			<input type="text" name="crime_type"/>
-			<textarea rows="4" cols="50" name="sentence"></textarea>
-			<input type="text" name="date"/>
-			<input type="text" name="enddate"/>
+			Crime type: <input type="text" name="crime_type"/><br>
+			Sentence: <textarea rows="4" cols="50" name="sentence"></textarea><br>
+			Date: <input type="text" name="date"/><br>
+			End-date: <input type="text" name="enddate"/>
 			<%}else if (type.equals("victims")){//CaseID, PersID%>
 			
 			<%}else if(type.equals("suspects")){//CaseID, PersID, reason%>
-			<textarea rows="4" cols="50" name="reason"></textarea>
+			Reason: <textarea rows="4" cols="50" name="reason"></textarea>
 			<%}else if(type.equals("witnesses")){//CaseID, PersID%>
 			
 			<%}else if(type.equals("others")){//CaseID, PersID, reason%>
-			<textarea rows="4" cols="50" name="reason"></textarea>
+			Reason: <textarea rows="4" cols="50" name="reason"></textarea>
 			<%}%>
 			<input type="submit" value="Confirm addition" title="Confirm" />
 		</div>
 		</form>
-			You chose <%= persID %>
 	<% } %>
 
 <% } %>
