@@ -37,6 +37,7 @@ if(user != null) {
 <a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=victims">Victims</a><br/>
 <a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=suspects">Suspects</a><br/>
 <a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=witnesses">Witnesses</a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=convicts">Convicts</a><br/>
 <a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=others">Other Persons of Interest</a><br/>
 <br/>
 <%
