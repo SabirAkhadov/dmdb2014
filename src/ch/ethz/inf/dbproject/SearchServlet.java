@@ -98,7 +98,7 @@ public final class SearchServlet extends HttpServlet {
 				final String alive = request.getParameter("alive");
 				
 				if(firstname != null && lastname != null && birthday != null && alive != null){
-					table.addObjects(this.dbInterface.getAllPersonsOfInterest());
+					table.addObjects(this.dbInterface.searchForPersons(firstname, lastname, birthday, alive));
 				}
 				
 				

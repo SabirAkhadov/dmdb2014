@@ -801,37 +801,37 @@ public final class DatastoreInterface {
 	}
 	//Search persons of interest query
 	public final List<PersonOfInterest> searchForPersons(String firstname, String lastname, String birthday, String alive) {
+		String StatementS = persConstr + " WHERE 1=1";
+		if(!firstname.equals("")){
+			StatementS += " AND pers.firstname LIKE '" + firstname + "'";
+		}
+		if(!lastname.equals("")){
+			StatementS += " AND pers.lastname LIKE '" + lastname + "'";
+		}
+		if(!birthday.equals("")){
+			StatementS += " AND pers.birthday LIKE '" + birthday + "'";
+		}
+		if(!alive.equals("")){
+			StatementS += " AND pers.alive = '" + alive + "'";
+		}
+		StatementS += ";";
+		
 		try {
 			final List <PersonOfInterest> personsList = new ArrayList<PersonOfInterest> ();
 			
-			AllPersons.execute();
-			ResultSet rs = AllPersons.getResultSet();
+			PreparedStatement s;
+			s = sqlConnection.prepareStatement(StatementS);
+			s.execute();
+			ResultSet rs = s.getResultSet();
 			
-			while (rs.next()) {
-				String id = rs.getString("PersID");
-				concernsById.setString(1, id);
-				concernsById.execute();
-				ResultSet cr = concernsById.getResultSet();
-				
-				personNotes.setString(1, id);
-				personNotes.execute();
-				ResultSet nr = personNotes.getResultSet();
-				
-				relatedPerson.setString(1, id);
-				relatedPerson.execute();
-				ResultSet rr = personNotes.getResultSet();
-				
-				personsList.add(new PersonOfInterest (rs, cr, nr, rr));
-				cr.close();
+			while (rs.next()){
+			 personsList.add(new PersonOfInterest (rs));
 			}
-			
 			rs.close();
 			return personsList;
-
-
-		} catch (final SQLException ex) {
-			ex.printStackTrace();
-			return null;			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 	
