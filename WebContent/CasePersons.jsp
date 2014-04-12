@@ -21,8 +21,8 @@ final String PAGE_URL = "http://localhost:8080/IntroDBProject";
 
 <% if(user != null){ %>
 <form action = "AddPersonOfInterest" method = "get" >
-	<input type="hidden" name="caseID" value ="">
-	<input type="hidden" name="type" value = "<%=fType%>">
+	<input type="hidden" name="caseID" value ="<%=caseID%>">
+	<input type="hidden" name="type" value ="<%=fType%>">
 	<input type="submit" value="Add New">
 </form>
 <%}%>
