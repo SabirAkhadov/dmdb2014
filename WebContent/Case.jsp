@@ -4,7 +4,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
 <% final User user = (User) session.getAttribute("user"); %>
-<% final Case aCase = (Case)session.getAttribute("case"); %>
+<% final Case aCase = (Case)session.getAttribute("case"); 
+   final String PAGE_URL = "http://localhost:8080/IntroDBProject";%>
 
 <h1>Case Details</h1>
 <%
@@ -18,7 +19,6 @@ session.setAttribute("caseCommentError", null);
 }
 %>
 <%=session.getAttribute("caseTable")%>
-
 <%
 if(user != null) {
 	//if user is logged in, he may edit
@@ -33,7 +33,11 @@ if(user != null) {
 <%		
 	}
 %>
-
+<br />
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=victims">Victims</a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=suspects">Suspects</a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=witnesses">Witnesses</a><br/>
+<a href="<%=PAGE_URL%>/CasePersons?id=<%=aCase.getId()%>&type=others">Other Persons of Interest</a><br/>
 <br/>
 <%
 if (user != null) {
@@ -52,7 +56,7 @@ if (user != null) {
 <%
 }
 %>
-
+Comments:<br/>
 <%=	session.getAttribute("commentTable")%>
 
 <%@ include file="Footer.jsp"%>

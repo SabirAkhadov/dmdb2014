@@ -15,7 +15,7 @@ import ch.ethz.inf.dbproject.model.Case;
 import ch.ethz.inf.dbproject.model.PersonOfInterest;
 import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
 
-@WebServlet(description = "The home page of the project", urlPatterns = { "/CasePersons" })
+@WebServlet(description = "View Persons of Interest linked to a Case", urlPatterns = {"/CasePersons"})
 public final class CasePersonsServlet extends  HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -62,7 +62,7 @@ public final class CasePersonsServlet extends  HttpServlet {
 
 		final BeanTableHelper<PersonOfInterest> personsTable = new BeanTableHelper<PersonOfInterest>(
 				"persons" 		/* The table html id property */,
-				"personsTable" /* The table html class property */,
+				"caseTable" /* The table html class property */,
 				PersonOfInterest.class 	/* The class of the objects (rows) that will be displayed */
 				);
 
@@ -93,12 +93,14 @@ public final class CasePersonsServlet extends  HttpServlet {
 			return;
 		}
 		
-		if(personList.isEmpty())
-			session.setAttribute("personsTable", null);
-		else
-			session.setAttribute("personsTable", personsTable);
+		if(personList.isEmpty()){
+			session.setAttribute("noPersons", "not null");
+		}else{
+			session.setAttribute("noPersons", null);
+		}
 		
-		this.getServletContext().getRequestDispatcher("/CasePersons.jsp");
+		session.setAttribute("personsTable", personsTable);
+		this.getServletContext().getRequestDispatcher("/CasePersons.jsp").forward(request, response);
 
 	}
 
