@@ -8,10 +8,15 @@
 
 	if (session.getAttribute("PersonEdited") == "true"){
 	%>
-		
 	<font color="green">Person edited</font>
 	<% 
 	session.setAttribute("PersonEdited", null);
+	}
+	if (session.getAttribute("PersonCommented") == "false"){
+	%>
+		<font color="red">There was an error with adding note.<br>Notes cannot be empty.</font>
+	<% 
+	session.setAttribute("PersonCommented", null);
 	}
 	%>
 <h1>Person of interest details</h1>
@@ -26,11 +31,12 @@ if (user != null) {
 	
 	<form action="PersonOfInterest" method="get">
 		<input type="hidden" name="action" value="addNotes" />
+		<input type="hidden" name = "id" value = <%=((PersonOfInterest)(session.getAttribute("personToEdit"))).getId()%> />
 		Add notes
 		<br />
 		<textarea rows="4" cols="50" name="personNotes"></textarea>
 		<br />
-		<input type="submit" value="Submit" />
+		<input type="submit" value="Add note" />
 	</form>
 <%
 }

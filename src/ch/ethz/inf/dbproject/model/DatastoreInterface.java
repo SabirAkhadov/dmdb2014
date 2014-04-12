@@ -108,6 +108,7 @@ public final class DatastoreInterface {
 	private PreparedStatement relatedPerson;
 	private PreparedStatement insertPersonst;
 	private PreparedStatement editPersonst;
+	private PreparedStatement addNotesToPerson;
 
 	private PreparedStatement personConvictsByCaseID;
 	private PreparedStatement personVictimsByCaseID;
@@ -183,6 +184,7 @@ public final class DatastoreInterface {
 			commentInsert = sqlConnection.prepareStatement("INSERT INTO notes(userID, content) VALUES (?,?);");
 			commentInsertHelper = sqlConnection.prepareStatement("SELECT * FROM notes WHERE userID = ? AND content = ? ORDER BY timestamp DESC LIMIT 1;");
 			commentInsertNC = sqlConnection.prepareStatement("INSERT INTO notecase(noteid, caseid) VALUES (?,?)");
+			addNotesToPerson = sqlConnection.prepareStatement("INSERT INTO noteperson VALUES (?,?)");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -944,7 +946,27 @@ public final class DatastoreInterface {
 			return false;
 		}
 	}
+	
+	public boolean addNotesToPerson (String notes, String PersId, String UserId){
+		try{
+			if(notes.isEmpty())
+				return false;
 
+			int noteID = insertNote(Integer.parseInt(UserId), notes);
+
+			if(noteID < 0) return false;
+	
+			addNotesToPerson.setInt(1, noteID);
+			addNotesToPerson.setString(2, PersId);
+			addNotesToPerson.execute();
+			return true;
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return false;
+		}
+		
+	}
+	
 	public final List<PersonOfInterest> getConvictsByCaseID(int caseID) {
 		try{
 		List<PersonOfInterest> convicts = new ArrayList<PersonOfInterest>();
