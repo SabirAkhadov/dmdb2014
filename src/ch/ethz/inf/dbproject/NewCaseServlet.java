@@ -117,7 +117,7 @@ public class NewCaseServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
 			}
-			if((month == 2) && (day == 29) && (year % 4 != 0)){ //may happen
+			if((month == 2) && (day == 29) && ((year % 4 != 0) || (year % 100 == 0 &&  year % 400 != 0 ))){ //may happen
 				session.setAttribute("newCaseError", year + " was not a leap year.");
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
