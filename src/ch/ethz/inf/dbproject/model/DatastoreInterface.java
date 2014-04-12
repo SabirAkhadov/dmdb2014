@@ -137,7 +137,7 @@ public final class DatastoreInterface {
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
 			caseClosed = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 0;");
 			caseMostRecent = sqlConnection.prepareStatement(caseConstr + "ORDER BY cas.date DESC;");
-			caseOldestUnresolved = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1 ORDER BY cas.date DESC;");
+			caseOldestUnresolved = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1 ORDER BY cas.date ASC;");
 			caseByCategory = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name = ? ORDER BY cas.date DESC;" );
 			caseOthers = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name NOT IN ('Assault','Theft') ORDER BY cas.date DESC");
 			caseInsert = sqlConnection.prepareStatement("INSERT INTO cases(date,status,location,time,description,title) VALUES (?,1,?,?,?,?)");
