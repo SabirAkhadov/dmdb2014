@@ -47,7 +47,7 @@ public final class DatastoreInterface {
 			" FROM" +
 			" category" +
 			" "; //do not forget final space
-	
+
 	private final String commentConstr = "" +
 			"SELECT" +
 			" u.name AS username," +
@@ -58,7 +58,7 @@ public final class DatastoreInterface {
 			" INNER JOIN NoteCase AS nc ON n.NoteID = nc.NoteID" +
 			" LEFT JOIN User AS u ON n.UserID = u.UserID" +
 			" "; //do not forget final space
-	
+
 	private final String persConstr = " Select" +
 			" pers.PersID as PersID," +
 			" pers.firstname as FirstName," +
@@ -66,13 +66,13 @@ public final class DatastoreInterface {
 			" pers.birthday as Birthday," +
 			" pers.alive as alive" +
 			" FROM" +
-			" personofinterest as pers";
-	
-	
+			" personofinterest as pers" +
+			" ";
+
 	private PreparedStatement userValidate;
 	private PreparedStatement userNamest;
 	private PreparedStatement insertUserst;
-	
+
 	private PreparedStatement caseByID;
 	private PreparedStatement caseAll;
 	private PreparedStatement caseOpen;
@@ -107,7 +107,13 @@ public final class DatastoreInterface {
 	private PreparedStatement personNotes;
 	private PreparedStatement relatedPerson;
 	private PreparedStatement insertPersonst;
-	
+
+	private PreparedStatement personConvictsByCaseID;
+	private PreparedStatement personVictimsByCaseID;
+	private PreparedStatement personSuspectsByCaseID;
+	private PreparedStatement personWitnessesByCaseID;
+	private PreparedStatement personOthersByCaseID;
+
 	private Connection sqlConnection;
 
 	public DatastoreInterface() {
@@ -115,15 +121,16 @@ public final class DatastoreInterface {
 		this.sqlConnection = MySQLConnection.getInstance().getConnection();
 
 		try {
-			
+
 			//Users
 			userNamest = sqlConnection.prepareStatement("SELECT * FROM user WHERE name = ?");
 			insertUserst = sqlConnection.prepareStatement("INSERT INTO user VALUES (null, ?, ?, ?)");
 			userValidate = sqlConnection.prepareStatement("SELECT * FROM user WHERE BINARY name = ? and BINARY password = ?");
-			
+
 			//Persons
 			insertPersonst = sqlConnection.prepareStatement("INSERT INTO personofinterest VALUES (null, ?, ?, ?, ?)");
 			AllPersons = sqlConnection.prepareStatement(persConstr + ";");
+
 			personById = sqlConnection.prepareStatement(persConstr + " WHERE pers.PersID = ?");
 			concernsById = sqlConnection.prepareStatement("SELECT * FROM (SELECT CaseID as CaseIDs, PersID From concerns UNION " +
 					"SELECT CaseID as CaseIDs, PersID From convicted UNION " +
@@ -131,10 +138,17 @@ public final class DatastoreInterface {
 					"SELECT CaseID as CaseIDs, PersID From victim UNION " +
 					"SELECT CaseID as CaseIDs, PersID From witnessed ) AS a " +
 					"WHERE a.PersID = ?");
+			
 			relatedPerson = sqlConnection.prepareStatement("SELECT PersID2, firstname, lastname, relationship FROM related, personofinterest WHERE PersID2 = PersID AND PersID1 = ?");
 			personNotes = sqlConnection.prepareStatement("SELECT content, name, timestamp FROM noteperson AS np, notes AS n, user AS u " +
 					"WHERE np.NoteID = n.NoteID AND n.UserID = u.UserID AND np.PersID = ?");
-			
+
+			personConvictsByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM convicted WHERE caseID = ?;");
+			personVictimsByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM victim WHERE caseID = ?;");
+			personSuspectsByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM suspected WHERE caseID = ?;");
+			personWitnessesByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM witnessed WHERE caseID = ?;");
+			personOthersByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM concerns WHERE caseID = ?;");
+
 			//Cases
 			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
 			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
@@ -147,7 +161,8 @@ public final class DatastoreInterface {
 			caseOthers = sqlConnection.prepareStatement(caseConstr + "WHERE cat.name NOT IN ('Assault','Theft') ORDER BY cas.date DESC");
 			caseInsert = sqlConnection.prepareStatement("INSERT INTO cases(date,status,location,time,description,title) VALUES (?,1,?,?,?,?)");
 			caseInsertHelper = sqlConnection.prepareStatement("SELECT * from cases WHERE date = ? AND status = 1 AND location = ? AND time = ? AND description = ? AND title = ? LIMIT 1");
-			
+
+			//Categories
 			categoryAll = sqlConnection.prepareStatement(categoryConstr);
 			categoryByName = sqlConnection.prepareStatement(categoryConstr + "WHERE name = ?;");
 			categoryByID = sqlConnection.prepareStatement(categoryConstr + "WHERE catID = ?;");
@@ -156,9 +171,11 @@ public final class DatastoreInterface {
 			catUnlinkByCaseID = sqlConnection.prepareStatement("DELETE FROM CaseCategory WHERE CatID = ? AND CaseID = ?;");
 			catLinkToCaseID = sqlConnection.prepareStatement("INSERT INTO Casecategory(catID,caseID) VALUES (?,?);");
 
+			//Logs
 			openLog = sqlConnection.prepareStatement("INSERT INTO open(UserID,CaseID) VALUES (?,?);");
 			closeLog = sqlConnection.prepareStatement("INSERT INTO close(UserID,CaseID) VALUES (?,?);");
-			
+
+			//Comments
 			commentByCaseID = sqlConnection.prepareStatement(commentConstr + "WHERE caseID = ?");
 			commentInsert = sqlConnection.prepareStatement("INSERT INTO notes(userID, content) VALUES (?,?);");
 			commentInsertHelper = sqlConnection.prepareStatement("SELECT * FROM notes WHERE userID = ? AND content = ? ORDER BY timestamp DESC LIMIT 1;");
@@ -317,7 +334,7 @@ public final class DatastoreInterface {
 		}
 
 	}
-	
+
 	/**
 	 * Inserts a new case into the database.
 	 * @param nCase a helper object, storing all the information necessary.
@@ -329,42 +346,42 @@ public final class DatastoreInterface {
 			int catID = -1;
 			if(nCase.getCategory() != null)
 				catID = insertCategory(nCase.getCategory());
-			
+
 			//insert into cases (date,status,location,time,description,title)
 			caseInsert.setString(1, "" + nCase.getYear() + "-" + nCase.getMonth() + "-" + nCase.getDay());
 			caseInsert.setString(2, nCase.getLocation());
 			caseInsert.setString(3, "" + nCase.getHours() + ":" + nCase.getMins() + ":" + "00");
 			caseInsert.setString(4, nCase.getDescription());
 			caseInsert.setString(5, nCase.getTitle());
-			
+
 			caseInsert.execute();
-			
+
 			//get caseID
 			caseInsertHelper.setString(1, "" + nCase.getYear() + "-" + nCase.getMonth() + "-" + nCase.getDay());
 			caseInsertHelper.setString(2, nCase.getLocation());
 			caseInsertHelper.setString(3, "" + nCase.getHours() + ":" + nCase.getMins() + ":" + "00");
 			caseInsertHelper.setString(4, nCase.getDescription());
 			caseInsertHelper.setString(5, nCase.getTitle());
-			
+
 			ResultSet rs = caseInsertHelper.executeQuery();
-			
+
 			if(rs.next())
 				caseID = rs.getInt("caseID");
 			else
 				return "There was an error inserting the case. Please try again or contact us if the issue persists";
-			
+
 			//insert into open
 			openLog.setInt(1, nCase.getUserID());
 			openLog.setInt(2, caseID);
 			openLog.execute();
-			
+
 			//link case to its category
 			catLinkToCaseID.setInt(1, catID);
 			catLinkToCaseID.setInt(2, caseID);
 			catLinkToCaseID.execute();
-			
+
 			return null;
-			
+
 		}catch(Exception ex){
 			ex.printStackTrace();
 			return "There was an unexpected error. Please try again or contact us if the issue persists.";
@@ -575,12 +592,12 @@ public final class DatastoreInterface {
 		try{
 			commentByCaseID.setInt(1, caseID);
 			final ResultSet rs = commentByCaseID.executeQuery();
-			
+
 			final List<Comment> comments = new ArrayList<Comment>();
-			
+
 			while(rs.next())
 				comments.add(new Comment(rs));
-			
+
 			return comments;
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -591,30 +608,30 @@ public final class DatastoreInterface {
 	public final String addCommentToCase(String commentStr, int caseID, int userID){
 		try{
 			//System.out.println("Trying to insert a new comment.");
-			
+
 			//String comment = commentStr.replace("'", "\\'").replace("\"", "\\\"").replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_"); //may not be necessary
 			String comment = commentStr.replace("'", "\\'");
 			if(comment.isEmpty())
 				return "You cannot add empty comments.";
-			
+
 			int noteID = insertNote(userID, comment);
-			
+
 			if(noteID < 0)
 				return "Whops, we cannot find your comment after inserting it.\nThis should not happen...";
-			
+
 			//System.out.println("Inserted comment. NoteID = " + noteID);
-			
+
 			commentInsertNC.setInt(1, noteID);
 			commentInsertNC.setInt(2, caseID);
 			commentInsertNC.execute();
-			
+
 			return null;
 		}catch(Exception ex){
 			ex.printStackTrace();
 			return "There was an error adding your comment.";
 		}
 	}
-	
+
 	/**
 	 * Inserts a note into the notes table and returns the resulting noteID
 	 * @param userID the user adding a comment
@@ -622,23 +639,23 @@ public final class DatastoreInterface {
 	 * @return the noteID of the inserted comment
 	 */
 	private int insertNote(int userID, String comment) throws SQLException{
-		
+
 		commentInsert.setInt(1, userID);
 		commentInsert.setString(2, comment);
 		commentInsert.execute();
-		
+
 		commentInsertHelper.setInt(1, userID);
 		commentInsertHelper.setString(2, comment);
 		ResultSet rs = commentInsertHelper.executeQuery();
-		
+
 		if(rs.next())
 			return rs.getInt("noteID");
-		
+
 		return -1;
 	}
 	//insert user to db, return user object
 	public final User insertUser(String username, String email, String password) {
-		
+
 		try {
 			insertUserst = sqlConnection.prepareStatement("INSERT INTO user Values (null, ?, ?, ?)");
 
@@ -714,10 +731,10 @@ public final class DatastoreInterface {
 			return null;
 		}
 	}
-	
+
 	//Search cases query:
 	public final List<Case> searchForCases(String firstname, String lastname, String category, String conv_date, String conv_type) {
-		
+
 		//Selection statement
 		String StatementS = "SELECT DISTINCT " +
 				" cas.id AS `id`," +
@@ -729,10 +746,10 @@ public final class DatastoreInterface {
 				" cas.date AS `date`," +
 				" cas.time AS `time`, " +
 				" cas.lastStatusChange AS `lastStatusChange` ";
-		
+
 		//FROM table setup
 		StatementS += "FROM ";
-		
+
 		//The conviction date/type matching tables
 		if(!conv_date.equals("") || !conv_type.equals("")){
 			//We have to filter the cases by conviction first! Nameclash with "date", thus rename to "COdate"
@@ -748,7 +765,7 @@ public final class DatastoreInterface {
 			//No filtering by conviction here, we just take the whole case table!
 			StatementS += "(" + caseConstr + ") cas ";
 		}
-		
+
 		//The name matching tables
 		if(!firstname.equals("") || !lastname.equals("")){
 			//Union all the tables that link people to cases.
@@ -773,17 +790,17 @@ public final class DatastoreInterface {
 			}
 			StatementS += "AND poi.PersID = pc.PersID AND pc.CaseID = cas.id ";
 		}
-		
+
 		if(!category.equals("")){
 			//Category filter
 			StatementS += "AND cas.category LIKE '" + category + "' ";
 		}
-		
+
 		StatementS += ";";
-		
-		
+
+
 		//System.out.print(StatementS);//Debugging
-		
+
 		try {
 			PreparedStatement s;
 			s = sqlConnection.prepareStatement(StatementS);
@@ -806,37 +823,37 @@ public final class DatastoreInterface {
 	}
 	//Search persons of interest query
 	public final List<PersonOfInterest> searchForPersons(String firstname, String lastname, String birthday, String alive) {
+		String StatementS = persConstr + " WHERE 1=1";
+		if(!firstname.equals("")){
+			StatementS += " AND pers.firstname LIKE '" + firstname + "'";
+		}
+		if(!lastname.equals("")){
+			StatementS += " AND pers.lastname LIKE '" + lastname + "'";
+		}
+		if(!birthday.equals("")){
+			StatementS += " AND pers.birthday LIKE '" + birthday + "'";
+		}
+		if(!alive.equals("")){
+			StatementS += " AND pers.alive = '" + alive + "'";
+		}
+		StatementS += ";";
+		
 		try {
 			final List <PersonOfInterest> personsList = new ArrayList<PersonOfInterest> ();
 			
-			AllPersons.execute();
-			ResultSet rs = AllPersons.getResultSet();
+			PreparedStatement s;
+			s = sqlConnection.prepareStatement(StatementS);
+			s.execute();
+			ResultSet rs = s.getResultSet();
 			
-			while (rs.next()) {
-				String id = rs.getString("PersID");
-				concernsById.setString(1, id);
-				concernsById.execute();
-				ResultSet cr = concernsById.getResultSet();
-				
-				personNotes.setString(1, id);
-				personNotes.execute();
-				ResultSet nr = personNotes.getResultSet();
-				
-				relatedPerson.setString(1, id);
-				relatedPerson.execute();
-				ResultSet rr = personNotes.getResultSet();
-				
-				personsList.add(new PersonOfInterest (rs, cr, nr, rr));
-				cr.close();
+			while (rs.next()){
+			 personsList.add(new PersonOfInterest (rs));
 			}
-			
 			rs.close();
 			return personsList;
-
-
-		} catch (final SQLException ex) {
-			ex.printStackTrace();
-			return null;			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 	
@@ -857,16 +874,16 @@ public final class DatastoreInterface {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 	}
-	
+
 	public PersonOfInterest getPersonById (String Id) {
-		
+
 		try {
 			personById.setString(1, Id);
 			personById.execute();
 			ResultSet rs = personById.getResultSet();
-			
+
 			concernsById.setString(1, Id);
 			concernsById.execute();
 			ResultSet CaseIds = concernsById.getResultSet();
@@ -874,11 +891,11 @@ public final class DatastoreInterface {
 			personNotes.setString(1, Id);
 			personNotes.execute();
 			ResultSet nr = personNotes.getResultSet();
-			
+
 			relatedPerson.setString(1, Id);
 			relatedPerson.execute();
 			ResultSet rr = relatedPerson.getResultSet();
-			
+
 			if (rs.next()) {
 				return new PersonOfInterest (rs, CaseIds, nr, rr);
 			}
@@ -889,18 +906,18 @@ public final class DatastoreInterface {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 	}
-	
+
 	public boolean insertPerson (String firstname, String lastname, String birthday, String alive){
-		
+
 		//insert to db
 		try {
 			insertPersonst.setString(1, firstname);
 			insertPersonst.setString(2, lastname);
 			insertPersonst.setString(3, birthday);
 			insertPersonst.setString(4, alive);
-			
+
 			insertPersonst.execute();
 			return true;
 		} catch (SQLException e) {
@@ -908,5 +925,120 @@ public final class DatastoreInterface {
 			return false;
 		}
 	}
+
+	public final List<PersonOfInterest> getConvictsByCaseID(int caseID) {
+		try{
+		List<PersonOfInterest> convicts = new ArrayList<PersonOfInterest>();
+		List<Integer> persIDs = new ArrayList<Integer>();
+		
+		personConvictsByCaseID.setInt(1, caseID);
+		ResultSet rs = personConvictsByCaseID.executeQuery();
+		
+		while(rs.next())
+			persIDs.add(rs.getInt("persID"));
+		
+		for(int id : persIDs){
+			personById.setInt(1, id);
+			convicts.add(getPersonById("" + id));
+		}
+		
+		return convicts;
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return null;
+	}
+
+	public final List<PersonOfInterest> getVictimsByCaseID(int caseID) {
+		try{
+			List<PersonOfInterest> victims = new ArrayList<PersonOfInterest>();
+			List<Integer> persIDs = new ArrayList<Integer>();
+			
+			personVictimsByCaseID.setInt(1, caseID);
+			ResultSet rs = personVictimsByCaseID.executeQuery();
+			
+			while(rs.next())
+				persIDs.add(rs.getInt("persID"));
+			
+			for(int id : persIDs){
+				personById.setInt(1, id);
+				victims.add(getPersonById("" + id));
+			}
+			
+			return victims;
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
+			return null;
+	}
+
+	public final List<PersonOfInterest> getSuspectsByCaseID(int caseID) {
+		try{
+			List<PersonOfInterest> suspects = new ArrayList<PersonOfInterest>();
+			List<Integer> persIDs = new ArrayList<Integer>();
+			
+			personSuspectsByCaseID.setInt(1, caseID);
+			ResultSet rs = personSuspectsByCaseID.executeQuery();
+			
+			while(rs.next())
+				persIDs.add(rs.getInt("persID"));
+			
+			for(int id : persIDs){
+				personById.setInt(1, id);
+				suspects.add(getPersonById("" + id));
+			}
+			
+			return suspects;
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
+			return null;
+	}
+
+	public final List<PersonOfInterest> getWitnessesByCaseID(int caseID) {
+		try{
+			List<PersonOfInterest> witnesses = new ArrayList<PersonOfInterest>();
+			List<Integer> persIDs = new ArrayList<Integer>();
+			
+			personWitnessesByCaseID.setInt(1, caseID);
+			ResultSet rs = personWitnessesByCaseID.executeQuery();
+			
+			while(rs.next())
+				persIDs.add(rs.getInt("persID"));
+			
+			for(int id : persIDs){
+				personById.setInt(1, id);
+				witnesses.add(getPersonById("" + id));
+			}
+			
+			return witnesses;
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
+			return null;
+	}
 	
+	public final List<PersonOfInterest> getOthersByCaseID(int caseID) {
+		try{
+			List<PersonOfInterest> others = new ArrayList<PersonOfInterest>();
+			List<Integer> persIDs = new ArrayList<Integer>();
+			
+			personOthersByCaseID.setInt(1, caseID);
+			ResultSet rs = personOthersByCaseID.executeQuery();
+			
+			while(rs.next())
+				persIDs.add(rs.getInt("persID"));
+			
+			for(int id : persIDs){
+				personById.setInt(1, id);
+				others.add(getPersonById("" + id));
+			}
+			
+			return others;
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
+			return null;
+	}
+
 }
