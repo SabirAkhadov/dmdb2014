@@ -807,25 +807,9 @@ public final class DatastoreInterface {
 		try {
 			AllPersons.execute();
 			ResultSet rs = AllPersons.getResultSet();
-			
-			while (rs.next()) {
-				String id = rs.getString("PersID");
-				concernsById.setString(1, id);
-				concernsById.execute();
-				ResultSet cr = concernsById.getResultSet();
-				
-				personNotes.setString(1, id);
-				personNotes.execute();
-				ResultSet nr = personNotes.getResultSet();
-				
-				relatedPerson.setString(1, id);
-				relatedPerson.execute();
-				ResultSet rr = personNotes.getResultSet();
-				
-				personsList.add(new PersonOfInterest (rs, cr, nr, rr));
-				cr.close();
+			while (rs.next()){
+			 personsList.add(new PersonOfInterest (rs));
 			}
-			
 			rs.close();
 			return personsList;
 		} catch (SQLException e) {

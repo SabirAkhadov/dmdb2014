@@ -14,13 +14,13 @@ import ch.ethz.inf.dbproject.model.User;
 
 
 @WebServlet(description = "Chage User data", urlPatterns = { "/ChangeData" })
-public class ChangeDataServlet extends HttpServlet {
+public class ChangeUserDataServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public ChangeDataServlet() {
+    public ChangeUserDataServlet() {
         super();
     }
 
