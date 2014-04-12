@@ -57,7 +57,7 @@ public final class PersonOfInterestServlet extends HttpServlet {
 		personTable.addBeanColumn("Last name", "lastName");
 		personTable.addBeanColumn("Birthday", "birthDay");
 		personTable.addBeanColumn("Is Alive?", "alive");
-		personTable.addBeanColumn("Concerned in case", "concernCase");
+		personTable.addBeanColumn("Involved in case", "concernCase");
 		personTable.addBeanColumn("Notes", "notes");
 		personTable.addBeanColumn("Related to", "related");
 		session.setAttribute("personsOfInterest", personTable);

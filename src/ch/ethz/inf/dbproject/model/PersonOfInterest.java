@@ -13,7 +13,6 @@ public class PersonOfInterest {
 	private String BirthDay;
 	
 	private List <String> concernCaseIds;
-	private List <String> concernReason;
 	private String notes;
 	private String related;
 	
@@ -53,19 +52,10 @@ public class PersonOfInterest {
 		this.setAlive(s);
 		
 		this.concernCaseIds = new ArrayList <String>();
-		this.concernReason = new ArrayList <String>();
 		
 		while (concern.next()){
-			String s1 = concern.getString("reason");
-			if (s1 == null){
-				s1 = "unknown";
-			}
-			concernReason.add(s1);
-
-			s1 =  concern.getString("concernCaseIds");
-			if (s1 == null){
-				s1 = "unknown";
-			}
+			String s1 = "";
+			s1 =  concern.getString("CaseIDs");
 			concernCaseIds.add(s1);
 		}
 		
@@ -181,8 +171,7 @@ public class PersonOfInterest {
 		String Ids = "";
 		if (concernCaseIds != null){
 			for (String id : concernCaseIds){
-				String reason = concernReason.iterator().next();
-				String s = "<a href=\"Case?id=" + id.toString() +  "\">View case</a> <br> Reason for concern: <i>" + reason + "</i><br>";
+				String s = "<br><a href=\"Case?id=" + id.toString() +  "\">View case</a><br>";
 				Ids += s;
 			}
 		}

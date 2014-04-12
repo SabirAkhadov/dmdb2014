@@ -27,12 +27,12 @@ if (user != null) {
 
 <h2>Change user Data</h2>
 
-<form action="changeData" method="post">
+<form action="ChangeData" method="post">
 	<input type="hidden" name="action" value="changeData" /> 
 	<table>
 		<tr>
 			<th>User Name</th>
-			<td><input type="text" name="username" value="" /></td>
+			<td><input type="text" name="username" value="<%=user.getName() %>" /></td>
 		</tr>
 		<tr>
 			<th>Password</th>
@@ -40,7 +40,7 @@ if (user != null) {
 		</tr>
 		<tr>
 			<th>Email</th>
-			<td><input type="text" name="email" value="" /></td>
+			<td><input type="text" name="email" value="<%=user.getEmail() %>" /></td>
 		</tr>
 		<tr>
 			<th colspan="2">

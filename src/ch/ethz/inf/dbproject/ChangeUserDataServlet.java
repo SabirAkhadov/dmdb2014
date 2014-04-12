@@ -47,14 +47,14 @@ public class ChangeUserDataServlet extends HttpServlet {
 		if (username.equals("") | password.equals("") |email.equals(""))
 		{
 			session.setAttribute("ChangeError", "true");
-			this.getServletContext().getRequestDispatcher("/changeData.jsp").forward(request, response);
+			this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
 		}
 		else {
 			User newUser = dsi.changeData(user, username, email, password);
 			if (newUser == null){
 				session.setAttribute("ChangeError", "true");
 	
-				this.getServletContext().getRequestDispatcher("/changeData.jsp").forward(request, response);
+				this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
 			}
 			else {
 				session.setAttribute("user", null);
