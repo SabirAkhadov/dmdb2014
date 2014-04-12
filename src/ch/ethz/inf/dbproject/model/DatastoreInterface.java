@@ -1105,10 +1105,96 @@ public final class DatastoreInterface {
 				ex.printStackTrace();
 			}
 			return null;
+	}/*
+	//Insert relations:
+			insertVictim = sqlConnection.prepareStatement("INSERT INTO Victim (CaseID, PersID) VALUES (?, ?);");
+			insertConvicted = sqlConnection.prepareStatement("INSERT INTO Convicted (CaseID, PersID, type, sentence, date, enddate) VALUES (?, ?, ?, ?, ?, ?);");
+			insertSuspect = sqlConnection.prepareStatement("INSERT INTO Suspected (CaseID, PersID, reason) VALUES (?, ?, ?);");
+			insertWitnessed = sqlConnection.prepareStatement("INSERT INTO Witnessed (CaseID, PersID) VALUES (?, ?);");
+			insertConcerns = sqlConnection.prepareStatement("INSERT INTO Concerns (CaseID, PersID, reason) VALUES (?, ?, ?);");
+			
+			//Delete relations:
+			deleteVictim = sqlConnection.prepareStatement("DELETE FROM Victim WHERE CaseID = ? AND PersID = ?;");
+			deleteConvicted = sqlConnection.prepareStatement("DELETE FROM Convicted WHERE CaseID = ? AND PersID = ?;");
+			deleteSuspect = sqlConnection.prepareStatement("DELETE FROM Suspected WHERE CaseID = ? AND PersID = ?;");
+			deleteWitnessed = sqlConnection.prepareStatement("DELETE FROM Witnessed WHERE CaseID = ? AND PersID = ?;");
+			deleteConcerns = sqlConnection.prepareStatement("DELETE FROM Concerns WHERE CaseID = ? AND PersID = ?;");*/
+	
+	/*private PreparedStatement insertVictim;
+	private PreparedStatement insertConvicted;
+	private PreparedStatement insertSuspect; 
+	private PreparedStatement insertWitnessed; 
+	private PreparedStatement insertConcerns;
+	
+	private PreparedStatement deleteVictim;
+	private PreparedStatement deleteConvicted;
+	private PreparedStatement deleteSuspect; 
+	private PreparedStatement deleteWitnessed; 
+	private PreparedStatement deleteConcerns;*/
+	
+	public final String insertPersonCaseRelation(String caseID, String persID, String type) {
+		try {
+			if(type.equals("victims")){
+				insertVictim.setString(1, caseID);
+				insertVictim.setString(2, persID);
+				insertVictim.execute();
+			}else if(type.equals("witnesses")){
+				insertWitnessed.setString(1, caseID);
+				insertWitnessed.setString(2, persID);
+				insertWitnessed.execute();
+			}else{
+				return "Invalid query";
+			}
+			return "Successfully inserted person";
+
+		} catch (SQLException e) { 
+			e.printStackTrace();
+			return "Error";
+		}
 	}
 	
-	public final String insertPersonCaseRelation(int caseID) {
-		return "";
+	public final String insertPersonCaseRelation(String caseID, String persID, String type, String crime_type, String sentence, String date, String enddate) {
+		try {
+			if(type.equals("convicts")){
+				insertConvicted.setString(1, caseID);
+				insertConvicted.setString(2, persID);
+				insertConvicted.setString(3, crime_type);
+				insertConvicted.setString(4, sentence);
+				insertConvicted.setString(5, date);
+				insertConvicted.setString(6, enddate);
+				insertConvicted.execute();
+			}else{
+				return "Invalid query";
+			}
+			return "Successfully inserted person";
+
+		} catch (SQLException e) { 
+			e.printStackTrace();
+			return "Error";
+		}
+	}
+	
+	public final String insertPersonCaseRelation(String caseID, String persID, String type, String reason) {
+		try {
+			if(type.equals("suspects")){
+				insertSuspect.setString(1, caseID);
+				insertSuspect.setString(2, persID);
+				insertSuspect.setString(3, reason);
+				insertSuspect.execute();
+			}else if(type.equals("others")){
+				insertConcerns.setString(1, caseID);
+				insertConcerns.setString(2, persID);
+				insertConcerns.setString(3, reason);
+				insertConcerns.execute();
+			}else{
+				return "Invalid query";
+			}
+			return "Successfully inserted person";
+
+		} catch (SQLException e) { 
+			e.printStackTrace();
+			return "Error";
+		}
 	}
 
 	public final String deletePersonCaseRelation(String caseID, String persID, String type) {

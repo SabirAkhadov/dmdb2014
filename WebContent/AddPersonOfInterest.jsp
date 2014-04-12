@@ -9,12 +9,13 @@ final User user = (User) session.getAttribute("user");
 String type = request.getParameter("type");
 String caseID = request.getParameter("caseID");
 String persID = request.getParameter("persID");
+String confirm = request.getParameter("confirm");
 %>
 
 <% if(user == null){ %>
 You are not authorized to edit cases.
 Please log in.
-<% } else if(type != null && caseID != null){%>
+<% } else if(type != null && caseID != null && confirm == null){%>
 <h1>Add person of interest to Case ID <%= caseID %></h1>
 
 	<%if(persID == null){%>
@@ -43,6 +44,7 @@ Please log in.
 		<form method="post" action="AddPersonOfInterest">
 		<div>
 			<input type="hidden" name="confirm" value="1"/>
+			<input type="hidden" name="persID" value="<%=persID%>"/>
 			<input type="hidden" name="caseID" value="<%=caseID%>"/>
 			<input type="hidden" name="type" value="<%=type%>"/>
 			<%if(type.equals("convicts")){//CaseID, PersID, type, sentence, date, enddate%>
@@ -64,6 +66,7 @@ Please log in.
 		</form>
 	<% } %>
 
+<% }else{ %>
+		<%=session.getAttribute("results")%>
 <% } %>
-
 <%@ include file="Footer.jsp"%>

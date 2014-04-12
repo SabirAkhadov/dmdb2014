@@ -72,21 +72,43 @@ public class AddPersonServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-final HttpSession session = request.getSession(true);
+		final HttpSession session = request.getSession(true);
 		
-		session.setAttribute("results", "");
+		session.setAttribute("results", "Invalid query.");
 		final User user = (User) session.getAttribute("user");
-		if(user != null) {
 		
-			final String firstname = request.getParameter("firstname");
-			final String lastname = request.getParameter("lastname");
-			final String birthday = request.getParameter("birthday");
-			final String alive = request.getParameter("alive");
+		final String type = request.getParameter("type");
+		final String caseID = request.getParameter("caseID");
+		final String persID = request.getParameter("persID");
+		
+		final String reason = request.getParameter("reason");
+		final String crime_type = request.getParameter("crime_type");
+		final String sentence = request.getParameter("sentence");
+		final String date = request.getParameter("date");
+		final String enddate = request.getParameter("enddate");
+		
+		if(user != null) {
+			if(caseID != null && persID != null){
+				
+				String db_response = "Invalid query.";
+				
+				
+				if(type.equals("convicts") && crime_type != null && sentence != null && date != null && enddate != null){//CaseID, PersID, type, sentence, date, enddate
+					db_response = this.dbInterface.insertPersonCaseRelation(caseID, persID, type, crime_type, sentence, date, enddate);
+				}else if (type.equals("victims")){//CaseID, PersID
+					db_response = this.dbInterface.insertPersonCaseRelation(caseID, persID, type);
+				}else if(type.equals("suspects") && reason != null){//CaseID, PersID, reason
+					db_response = this.dbInterface.insertPersonCaseRelation(caseID, persID, type, reason);
+				}else if(type.equals("witnesses")){//CaseID, PersID
+					db_response = this.dbInterface.insertPersonCaseRelation(caseID, persID, type);
+				}else if(type.equals("others") && reason != null){//CaseID, PersID, reason
+					db_response = this.dbInterface.insertPersonCaseRelation(caseID, persID, type, reason);
+				}
+				session.setAttribute("results", db_response);
+			}
 			
-			final String type = request.getParameter("type");
-			final String caseID = request.getParameter("caseID");
-			final String persID = request.getParameter("persID");
 		}
+		this.getServletContext().getRequestDispatcher("/AddPersonOfInterest.jsp").forward(request, response);
 	}
 
 }
