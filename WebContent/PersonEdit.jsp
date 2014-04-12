@@ -1,17 +1,40 @@
 <%@ page import="ch.ethz.inf.dbproject.model.User"%>
-<%@ page import="ch.ethz.inf.dbproject.model.Case"%>
+<%@ page import="ch.ethz.inf.dbproject.model.PersonOfInterest"%>
 <%@ page import="ch.ethz.inf.dbproject.util.UserManagement"%>
+<%@ page import="java.util.Calendar" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
 <% final User user = (User) session.getAttribute("user"); %>
-<% final String errorMsg = (String)session.getAttribute("personEditError"); %>
+<% final String errorMsg = (String)session.getAttribute("editPersonError"); 
+	PersonOfInterest p = (PersonOfInterest)(session.getAttribute("personToEdit"));%>
 
-<%if (user == null){
+
+<%
+if (errorMsg!= null){
+	
+%>
+	<font color="red"><%=errorMsg%></font>
+<% 
+	session.setAttribute("editPersonError", null);
+}
+	if (user == null){
 	%>
 	<h3> You have to be logged in.</h3>
 <%	
 }
 else {
+	int day,month, year;
+	if (p.getBirthDay() != "unknown"){
+		String [] birthday = p.getBirthDay().split("-");
+		day = Integer.parseInt(birthday[2]);
+		month = Integer.parseInt(birthday[1]);
+		year = Integer.parseInt(birthday[0]);
+	}
+	else{
+		day = 1;
+		month = 1; 
+		year = 1800;
+	}
 %>
 <h1>Edit person of interest</h1>
 
@@ -20,19 +43,63 @@ else {
 	<table>
 		<tr>
 			<th>First name</th>
-			<td><input type="text" name="firstname" value="" /></td>
+			<td><input type="text" name="firstname" value="<%=p.getFirstName() %>" /></td>
 		</tr>
 		<tr>
 			<th>Last name</th>
-			<td><input type="text" name="lastname" value="" /></td>
+			<td><input type="text" name="lastname" value="<%=p.getLastName() %>" /></td>
 		</tr>
 		<tr>
-			<th>Email</th>
-			<td><input type="text" name="email" value="" /></td>
+			<th>Birthday</th>
+			<td><select name="day">
+			<% for(int i = 1; i < 32; i++){ 
+				if(i == day){%>
+				<option value=<%=String.format("%02d", i)%> selected = selected><%=String.format("%02d", i)%></option>
+				<%}else{%>
+				<option value=<%=String.format("%02d", i)%>><%=String.format("%02d", i)%></option>
+				<%}//end if%>
+			<%}//end for%>
+			</select> . <select name = "month">
+			<% for(int i = 1; i < 13; i++){ 
+				if(i == month){%>
+				<option value=<%=String.format("%02d", i)%> selected = selected><%=String.format("%02d", i)%></option>
+				<%}else{%>
+				<option value=<%=String.format("%02d", i)%>><%=String.format("%02d", i)%></option>
+				<%}//end if%>
+			<%}//end for%>
+			</select> . <select name = "year">
+			<% for(int i = 1900; i <= Calendar.getInstance().get(Calendar.YEAR); i++){
+				if(i == year){%>
+				<option value=<%=String.format("%02d", i)%> selected = selected><%=String.format("%02d", i)%></option>
+				<%}else{%>
+				<option value=<%=String.format("%02d", i)%>><%=String.format("%02d", i)%></option>
+				<%}//end if%>
+			<%}//end for%>
+			</select> 
+			</td>
+		</tr>
+		<tr>
+		<%if (p.getAlive() == "no"){
+			%>
+		<th>This Person is dead</th>
+			<td>
+			</td>
+		<%}else {
+		%>
+			<th>Is this Person alive?</th>
+			<td>
+			<select name = "alive">
+				<option value="1" selected = selected>yes</option>
+				<option value="0">no</option>
+			</select> 
+			</td>
+		<% 
+		}
+		%>
 		</tr>
 		<tr>
 			<th colspan="2">
-				<input type="submit" value="change" />
+				<input type="submit" value="Edit" />
 			</th>
 		</tr>
 	</table>
