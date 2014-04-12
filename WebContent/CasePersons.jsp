@@ -20,7 +20,7 @@ final String PAGE_URL = "http://localhost:8080/IntroDBProject";
 <br/>
 <br/>
 
-<% if(user != null){ %>
+<% if(user != null && caseStatus.equals("open")){ %>
 <form action = "AddPersonOfInterest" method = "get" >
 	<input type="hidden" name="caseID" value ="<%=caseID%>">
 	<input type="hidden" name="type" value ="<%=type%>">

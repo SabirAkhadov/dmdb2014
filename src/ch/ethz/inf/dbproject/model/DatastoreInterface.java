@@ -1197,7 +1197,32 @@ public final class DatastoreInterface {
 		}
 	}
 
-	public final String deletePersonCaseRelation(String caseID, String persID, String type) {
-		return "";
+	public final void deletePersonCaseRelation(String caseID, String persID, String type) {
+		try {
+			if(type.equals("convicts")){
+				deleteConvicted.setString(1, caseID);
+				deleteConvicted.setString(2, persID);
+				deleteConvicted.execute();
+			}else if (type.equals("victims")){
+				deleteVictim.setString(1, caseID);
+				deleteVictim.setString(2, persID);
+				deleteVictim.execute();
+			}else if(type.equals("suspects")){
+				deleteSuspect.setString(1, caseID);
+				deleteSuspect.setString(2, persID);
+				deleteSuspect.execute();
+			}else if(type.equals("witnesses")){
+				deleteWitnessed.setString(1, caseID);
+				deleteWitnessed.setString(2, persID);
+				deleteWitnessed.execute();
+			}else if(type.equals("others")){
+				deleteConcerns.setString(1, caseID);
+				deleteConcerns.setString(2, persID);
+				deleteConcerns.execute();
+			}
+
+		} catch (SQLException e) { 
+			e.printStackTrace();
+		}
 	}
 }
