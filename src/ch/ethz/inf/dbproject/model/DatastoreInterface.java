@@ -710,7 +710,7 @@ public final class DatastoreInterface {
 		}
 	}
 	
-	//Search query:
+	//Search cases query:
 	public final List<Case> searchForCases(String firstname, String lastname, String category, String conv_date, String conv_type) {
 		
 		//Selection statement
@@ -799,6 +799,42 @@ public final class DatastoreInterface {
 			return null;			
 		}
 	}
+	//Search persons of interest query
+	public final List<PersonOfInterest> searchForPersons(String firstname, String lastname, String birthday, String alive) {
+		try {
+			final List <PersonOfInterest> personsList = new ArrayList<PersonOfInterest> ();
+			
+			AllPersons.execute();
+			ResultSet rs = AllPersons.getResultSet();
+			
+			while (rs.next()) {
+				String id = rs.getString("PersID");
+				concernsById.setString(1, id);
+				concernsById.execute();
+				ResultSet cr = concernsById.getResultSet();
+				
+				personNotes.setString(1, id);
+				personNotes.execute();
+				ResultSet nr = personNotes.getResultSet();
+				
+				relatedPerson.setString(1, id);
+				relatedPerson.execute();
+				ResultSet rr = personNotes.getResultSet();
+				
+				personsList.add(new PersonOfInterest (rs, cr, nr, rr));
+				cr.close();
+			}
+			
+			rs.close();
+			return personsList;
+
+
+		} catch (final SQLException ex) {
+			ex.printStackTrace();
+			return null;			
+		}
+	}
+	
 	/*
 	 * Persons Of Interest
 	 */

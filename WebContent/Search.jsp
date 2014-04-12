@@ -8,6 +8,7 @@
 
 <form method="get" action="Search">
 <div>
+	<input type="hidden" name="result" value="cases" />
 	<b>By person of interest</b><br>
 	First name: <input type="text" name="firstname" /><br>
 	Last name: <input type="text" name="lastname" /><br><br>
@@ -32,13 +33,17 @@
 
 <form method="get" action="Search">
 <div>
+	<input type="hidden" name="result" value="persons" />
 	First name: <input type="text" name="firstname" /><br>
 	Last name: <input type="text" name="lastname" /><br>
-	Date: <input type="text" name="conv_date" /> (Format: YYYY-MM-DD)<br>
-	Type: <input type="text" name="conv_type" />
+	Birthday: <input type="text" name="birthday" /> (Format: YYYY-MM-DD)<br>
+	Alive: <select name="alive">
+	<option value="">Unknown</option>
+	<option value="1">Yes</option>
+	<option value="0">No</option></select>
 
 	<input type="submit" value="Search" title="Search" /><br><br>
-	Note: A case must match ALL the entered data. Empty fields get ignored.<br>Use "%" to match any number of unknown characters and "_" to match exactly one unknown character.
+	Note: A person must match ALL the entered data. Empty fields get ignored.<br>Use "%" to match any number of unknown characters and "_" to match exactly one unknown character.
 </div>
 </form>
 	
