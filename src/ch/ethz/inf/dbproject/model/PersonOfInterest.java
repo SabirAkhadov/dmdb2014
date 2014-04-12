@@ -61,7 +61,8 @@ public class PersonOfInterest {
 		
 		this.notes = "";
 		while (notes.next()){
-			String s1 = "<i>" + notes.getString("content") + "</i><br><br>Added by " + notes.getString("name") + " on <br><br>" + notes.getString("timestamp");
+			String s1 = "<i>" + notes.getString("content") + "</i><br><br>Added by " + notes.getString("name") + 
+					" on <br><br>" + notes.getString("timestamp") + "<br><br>";
 			this.notes += s1;
 		}
 		

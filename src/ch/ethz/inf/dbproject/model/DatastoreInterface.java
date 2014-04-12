@@ -107,6 +107,7 @@ public final class DatastoreInterface {
 	private PreparedStatement personNotes;
 	private PreparedStatement relatedPerson;
 	private PreparedStatement insertPersonst;
+	private PreparedStatement editPersonst;
 
 	private PreparedStatement personConvictsByCaseID;
 	private PreparedStatement personVictimsByCaseID;
@@ -128,6 +129,8 @@ public final class DatastoreInterface {
 			userValidate = sqlConnection.prepareStatement("SELECT * FROM user WHERE BINARY name = ? and BINARY password = ?");
 
 			//Persons
+			editPersonst = sqlConnection.prepareStatement("UPDATE personofinterest SET firstname = ?, lastname = ?, birthday = ?, alive = ? " +
+					"WHERE PersID = ?");
 			insertPersonst = sqlConnection.prepareStatement("INSERT INTO personofinterest VALUES (null, ?, ?, ?, ?)");
 			AllPersons = sqlConnection.prepareStatement(persConstr + ";");
 
@@ -919,6 +922,22 @@ public final class DatastoreInterface {
 			insertPersonst.setString(4, alive);
 
 			insertPersonst.execute();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	public boolean editPerson (String firstname, String lastname, String birthday, String alive, String PersID){
+		
+		//insert to db
+		try {
+			editPersonst.setString(1, firstname);
+			editPersonst.setString(2, lastname);
+			editPersonst.setString(3, birthday);
+			editPersonst.setString(4, alive);
+			editPersonst.setString(5, PersID);
+			editPersonst.execute();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();

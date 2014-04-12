@@ -65,7 +65,7 @@ public final class PersonOfInterestServlet extends HttpServlet {
 		PersonOfInterest aPerson = dsi.getPersonById(id.toString());
 		personTable.addObject(aPerson);
 		personTable.setVertical(true);			
-		session.setAttribute("personID", aPerson.getId());
+		session.setAttribute("personToEdit", aPerson);
 		this.getServletContext().getRequestDispatcher("/PersonOfInterest.jsp").forward(request, response);
 	}
 }
