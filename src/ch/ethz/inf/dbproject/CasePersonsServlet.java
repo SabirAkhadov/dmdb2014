@@ -62,13 +62,13 @@ public final class CasePersonsServlet extends  HttpServlet {
 
 		final BeanTableHelper<PersonOfInterest> personsTable = new BeanTableHelper<PersonOfInterest>(
 				"persons" 		/* The table html id property */,
-				"caseTable" /* The table html class property */,
+				"casesTable" /* The table html class property */,
 				PersonOfInterest.class 	/* The class of the objects (rows) that will be displayed */
 				);
 
-		personsTable.addBeanColumn("First Name", "firstName");
-		personsTable.addBeanColumn("Last Name", "lastName");
-		personsTable.addBeanColumn("Birthdate", "birthDay");
+		personsTable.addBeanColumn("First Name", "FirstName");
+		personsTable.addBeanColumn("Last Name", "LastName");
+		personsTable.addBeanColumn("Birthdate", "BirthDay");
 		personsTable.addBeanColumn("still alive?", "alive");
 		personsTable.addLinkColumn("",	"View Person"	, "PersonOfInterest?id=", "Id");
 
@@ -96,7 +96,7 @@ public final class CasePersonsServlet extends  HttpServlet {
 		if(personList.isEmpty()){
 			session.setAttribute("noPersons", "not null");
 		}else{
-			session.setAttribute("noPersons", null);
+			personsTable.addObjects(personList);
 		}
 		
 		session.setAttribute("personsTable", personsTable);
