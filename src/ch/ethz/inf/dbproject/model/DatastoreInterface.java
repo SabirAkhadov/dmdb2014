@@ -1209,51 +1209,51 @@ public final class DatastoreInterface {
 			insertRelated.execute();
 			
 			//in case of symmetrical relationships
-			if (Relationship.equals("Married") || Relationship.equals("married")){
+			if (Relationship.contains("Married") || Relationship.contains("married")){
 				insertRelated.setString(1, PersID2);
 				insertRelated.setString(2, PersID1);
 				insertRelated.setString(3, Relationship);
 				insertRelated.execute();
 			}
 			
-			if (Relationship.equals("Siblings") || Relationship.equals("siblings")){
+			else if (Relationship.contains("Siblings") || Relationship.contains("siblings")){
 				insertRelated.setString(1, PersID2);
 				insertRelated.setString(2, PersID1);
 				insertRelated.setString(3, Relationship);
 				insertRelated.execute();
 			}
 			
-			if (Relationship.equals("Sister") || Relationship.equals("sister")||Relationship.equals("Brother") || Relationship.equals("brother")){
+			else if (Relationship.contains("Sister") || Relationship.contains("sister")||Relationship.contains("Brother") || Relationship.contains("brother")){
 				insertRelated.setString(1, PersID2);
 				insertRelated.setString(2, PersID1);
 				insertRelated.setString(3, "Siblings");
 				insertRelated.execute();
 			}
 			
-			if (Relationship.equals("Mother") || Relationship.equals("mother") || Relationship.equals("Father") || Relationship.equals("father") 
-					|| Relationship.equals("Parent") || Relationship.equals("parent")){
+			else if (Relationship.contains("Mother") || Relationship.contains("mother") || Relationship.contains("Father") || Relationship.contains("father") 
+					|| Relationship.contains("Parent") || Relationship.contains("parent")){
 				insertRelated.setString(1, PersID2);
 				insertRelated.setString(2, PersID1);
 				insertRelated.setString(3, "Child");
 				insertRelated.execute();
 			}
 			
-			if (Relationship.equals("Child") || Relationship.equals("child") || Relationship.equals("Son") || Relationship.equals("son") 
-					|| Relationship.equals("Daughter") || Relationship.equals("daughter")){
+			else if (Relationship.contains("Child") || Relationship.contains("child") || Relationship.contains("Son") || Relationship.contains("son") 
+					|| Relationship.contains("Daughter") || Relationship.contains("daughter")){
 				insertRelated.setString(1, PersID2);
 				insertRelated.setString(2, PersID1);
 				insertRelated.setString(3, "Parent");
 				insertRelated.execute();
 			}
 			
-			if (Relationship.equals("Lovers") || Relationship.equals("lovers")){
+			else if (Relationship.contains("Lovers") || Relationship.contains("lovers")){
 				insertRelated.setString(1, PersID2);
 				insertRelated.setString(2, PersID1);
 				insertRelated.setString(3, Relationship);
 				insertRelated.execute();
 			}
 			
-			if (Relationship.equals("Neighbors") || Relationship.equals("neighbors")){
+			else if (Relationship.contains("Neighbors") || Relationship.contains("neighbors")){
 				insertRelated.setString(1, PersID2);
 				insertRelated.setString(2, PersID1);
 				insertRelated.setString(3, Relationship);
