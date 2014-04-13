@@ -40,13 +40,17 @@ public final class PersonOfInterestServlet extends HttpServlet {
 			this.getServletContext().getRequestDispatcher("/PersonsOfInterest").forward(request, response);
 			return;
 		}
-
-		final Integer id = Integer.parseInt(idString);
-
+		
 		User user = (User)session.getAttribute("user");
-
 		String action = request.getParameter("action");
-
+		if(action != null && action.equals("addNotes")){
+			String notes = request.getParameter("personNotes");
+			if (!dsi.addNotesToPerson(notes, idString, user.getUserID())){
+				session.setAttribute("PersonCommented", "false");
+			}
+		}
+		
+		
 		final BeanTableHelper<PersonOfInterest> personTable = new BeanTableHelper<PersonOfInterest>(
 				"person" 		/* The table html id property */,
 				"casesTable" /* The table html class property */,
@@ -63,7 +67,7 @@ public final class PersonOfInterestServlet extends HttpServlet {
 		personTable.addBeanColumn("Related to", "related");
 		session.setAttribute("personsOfInterest", personTable);
 
-		PersonOfInterest aPerson = dsi.getPersonById(id.toString());
+		PersonOfInterest aPerson = dsi.getPersonById(idString);
 		personTable.addObject(aPerson);
 		personTable.setVertical(true);			
 		session.setAttribute("personToEdit", aPerson);

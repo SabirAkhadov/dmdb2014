@@ -99,6 +99,7 @@ public final class NewPersonServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/NewPerson.jsp").forward(request, response);
 				return;
 			}
+			if (alive.isEmpty()) alive = null;
 			
 			String birthday = year + "-" + month + "-" + day;
 			

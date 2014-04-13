@@ -46,7 +46,7 @@ public final class UserServlet extends HttpServlet {
 		}
 		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);
 		
-}
+	}
 	
 	protected final void doPost(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
@@ -65,14 +65,11 @@ public final class UserServlet extends HttpServlet {
 				User user = dsInterface.validateUser(username, password);
 				if (user != null){
 					session.setAttribute("user", user);
-					
 					updateUserTables (user, session);
-					
 				}
 				else {
 					session.setAttribute("error", "login");
 				}
-		
 			}
 		}
 		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);

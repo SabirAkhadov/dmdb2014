@@ -79,26 +79,17 @@ else {
 			</td>
 		</tr>
 		<tr>
-		<%if (p.getAlive() == "no"){
-			%>
-		<th>This Person is dead</th>
-			<td>
-			</td>
-		<%}else {
-		%>
 			<th>Is this Person alive?</th>
 			<td>
 			<select name = "alive">
 				<option value="1" selected = selected>yes</option>
 				<option value="0">no</option>
+				<option value="">unknown</option>
 			</select> 
 			</td>
-		<% 
-		}
-		%>
 		</tr>
 		<tr>
-			<th colspan="2">
+			<th >
 				<input type="submit" value="Edit" />
 			</th>
 		</tr>

@@ -65,6 +65,14 @@ public final class CasePersonsServlet extends  HttpServlet {
 			return;
 		}
 		
+		//Addition richnerb: Remove person!
+		final String req_caseID = request.getParameter("caseID");
+		final String req_persID = request.getParameter("persID");
+		if(req_persID != null && req_caseID != null){
+			this.dbInterface.deletePersonCaseRelation(req_caseID, req_persID, type);
+		}
+		//end addition
+		
 		session.setAttribute("lastCase", caseID);
 		session.setAttribute("status", status);
 
@@ -79,8 +87,8 @@ public final class CasePersonsServlet extends  HttpServlet {
 		personsTable.addBeanColumn("Birthdate", "BirthDay");
 		personsTable.addBeanColumn("still alive?", "alive");
 		personsTable.addLinkColumn("",	"View Person"	, "PersonOfInterest?id=", "Id");
-		if(user != null)
-			personsTable.addLinkColumn("", "unlink", "RemovePersonOfInterest?caseID="+caseID+"&persID=","Id");
+		if(user != null && status.equals("open"))
+			personsTable.addLinkColumn("", "unlink", "CasePersons?id="+caseIDstr+"&status="+status+"&type="+type+"&caseID="+caseID+"&persID=","Id");
 
 		List<PersonOfInterest> personList = null;
 		if(type.equals("convicts")){

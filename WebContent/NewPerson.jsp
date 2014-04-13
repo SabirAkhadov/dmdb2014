@@ -79,6 +79,7 @@ year = 1800;
 			<select name = "alive">
 				<option value="1" selected = selected>yes</option>
 				<option value="0">no</option>
+				<option value="">unknown</option>
 			</select> 
 			</td>
 		</tr>

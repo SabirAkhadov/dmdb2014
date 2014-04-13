@@ -28,13 +28,14 @@ public class PersonEditSerlvet extends HttpServlet {
 		final HttpSession session = request.getSession(true);
 		DatastoreInterface dsi = new DatastoreInterface();
 		String action = request.getParameter("action");
-
+		
+		
 		if(action != null && action.equals("editPerson")){
 			String firstname = request.getParameter("firstname");
 			String lastname = request.getParameter("lastname");
 			String alive = request.getParameter("alive");
-			if (alive == null){
-				alive = "0";
+			if (alive.isEmpty()){
+				alive = null;
 			}
 			
 			ArrayList<Integer> monthsWith31Days = new ArrayList<Integer>(){
@@ -108,8 +109,7 @@ public class PersonEditSerlvet extends HttpServlet {
 				
 
 				request.setAttribute("id", p.getId());
-				response.sendRedirect("/IntroDBProject/PersonOfInterest?id="+p.getId());
-				//this.getServletContext().getRequestDispatcher("/PersonOfInterest").forward(request, response);
+				this.getServletContext().getRequestDispatcher("/PersonOfInterest?id="+p.getId()).forward(request, response);
 				return;
 			}
 			else{
