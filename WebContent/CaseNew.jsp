@@ -1,10 +1,8 @@
 <%@ page import="ch.ethz.inf.dbproject.model.User"%>
 <%@ page import="ch.ethz.inf.dbproject.model.NewCaseData"%>
-<%@ page import="ch.ethz.inf.dbproject.util.UserManagement"%>
 <%@ page import="java.util.Calendar" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
-<% final User user = (User) session.getAttribute("user"); %>
 <% final String errorMsg = (String)session.getAttribute("newCaseError"); 
 	final NewCaseData nCase = errorMsg == null ? null : (NewCaseData)session.getAttribute("newCase");%>
 

@@ -23,11 +23,18 @@ table#masterTable > tbody > tr > th#masterHeader {
 	border-bottom: 1px solid #100f35;
 }
 
+table#masterTable > tbody > tr > th#logoutButton {
+	background: #66CCFF;
+	vertical-align: bottom;
+	border-bottom: 1px solid #100f35;
+}
+
 table#masterTable > tbody > tr > td#masterFooter {
 	border-top: 1px solid #100f35;
 	background: #66CCFF;
 	text-align: right;
 }
+
 
 td#masterContentMenu {
 	background: #66CCFF;

@@ -5,7 +5,7 @@
 <%@ page import="java.util.Calendar" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
-<% final User user = (User) session.getAttribute("user");
+<% 
 String type = (String) session.getAttribute("persType");
 final String originalType = type == null ? "" : type;
 final String caseStatus = (String) session.getAttribute("status");

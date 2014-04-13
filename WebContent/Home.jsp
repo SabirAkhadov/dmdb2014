@@ -1,6 +1,5 @@
 <%@ page import="ch.ethz.inf.dbproject.model.User"%>
 <%@ page import="ch.ethz.inf.dbproject.HomeServlet" %>
-<%@ page import="ch.ethz.inf.dbproject.util.UserManagement"%>
 <%@ page import="ch.ethz.inf.dbproject.database.MySQLConnection"%>
 <%@ page import="java.sql.*" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -12,7 +11,6 @@
 <%@ page import="ch.ethz.inf.dbproject.database.MySQLConnection"%>
 
 <%
-final User user = (User) session.getAttribute("user");
 MySQLConnection inst = MySQLConnection.getInstance();
 Connection conn = inst.getConnection();
 

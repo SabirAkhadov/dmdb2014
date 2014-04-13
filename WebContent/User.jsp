@@ -9,12 +9,6 @@ if (session.getAttribute("user") != null) {
 	// User is logged in. Display the details:
 %>
 <%= session.getAttribute(UserServlet.SESSION_USER_DETAILS) %>
-	
-	
-	<form action="User" method="get">
-	<input type="hidden" name="action" value="logout"/>
-		<input type="submit" value="Logout" />
-	</form>
 	<br>
 	<a href="ChangeData">Change user data</a>
 	

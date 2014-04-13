@@ -1,9 +1,7 @@
 <%@ page import="ch.ethz.inf.dbproject.model.User"%>
 <%@ page import="ch.ethz.inf.dbproject.model.Case"%>
-<%@ page import="ch.ethz.inf.dbproject.util.UserManagement"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
-<% final User user = (User) session.getAttribute("user"); %>
 <% final Case aCase = session.getAttribute("updateError") == null ? (Case)session.getAttribute("case") : (Case)session.getAttribute("edittedCase");
    final String disable = aCase.getStatus().equals("open") ? "" : "disabled = \"disabled\"";%>
 <% final String errorMsg = (String)session.getAttribute("updateError"); %>

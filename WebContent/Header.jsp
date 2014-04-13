@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="ch.ethz.inf.dbproject.model.User"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
@@ -19,6 +20,15 @@
 					<h1>Law Enforcement Project</h1>
 					Project by Benjamin, Roger, Sabir 
 				</th>
+				<%User user = (User) session.getAttribute("user");
+				if (user != null){%>
+				<th id="logoutButton">
+					<form action="User" method="get">
+					<input type="hidden" name="action" value="logout"/>
+						<input type="submit" value="Logout <%=user.getName()%>" />
+					</form>
+				</th>
+				<% }%>
 			</tr>
 			<tr id="masterContent">
 			
@@ -26,7 +36,7 @@
 					
 					<div class="menuDiv1"></div>
 					<div class="menuDiv1"><a href="Home">Home</a></div>
-					<% if (session.getAttribute("user")!= null) {%>
+					<% if (user != null) {%>
 					<div class="menuDiv1"><a href="CaseNew.jsp">New Case</a></div>
 					<div class="menuDiv1"><a href="NewPerson">Add person Of interest</a></div>
 					<%}%>

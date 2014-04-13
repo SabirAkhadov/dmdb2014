@@ -39,11 +39,14 @@ public final class UserServlet extends HttpServlet {
 		if (action != null && action.trim().equals("logout") && user != null){
 			user = null;
 			session.invalidate();
+			this.getServletContext().getRequestDispatcher("/Home.jsp").forward(request, response);
+			return;
 		}	
 		if (user != null)
 		{
 			updateUserTables (user, session);
 		}
+
 		this.getServletContext().getRequestDispatcher("/User.jsp").forward(request, response);
 		
 	}
