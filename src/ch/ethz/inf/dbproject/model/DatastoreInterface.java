@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.el.lang.FunctionMapperImpl.Function;
-
 import ch.ethz.inf.dbproject.database.MySQLConnection;
 
 /**
@@ -1150,7 +1148,7 @@ public final class DatastoreInterface {
 			}else{
 				return "Invalid query";
 			}
-			return "Successfully inserted person";
+			return "Successfully inserted person <br><a href = \"Case?id=" + caseID+"\">Back to case</a>";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
@@ -1171,7 +1169,8 @@ public final class DatastoreInterface {
 			}else{
 				return "Invalid query";
 			}
-			return "Successfully inserted person";
+
+			return "Successfully inserted person <br><a href = \"Case?id=" + caseID+"\">Back to case</a>";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
@@ -1194,7 +1193,7 @@ public final class DatastoreInterface {
 			}else{
 				return "Invalid query";
 			}
-			return "Successfully inserted person";
+			return "Successfully inserted person <br><a href = \"Case?id=" + caseID+"\">Back to case</a>";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
@@ -1263,7 +1262,7 @@ public final class DatastoreInterface {
 			
 			
 			
-			return "Successfully added relationship";
+			return "Successfully added relationship <br><a href = \"PersonOfInterest?id=" + PersID1+"\">Back to person</a>";
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return "Error";

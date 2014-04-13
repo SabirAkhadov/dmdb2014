@@ -46,7 +46,7 @@ Please log in.
 		<hr/>
 	<% }else{ 
 		String goodType;
-		//so it looks good
+		//make it look good
 		if (type.equals ("witnesses")){
 			goodType = type.substring(0, type.length()-2);
 		}
