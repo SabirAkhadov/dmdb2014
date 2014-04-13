@@ -9,7 +9,7 @@
 String type = (String) session.getAttribute("persType");
 final String originalType = type == null ? "" : type;
 final String caseStatus = (String) session.getAttribute("status");
-type = type.equals("suspects") ? (caseStatus.equals("open") ? "suspects" : "perpetrators") : type;
+type = type.equals("suspects") ? (caseStatus.equals("open") ? "suspects" : "perpetrators") : (type.equals("others") ? "other Persons of Interst" : type);
 String upType = type.isEmpty() ? "" : Character.toUpperCase(type.charAt(0)) + type.substring(1);
 int caseID = (Integer)session.getAttribute("lastCase");
 final String PAGE_URL = "http://localhost:8080/IntroDBProject";
@@ -26,7 +26,7 @@ final Case c = dsi.getCaseById(caseID);
 <% if(user != null && caseStatus.equals("open")){ %>
 <form action = "AddPersonOfInterest" method = "get" >
 	<input type="hidden" name="caseID" value ="<%=caseID%>">
-	<input type="hidden" name="type" value ="<%=type%>">
+	<input type="hidden" name="type" value ="<%=originalType%>">
 	<input type="submit" value="Add New">
 </form>
 <%}%>
