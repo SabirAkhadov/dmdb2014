@@ -25,6 +25,7 @@ public class NewCaseServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	final DatastoreInterface dbInterface;
+	final String PAGE_URL = "http://localhost:8080/IntroDBProject";
 
 	public NewCaseServlet() {
 		super();
@@ -159,8 +160,15 @@ public class NewCaseServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
 				return;
 			}
-
-			session.setAttribute("homeMsg", "We have successfully created your new case.");
+			
+			int caseID = this.dbInterface.getNewCaseID(nCase);
+			if(caseID > 0)
+				session.setAttribute("homeMsg", "We have successfully created your new case. (<a href = \""+ PAGE_URL + "/Case?id=" + caseID + "\" >Click to view</a>)");
+			else{
+				session.setAttribute("newCaseError", "There was an unexpected error inserting your case. Try again or contact us should the problem persist.");
+				this.getServletContext().getRequestDispatcher("/CaseNew.jsp").forward(request, response);
+				return;
+			}
 		}
 		this.getServletContext().getRequestDispatcher("/Home").forward(request, response);
 	}
