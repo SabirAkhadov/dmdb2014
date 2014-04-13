@@ -166,8 +166,8 @@ public final class DatastoreInterface {
 			personOthersByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM concerns WHERE caseID = ?;");
 
 			//Cases
-			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?");
-			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseid = ?;");
+			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?;");
+			caseByID = sqlConnection.prepareStatement(caseConstr + "WHERE cas.caseID = ?;");
 			caseAll = sqlConnection.prepareStatement(caseConstr);
 			caseOpen = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 1;");
 			caseClosed = sqlConnection.prepareStatement(caseConstr + "WHERE cas.status = 0;");
@@ -348,13 +348,15 @@ public final class DatastoreInterface {
 
 		List <Case> cases = new ArrayList <Case>();
 		try {
-
 			openCaseIDs.setString(1, user.getUserID());
 			openCaseIDs.execute();
 			ResultSet rs = openCaseIDs.getResultSet();
 			while (rs.next())
 			{
-				cases.add(getCaseById(rs.getInt(1)));
+				Case r = getCaseById(rs.getInt(1));
+				if(r != null){
+					cases.add(r);
+				}
 			}
 			return cases;
 
