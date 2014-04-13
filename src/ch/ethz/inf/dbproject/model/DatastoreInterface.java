@@ -1207,6 +1207,61 @@ public final class DatastoreInterface {
 			insertRelated.setString(2, PersID2);
 			insertRelated.setString(3, Relationship);
 			insertRelated.execute();
+			
+			//in case of symmetrical relationships
+			if (Relationship.equals("Married") || Relationship.equals("married")){
+				insertRelated.setString(1, PersID2);
+				insertRelated.setString(2, PersID1);
+				insertRelated.setString(3, Relationship);
+				insertRelated.execute();
+			}
+			
+			if (Relationship.equals("Siblings") || Relationship.equals("siblings")){
+				insertRelated.setString(1, PersID2);
+				insertRelated.setString(2, PersID1);
+				insertRelated.setString(3, Relationship);
+				insertRelated.execute();
+			}
+			
+			if (Relationship.equals("Sister") || Relationship.equals("sister")||Relationship.equals("Brother") || Relationship.equals("brother")){
+				insertRelated.setString(1, PersID2);
+				insertRelated.setString(2, PersID1);
+				insertRelated.setString(3, "Siblings");
+				insertRelated.execute();
+			}
+			
+			if (Relationship.equals("Mother") || Relationship.equals("mother") || Relationship.equals("Father") || Relationship.equals("father") 
+					|| Relationship.equals("Parent") || Relationship.equals("parent")){
+				insertRelated.setString(1, PersID2);
+				insertRelated.setString(2, PersID1);
+				insertRelated.setString(3, "Child");
+				insertRelated.execute();
+			}
+			
+			if (Relationship.equals("Child") || Relationship.equals("child") || Relationship.equals("Son") || Relationship.equals("son") 
+					|| Relationship.equals("Daughter") || Relationship.equals("daughter")){
+				insertRelated.setString(1, PersID2);
+				insertRelated.setString(2, PersID1);
+				insertRelated.setString(3, "Parent");
+				insertRelated.execute();
+			}
+			
+			if (Relationship.equals("Lovers") || Relationship.equals("lovers")){
+				insertRelated.setString(1, PersID2);
+				insertRelated.setString(2, PersID1);
+				insertRelated.setString(3, Relationship);
+				insertRelated.execute();
+			}
+			
+			if (Relationship.equals("Neighbors") || Relationship.equals("neighbors")){
+				insertRelated.setString(1, PersID2);
+				insertRelated.setString(2, PersID1);
+				insertRelated.setString(3, Relationship);
+				insertRelated.execute();
+			}
+			
+			
+			
 			return "Successfully added relationship";
 		} catch (SQLException e) {
 			e.printStackTrace();
