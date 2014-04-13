@@ -33,8 +33,8 @@ public class PersonEditSerlvet extends HttpServlet {
 			String firstname = request.getParameter("firstname");
 			String lastname = request.getParameter("lastname");
 			String alive = request.getParameter("alive");
-			if (alive == null){
-				alive = "0";
+			if (alive.isEmpty()){
+				alive = null;
 			}
 			
 			ArrayList<Integer> monthsWith31Days = new ArrayList<Integer>(){
@@ -108,8 +108,7 @@ public class PersonEditSerlvet extends HttpServlet {
 				
 
 				request.setAttribute("id", p.getId());
-				response.sendRedirect("/IntroDBProject/PersonOfInterest?id="+p.getId());
-				//this.getServletContext().getRequestDispatcher("/PersonOfInterest").forward(request, response);
+				this.getServletContext().getRequestDispatcher("/PersonOfInterest?id="+p.getId()).forward(request, response);
 				return;
 			}
 			else{
