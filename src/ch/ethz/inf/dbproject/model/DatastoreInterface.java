@@ -121,6 +121,7 @@ public final class DatastoreInterface {
 	private PreparedStatement insertSuspect; 
 	private PreparedStatement insertWitnessed; 
 	private PreparedStatement insertConcerns;
+	private PreparedStatement insertRelated;
 	
 	private PreparedStatement deleteVictim;
 	private PreparedStatement deleteConvicted;
@@ -203,6 +204,7 @@ public final class DatastoreInterface {
 			insertSuspect = sqlConnection.prepareStatement("INSERT INTO Suspected (CaseID, PersID, reason) VALUES (?, ?, ?);");
 			insertWitnessed = sqlConnection.prepareStatement("INSERT INTO Witnessed (CaseID, PersID) VALUES (?, ?);");
 			insertConcerns = sqlConnection.prepareStatement("INSERT INTO Concerns (CaseID, PersID, reason) VALUES (?, ?, ?);");
+			insertRelated = sqlConnection.prepareStatement("INSERT INTO related VALUES (?, ?, ?)");
 			
 			//Delete relations:
 			deleteVictim = sqlConnection.prepareStatement("DELETE FROM Victim WHERE CaseID = ? AND PersID = ?;");
@@ -1198,6 +1200,20 @@ public final class DatastoreInterface {
 			return "Error";
 		}
 	}
+	
+	public final String insertPersonPersonRelation (String PersID1, String PersID2, String Relationship){
+		try {
+			insertRelated.setString(1, PersID1);
+			insertRelated.setString(2, PersID2);
+			insertRelated.setString(3, Relationship);
+			insertRelated.execute();
+			return "Successfully added relationship";
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return "Error";
+		}
+	}
+	
 
 	public final void deletePersonCaseRelation(String caseID, String persID, String type) {
 		try {

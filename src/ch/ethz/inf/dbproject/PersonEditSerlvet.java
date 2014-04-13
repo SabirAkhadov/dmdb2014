@@ -28,7 +28,8 @@ public class PersonEditSerlvet extends HttpServlet {
 		final HttpSession session = request.getSession(true);
 		DatastoreInterface dsi = new DatastoreInterface();
 		String action = request.getParameter("action");
-
+		
+		
 		if(action != null && action.equals("editPerson")){
 			String firstname = request.getParameter("firstname");
 			String lastname = request.getParameter("lastname");

@@ -1,6 +1,7 @@
 <%@ page import="ch.ethz.inf.dbproject.model.User"%>
 <%@ page import="ch.ethz.inf.dbproject.model.NewCaseData"%>
-<%@ page import="ch.ethz.inf.dbproject.util.UserManagement"%>
+<%@ page import="ch.ethz.inf.dbproject.model.DatastoreInterface"%>
+<%@ page import="ch.ethz.inf.dbproject.model.Case"%>
 <%@ page import="java.util.Calendar" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
@@ -12,9 +13,11 @@ type = type.equals("suspects") ? (caseStatus.equals("open") ? "suspects" : "perp
 String upType = type.isEmpty() ? "" : Character.toUpperCase(type.charAt(0)) + type.substring(1);
 int caseID = (Integer)session.getAttribute("lastCase");
 final String PAGE_URL = "http://localhost:8080/IntroDBProject";
+final DatastoreInterface dsi = new DatastoreInterface();
+final Case c = dsi.getCaseById(caseID);
 %>
 
-<h1><%=upType%> of Case ID <%= caseID %></h1>
+<h1><%=upType%> of Case <br/><i><%= c.getTitle() %></i></h1>
 
 <a href ="<%=PAGE_URL%>/Case?id=<%=caseID%>">back</a>
 <br/>

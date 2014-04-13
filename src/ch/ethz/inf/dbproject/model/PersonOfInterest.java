@@ -88,7 +88,6 @@ public class PersonOfInterest {
 			
 			this.related +=s1;
 		}
-		
 	}
 
 	public PersonOfInterest (ResultSet rs) throws SQLException{

@@ -26,8 +26,10 @@
 <% 
 //edit
 if (user != null) {  
+	PersonOfInterest p = (PersonOfInterest)(session.getAttribute("personToEdit"));
 %>
-	<a href="PersonEdit?id=<%=((PersonOfInterest)(session.getAttribute("personToEdit"))).getId()%>">Edit</a>
+	<a href = "AddPersonOfInterest?persRelatedID=<%=p.getId()%>&type=relationship">Add relative</a> <br>
+	<a href="PersonEdit?id=<%=p.getId()%>">Edit</a>
 	
 	<form action="PersonOfInterest" method="get">
 		<input type="hidden" name="action" value="addNotes" />
