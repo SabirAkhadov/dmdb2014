@@ -1,6 +1,5 @@
 <%@ page import="ch.ethz.inf.dbproject.model.User"%>
 <%@ page import="ch.ethz.inf.dbproject.model.PersonOfInterest"%>
-<%@ page import="ch.ethz.inf.dbproject.util.UserManagement"%>
 <%@ page import="java.util.Calendar" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
