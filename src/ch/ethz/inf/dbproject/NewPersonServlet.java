@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ch.ethz.inf.dbproject.model.DatastoreInterface;
-import ch.ethz.inf.dbproject.model.User;
 
 @WebServlet(description = "Add new person of interest.", urlPatterns = { "/NewPerson" })
 public final class NewPersonServlet extends HttpServlet {

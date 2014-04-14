@@ -1,9 +1,6 @@
 package ch.ethz.inf.dbproject;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 
 import javax.servlet.ServletException;
@@ -50,7 +47,9 @@ public class NewCaseServlet extends HttpServlet {
 			int day,month, year, hours, mins;
 			String title,location,description,category;
 
-			ArrayList<Integer> monthsWith31Days = new ArrayList<Integer>(){{
+			ArrayList<Integer> monthsWith31Days = new ArrayList<Integer>(){
+
+			{
 				add(1);
 				add(3);
 				add(5);
