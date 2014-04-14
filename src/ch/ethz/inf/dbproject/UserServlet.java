@@ -38,6 +38,7 @@ public final class UserServlet extends HttpServlet {
 		
 		if (action != null && action.trim().equals("logout") && user != null){
 			user = null;
+			session.removeAttribute("user");
 			session.setAttribute("homeMsg", "You logged out");
 			this.getServletContext().getRequestDispatcher("/Home.jsp").forward(request, response);
 			session.invalidate();
