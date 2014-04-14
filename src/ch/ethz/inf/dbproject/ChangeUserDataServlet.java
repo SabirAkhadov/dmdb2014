@@ -57,7 +57,7 @@ public class ChangeUserDataServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
 			}
 			else {
-				session.setAttribute("user", newUser);
+				session.setAttribute("user", newUser);//fixed
 				session.setAttribute("ChangeError", "none");
 				this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
 			}
