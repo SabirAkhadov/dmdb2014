@@ -3,11 +3,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="Header.jsp" %>
 <% final Case aCase = session.getAttribute("updateError") == null ? (Case)session.getAttribute("case") : (Case)session.getAttribute("edittedCase");
-   final String disable = aCase.getStatus().equals("open") ? "" : "disabled = \"disabled\"";%>
-<% final String errorMsg = (String)session.getAttribute("updateError"); %>
+   final String errorMsg = (String)session.getAttribute("updateError");
+   final String disable = (aCase.getStatus().equals("open") || errorMsg != null) ? "" : "disabled = \"disabled\"";
+   %>
 
 <%
-final String disableHelper = aCase.getStatus().equals("open") ? "" : ("" +
+final String disableHelper = (aCase.getStatus().equals("open") || errorMsg != null) ? "" : ("" +
 		"<input type = \"hidden\" name = \"title\"  value = \"" + aCase.getTitle() + "\">" +
 		"<input type = \"hidden\" name = \"category\"  value = \"" + aCase.getCategory() + "\">" +
 		"<input type = \"hidden\" name = \"location\"  value = \"" + aCase.getLocation() + "\">" +
@@ -30,13 +31,17 @@ Please log in.
 <%if(errorMsg != null){ %>
 <font color="red"><%=errorMsg%></font>
 <br/><br/>
-<%session.setAttribute("updateError", null);}%>
+<%}%>
 
-<%if(aCase.getStatus().equals("closed")){ %>
+<%if(aCase.getStatus().equals("closed") && errorMsg == null){ %>
 <font color="orange">To edit a closed case you must first reopen it.</font>
 <br/><br/>
 <%}%>
 
+<%
+if(errorMsg != null){
+	session.setAttribute("updateError", null);
+}%>
 <div><form action = "Case" method = "get" >
 	<%= disableHelper %>
 	<input type = "hidden" name = "action" value = "update">

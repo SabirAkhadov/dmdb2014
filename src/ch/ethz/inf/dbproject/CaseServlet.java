@@ -82,7 +82,25 @@ public final class CaseServlet extends HttpServlet {
 					return;
 				}
 				//(int id, int status, String title, String category, String description, String location, java.sql.Date date, java.sql.Time time)
-				eCase = new Case(Integer.parseInt(request.getParameter("id")) , Integer.parseInt(request.getParameter("status")), request.getParameter("title"), request.getParameter("category"), request.getParameter("description"), request.getParameter("location"), String.format("%s-%s-%s", request.getParameter("year"),request.getParameter("month"),request.getParameter("day")), String.format("%s:%s", request.getParameter("hours"), request.getParameter("mins")), null);
+				String sYear = (String)request.getParameter("year");
+				String sMonth = (String)request.getParameter("month");
+				String sDay = (String)request.getParameter("day");
+				String sHours = (String)request.getParameter("hours");
+				String sMins = (String)request.getParameter("mins");
+				
+				String sDate, sTime;
+				
+				if(sYear == null || sYear.isEmpty() || sMonth == null || sMonth.isEmpty() || sDay == null || sDay.isEmpty())
+					sDate = null;
+				else
+					sDate = String.format("%s-%s-%s", sYear,sMonth,sDay);
+				
+				if(sHours == null || sHours.isEmpty() || sMins == null || sMins.isEmpty())
+					sTime = null;
+				else
+					sTime = String.format("%s:%s", sHours, sMins);
+				
+				eCase = new Case(Integer.parseInt(request.getParameter("id")) , Integer.parseInt(request.getParameter("status")), request.getParameter("title"), request.getParameter("category"), request.getParameter("description"), request.getParameter("location"), sDate, sTime, null);
 				if(origCase != null && origCase.getId() == eCase.getId()){
 					String error = this.dbInterface.updateCase(origCase, eCase, Integer.parseInt(user.getUserID()));
 					if(error != null){
