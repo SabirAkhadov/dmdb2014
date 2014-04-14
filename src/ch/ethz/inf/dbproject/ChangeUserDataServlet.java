@@ -44,7 +44,7 @@ public class ChangeUserDataServlet extends HttpServlet {
 		String password = request.getParameter("password");
 		String email = request.getParameter("email");
 		
-		if (username.equals("") | password.equals("") |email.equals(""))
+		if (username.equals("") || password.equals("") || email.equals(""))
 		{
 			session.setAttribute("ChangeError", "true");
 			this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
@@ -57,7 +57,7 @@ public class ChangeUserDataServlet extends HttpServlet {
 				this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
 			}
 			else {
-				session.setAttribute("user", null);
+				session.setAttribute("user", newUser);
 				session.setAttribute("ChangeError", "none");
 				this.getServletContext().getRequestDispatcher("/ChangeData.jsp").forward(request, response);
 			}
