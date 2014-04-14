@@ -20,6 +20,13 @@ public class PersonOfInterest {
 	
 	private String alive;
 	
+	private String type;
+	private String sentence;
+	private String date;
+	private String enddate;
+	
+	private String reason;
+	
 	public PersonOfInterest (ResultSet rs, ResultSet concern, ResultSet notes, ResultSet related) throws SQLException{
 		
 		this.Id = (rs.getString("PersID"));
@@ -126,6 +133,75 @@ public class PersonOfInterest {
 		}
 		this.setAlive(s);
 		
+	}
+	
+	//This is used for the suspect, concerns, convicted view:
+	public PersonOfInterest (ResultSet rs, String setType) throws SQLException{
+		
+		this.Id = (rs.getString("PersID"));
+		String s = rs.getString("firstname");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setFirstName(s);
+		
+		s = rs.getString("lastname");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setLastName(s);
+		
+		s = rs.getString("birthday");
+		if (s == null){
+			s = "unknown";
+		}
+		this.setBirthDay(s);
+		
+		s = rs.getString("alive");
+		if (s == null){
+			s = "unknown";
+		}
+		if (s.equals("1")){
+			s = "yes";
+		}
+		if (s.equals("0")){
+			s = "no";
+		}
+		this.setAlive(s);
+		
+		//The following commands are for convicted, suspect, concerns display:
+		if(setType.equals("convicted")){
+			s = rs.getString("type");
+			if (s == null){
+				s = "unknown";
+			}
+			this.setType(s);
+			
+			s = rs.getString("sentence");
+			if (s == null){
+				s = "unknown";
+			}
+			this.setSentence(s);
+			
+			s = rs.getString("date");
+			if (s == null){
+				s = "unknown";
+			}
+			this.setDate(s);
+			
+			s = rs.getString("enddate");
+			if (s == null){
+				s = "unknown";
+			}
+			this.setEnddate(s);
+		}else if(setType.equals("suspected") || setType.equals("concerns")){
+		
+			s = rs.getString("reason");
+			if (s == null){
+				s = "unknown";
+			}
+			this.setReason(s);
+		}
 		
 	}
 
@@ -167,6 +243,46 @@ public class PersonOfInterest {
 
 	public void setId(String Id) {
 		this.Id = Id;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+	
+	public void setSentence(String sentence) {
+		this.sentence = sentence;
+	}
+	
+	public String getSentence() {
+		return this.sentence;
+	}
+	
+	public void setDate(String date) {
+		this.date = date;
+	}
+	
+	public String getDate() {
+		return this.date;
+	}
+	
+	public void setEnddate(String enddate) {
+		this.enddate = enddate;
+	}
+	
+	public String getEnddate() {
+		return this.enddate;
+	}
+	
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+	
+	public String getReason() {
+		return this.reason;
 	}
 
 	//dirty tricks incoming
