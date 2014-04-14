@@ -140,7 +140,8 @@ Please log in.
 
 <% }else{ %>
 		<%=session.getAttribute("results")%>
-		<br><a href = "CasePersons?id=<%=caseID%>&status=open&type=<%=type%>">Back to <%=type%></a>
+		<%if(caseID != null) { %><br><a href = "CasePersons?id=<%=caseID%>&status=open&type=<%=type%>">Back to <%=type%></a>
+		<%} %>
 <% } %>
  
 <%@ include file="Footer.jsp"%>
