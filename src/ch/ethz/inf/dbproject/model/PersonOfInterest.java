@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 public class PersonOfInterest {
 
 	private String Id;
@@ -81,10 +83,11 @@ public class PersonOfInterest {
 			if (s4 == null){
 				s4 = "unknown";
 			}
-			
+
 			String s1 = "First name: " + s2 + "<br>Last name: " + s3 + 
 					"<br>Relationship: " +  s4 + 
-					"<br><a href = \"PersonOfInterest?id=" + related.getString("PersID2") + "\">View person</a> <br><br>";
+					"<br><a href = \"PersonOfInterest?id=" + related.getString("PersID2") + "\">View person</a>" +
+					"<br><a href = \"PersonOfInterest?id=" + Id + "&persID2=" +related.getString("PersID2") + "&delete=true&relationship=" + s4 +"\">Delete relationship</a><br><br>";
 			
 			this.related +=s1;
 		}

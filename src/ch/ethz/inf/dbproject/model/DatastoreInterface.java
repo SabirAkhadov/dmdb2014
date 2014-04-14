@@ -126,6 +126,7 @@ public final class DatastoreInterface {
 	private PreparedStatement deleteSuspect; 
 	private PreparedStatement deleteWitnessed; 
 	private PreparedStatement deleteConcerns;
+	private PreparedStatement deleteRelation;
 
 	private Connection sqlConnection;
 
@@ -210,6 +211,7 @@ public final class DatastoreInterface {
 			deleteSuspect = sqlConnection.prepareStatement("DELETE FROM Suspected WHERE CaseID = ? AND PersID = ?;");
 			deleteWitnessed = sqlConnection.prepareStatement("DELETE FROM Witnessed WHERE CaseID = ? AND PersID = ?;");
 			deleteConcerns = sqlConnection.prepareStatement("DELETE FROM Concerns WHERE CaseID = ? AND PersID = ?;");
+			deleteRelation = sqlConnection.prepareStatement("DELETE FROM related WHERE PersID1 = ? AND PersID2 = ?");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1209,58 +1211,13 @@ public final class DatastoreInterface {
 			insertRelated.setString(3, Relationship);
 			insertRelated.execute();
 			
-			//in case of symmetrical relationships
-			if (Relationship.contains("Married") || Relationship.contains("married")){
+			String rel = checkSymmetryRelation(Relationship);
+			if (rel != null){
 				insertRelated.setString(1, PersID2);
 				insertRelated.setString(2, PersID1);
-				insertRelated.setString(3, Relationship);
+				insertRelated.setString(3, rel);
 				insertRelated.execute();
 			}
-			
-			else if (Relationship.contains("Siblings") || Relationship.contains("siblings")){
-				insertRelated.setString(1, PersID2);
-				insertRelated.setString(2, PersID1);
-				insertRelated.setString(3, Relationship);
-				insertRelated.execute();
-			}
-			
-			else if (Relationship.contains("Sister") || Relationship.contains("sister")||Relationship.contains("Brother") || Relationship.contains("brother")){
-				insertRelated.setString(1, PersID2);
-				insertRelated.setString(2, PersID1);
-				insertRelated.setString(3, "Siblings");
-				insertRelated.execute();
-			}
-			
-			else if (Relationship.contains("Mother") || Relationship.contains("mother") || Relationship.contains("Father") || Relationship.contains("father") 
-					|| Relationship.contains("Parent") || Relationship.contains("parent")){
-				insertRelated.setString(1, PersID2);
-				insertRelated.setString(2, PersID1);
-				insertRelated.setString(3, "Child");
-				insertRelated.execute();
-			}
-			
-			else if (Relationship.contains("Child") || Relationship.contains("child") || Relationship.contains("Son") || Relationship.contains("son") 
-					|| Relationship.contains("Daughter") || Relationship.contains("daughter")){
-				insertRelated.setString(1, PersID2);
-				insertRelated.setString(2, PersID1);
-				insertRelated.setString(3, "Parent");
-				insertRelated.execute();
-			}
-			
-			else if (Relationship.contains("Lovers") || Relationship.contains("lovers")){
-				insertRelated.setString(1, PersID2);
-				insertRelated.setString(2, PersID1);
-				insertRelated.setString(3, Relationship);
-				insertRelated.execute();
-			}
-			
-			else if (Relationship.contains("Neighbors") || Relationship.contains("neighbors")){
-				insertRelated.setString(1, PersID2);
-				insertRelated.setString(2, PersID1);
-				insertRelated.setString(3, Relationship);
-				insertRelated.execute();
-			}
-			
 			
 			
 			return "Successfully added relationship <br><a href = \"PersonOfInterest?id=" + PersID1+"\">Back to person</a>";
@@ -1299,6 +1256,27 @@ public final class DatastoreInterface {
 			e.printStackTrace();
 		}
 	}
+	
+
+	public boolean deletePersonPersonRelation(String PersID1, String PersID2, String Relationship) {
+		try {
+			deleteRelation.setString(1, PersID1);
+			deleteRelation.setString(2, PersID2);
+			deleteRelation.execute();
+			String rel = checkSymmetryRelation (Relationship);
+			if (rel != null){
+				deleteRelation.setString(1, PersID2);
+				deleteRelation.setString(2, PersID1);
+				deleteRelation.execute();
+			}
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		
+	}
 	public int getNewCaseID(NewCaseData nCase) {
 		try{
 			int caseID = -1;
@@ -1321,6 +1299,39 @@ public final class DatastoreInterface {
 			ex.printStackTrace();
 			return -1;
 		}
+	}
+	private String checkSymmetryRelation (String Relationship){
+		//in case of symmetrical relationships
+		if (Relationship.contains("Married") || Relationship.contains("married")){
+			return Relationship;
+		}
+		
+		else if (Relationship.contains("Siblings") || Relationship.contains("siblings")){
+			return Relationship;
+		}
+		
+		else if (Relationship.contains("Sister") || Relationship.contains("sister")||Relationship.contains("Brother") || Relationship.contains("brother")){
+			return "Siblings";
+		}
+		
+		else if (Relationship.contains("Mother") || Relationship.contains("mother") || Relationship.contains("Father") || Relationship.contains("father") 
+				|| Relationship.contains("Parent") || Relationship.contains("parent")){
+			return "Child";
+		}
+		
+		else if (Relationship.contains("Child") || Relationship.contains("child") || Relationship.contains("Son") || Relationship.contains("son") 
+				|| Relationship.contains("Daughter") || Relationship.contains("daughter")){
+			return "Parent";
+		}
+		
+		else if (Relationship.contains("Lovers") || Relationship.contains("lovers")){
+			return Relationship;
+		}
+		
+		else if (Relationship.contains("Neighbors") || Relationship.contains("neighbors")){
+			return Relationship;
+		}
+		return null;
 	}
 
 }

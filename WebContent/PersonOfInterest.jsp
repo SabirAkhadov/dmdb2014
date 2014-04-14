@@ -4,7 +4,13 @@
 <%@ include file="Header.jsp" %>
 <% 
 
-
+	String error = (String) session.getAttribute("deletePerson");
+	if (error != null) {
+		%>
+		<font color="red"><%=error%></font>
+		<% 
+		session.setAttribute("deletePerson", null);
+	}
 	if (session.getAttribute("PersonEdited") == "true"){
 	%>
 	<font color="green">Person edited</font>

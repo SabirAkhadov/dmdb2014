@@ -50,6 +50,14 @@ public final class PersonOfInterestServlet extends HttpServlet {
 			}
 		}
 		
+		if (request.getParameter("delete") != null && request.getParameter("delete").equals("true")){
+			if (user == null){
+				session.setAttribute("deletePerson", "You have to be logged in.");
+			}
+			else if (!dsi.deletePersonPersonRelation(idString, request.getParameter("persID2"), request.getParameter("relationship"))){
+				session.setAttribute("deletePerson", "There was an error deleting relationship.");
+			}
+		}
 		
 		final BeanTableHelper<PersonOfInterest> personTable = new BeanTableHelper<PersonOfInterest>(
 				"person" 		/* The table html id property */,
