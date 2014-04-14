@@ -1149,6 +1149,9 @@ public final class DatastoreInterface {
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
+			if(e.getErrorCode() == 1062){
+				return "This person is already registered!";
+			}
 			return "Error";
 		}
 	}
@@ -1171,6 +1174,11 @@ public final class DatastoreInterface {
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
+			if(e.getErrorCode() == 1062){
+				return "This person is already registered!";
+			}else if(e.getErrorCode() == 1292){
+				return "There's an error with the dates you entered!";
+			}
 			return "Error";
 		}
 	}
@@ -1194,6 +1202,9 @@ public final class DatastoreInterface {
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
+			if(e.getErrorCode() == 1062){
+				return "This person is already registered!";
+			}
 			return "Error";
 		}
 	}

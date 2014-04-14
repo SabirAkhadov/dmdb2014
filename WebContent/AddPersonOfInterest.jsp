@@ -61,10 +61,20 @@ Please log in.
 			<input type="hidden" name="caseID" value="<%=caseID%>"/>
 			<input type="hidden" name="type" value="<%=type%>"/>
 			<%if(type.equals("convicts")){//CaseID, PersID, type, sentence, date, enddate%>
-			Crime type: <input type="text" name="crime_type"/><br>
-			Sentence: <textarea rows="4" cols="50" name="sentence"></textarea><br>
-			Date: <input type="text" name="date"/><br>
-			End-date: <input type="text" name="enddate"/>
+			<table>
+			<tr>
+			<th>Crime type:</th> <td><input type="text" name="crime_type"/></td>
+			</tr>
+			<tr>
+			<th>Sentence:</th> <td> <textarea rows="4" cols="50" name="sentence"></textarea> </td>
+			</tr>
+			<tr>
+			<th>Date:</th> <td><input type="text" name="date"/></td>
+			</tr>
+			<tr>
+			<th>End-date:</th> <td><input type="text" name="enddate"/></td>
+			</tr>
+			</table>
 			<%}else if (type.equals("victims")){//CaseID, PersID%>
 			
 			<%}else if(type.equals("suspects")){//CaseID, PersID, reason%>
