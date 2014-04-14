@@ -1148,7 +1148,8 @@ public final class DatastoreInterface {
 			}else{
 				return "Invalid query";
 			}
-			return "Successfully inserted person <br><a href = \"Case?id=" + caseID+"\">Back to case</a>";
+
+			return "Successfully inserted person <br><a href = \"AddPersonOfInterest?caseID=" + caseID+ "&type=" + type+"\">Back to " + type +"</a>";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
@@ -1170,7 +1171,7 @@ public final class DatastoreInterface {
 				return "Invalid query";
 			}
 
-			return "Successfully inserted person <br><a href = \"Case?id=" + caseID+"\">Back to case</a>";
+			return "Successfully inserted person <br><a href = \"AddPersonOfInterest?caseID=" + caseID+ "&type=" + type+"\">Back to " + type +"</a>";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
@@ -1193,7 +1194,7 @@ public final class DatastoreInterface {
 			}else{
 				return "Invalid query";
 			}
-			return "Successfully inserted person <br><a href = \"Case?id=" + caseID+"\">Back to case</a>";
+			return "Successfully inserted person <br><a href = \"AddPersonOfInterest?caseID=" + caseID+ "&type=" + type+"\">Back to " + type +"</a>";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
