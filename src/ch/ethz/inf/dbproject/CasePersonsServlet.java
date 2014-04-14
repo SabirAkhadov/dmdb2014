@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ch.ethz.inf.dbproject.model.DatastoreInterface;
-import ch.ethz.inf.dbproject.model.Case;
 import ch.ethz.inf.dbproject.model.PersonOfInterest;
 import ch.ethz.inf.dbproject.model.User;
 import ch.ethz.inf.dbproject.util.html.BeanTableHelper;
