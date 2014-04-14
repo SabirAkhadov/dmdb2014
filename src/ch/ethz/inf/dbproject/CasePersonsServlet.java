@@ -86,29 +86,37 @@ public final class CasePersonsServlet extends  HttpServlet {
 		personsTable.addBeanColumn("Last Name", "LastName");
 		personsTable.addBeanColumn("Birthdate", "BirthDay");
 		personsTable.addBeanColumn("still alive?", "alive");
-		personsTable.addLinkColumn("",	"View Person"	, "PersonOfInterest?id=", "Id");
-		if(user != null && status.equals("open"))
-			personsTable.addLinkColumn("", "unlink", "CasePersons?id="+caseIDstr+"&status="+status+"&type="+type+"&caseID="+caseID+"&persID=","Id");
 
 		List<PersonOfInterest> personList = null;
 		if(type.equals("convicts")){
 			session.setAttribute("persType", "convicts");
+			personsTable.addBeanColumn("Conv. type", "type");//date, enddate, type, sentence
+			personsTable.addBeanColumn("Sentence", "sentence");
+			personsTable.addBeanColumn("Date", "date");
+			personsTable.addBeanColumn("End of sentence", "enddate");
 			personList = this.dbInterface.getConvictsByCaseID(caseID);
 		}else if (type.equals("victims")){
 			session.setAttribute("persType", "victims");
 			personList = this.dbInterface.getVictimsByCaseID(caseID);
 		}else if(type.equals("suspects")){
 			session.setAttribute("persType", "suspects");
+			personsTable.addBeanColumn("Reason", "reason");//reason
 			personList = this.dbInterface.getSuspectsByCaseID(caseID);
 		}else if(type.equals("witnesses")){
 			session.setAttribute("persType", "witnesses");
 			personList = this.dbInterface.getWitnessesByCaseID(caseID);	
 		}else if(type.equals("others")){
 			session.setAttribute("persType", "others");
+			personsTable.addBeanColumn("Reason", "reason");//reason
 			personList = this.dbInterface.getOthersByCaseID(caseID);	
 		}else{
 			this.getServletContext().getRequestDispatcher("/Case").forward(request, response);
 			return;
+		}
+		
+		personsTable.addLinkColumn("",	"View Person"	, "PersonOfInterest?id=", "Id");
+		if(user != null && status.equals("open")){
+			personsTable.addLinkColumn("", "unlink", "CasePersons?id="+caseIDstr+"&status="+status+"&type="+type+"&caseID="+caseID+"&persID=","Id");
 		}
 		
 		if(personList.isEmpty()){

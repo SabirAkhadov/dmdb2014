@@ -158,11 +158,41 @@ public final class DatastoreInterface {
 			personNotes = sqlConnection.prepareStatement("SELECT content, name, timestamp FROM noteperson AS np, notes AS n, user AS u " +
 					"WHERE np.NoteID = n.NoteID AND n.UserID = u.UserID AND np.PersID = ?");
 
-			personConvictsByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM convicted WHERE caseID = ?;");
+			personConvictsByCaseID = sqlConnection.prepareStatement(" Select" +
+					" pers.PersID as PersID," +
+					" pers.firstname as FirstName," +
+					" pers.lastname as LastName," +
+					" pers.birthday as Birthday," +
+					" pers.alive as alive," +
+					" conv.type as type," +
+					" conv.sentence as sentence," +
+					" conv.date as date," +
+					" conv.enddate as enddate" +
+					" FROM" +
+					" personofinterest as pers," +
+					" Convicted as conv WHERE conv.caseID = ? AND pers.PersID = conv.PersID;");
 			personVictimsByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM victim WHERE caseID = ?;");
-			personSuspectsByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM suspected WHERE caseID = ?;");
+			personSuspectsByCaseID = sqlConnection.prepareStatement(" Select" +
+					" pers.PersID as PersID," +
+					" pers.firstname as FirstName," +
+					" pers.lastname as LastName," +
+					" pers.birthday as Birthday," +
+					" pers.alive as alive," +
+					" susp.reason as reason" +
+					" FROM" +
+					" personofinterest as pers," +
+					" Suspected as susp WHERE susp.caseID = ? AND pers.PersID = susp.PersID;");
 			personWitnessesByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM witnessed WHERE caseID = ?;");
-			personOthersByCaseID = sqlConnection.prepareStatement("SELECT persID AS persID FROM concerns WHERE caseID = ?;");
+			personOthersByCaseID = sqlConnection.prepareStatement(" Select" +
+					" pers.PersID as PersID," +
+					" pers.firstname as FirstName," +
+					" pers.lastname as LastName," +
+					" pers.birthday as Birthday," +
+					" pers.alive as alive," +
+					" conc.reason as reason" +
+					" FROM" +
+					" personofinterest as pers," +
+					" Concerns as conc WHERE conc.caseID = ? AND pers.PersID = conc.PersID;");
 
 			//Cases
 			openCaseIDs  = sqlConnection.prepareStatement("SELECT DISTINCT CaseID From open WHERE UserID = ?;");
@@ -996,26 +1026,23 @@ public final class DatastoreInterface {
 	}
 	
 	public final List<PersonOfInterest> getConvictsByCaseID(int caseID) {
+		List<PersonOfInterest> convicts = new ArrayList<PersonOfInterest>();
+		
 		try{
-			List<PersonOfInterest> convicts = new ArrayList<PersonOfInterest>();
-			List<Integer> persIDs = new ArrayList<Integer>();
 
 			personConvictsByCaseID.setInt(1, caseID);
 			ResultSet rs = personConvictsByCaseID.executeQuery();
 
-			while(rs.next())
-				persIDs.add(rs.getInt("persID"));
-
-			for(int id : persIDs){
-				personById.setInt(1, id);
-				convicts.add(getPersonById("" + id));
+			while (rs.next()) {
+				convicts.add(new PersonOfInterest (rs, "convicted"));
 			}
 
 			return convicts;
+			
 		}catch(Exception ex){
 			ex.printStackTrace();
+			return convicts;
 		}
-		return null;
 	}
 
 	public final List<PersonOfInterest> getVictimsByCaseID(int caseID) {
@@ -1042,26 +1069,23 @@ public final class DatastoreInterface {
 	}
 
 	public final List<PersonOfInterest> getSuspectsByCaseID(int caseID) {
+		List<PersonOfInterest> suspects = new ArrayList<PersonOfInterest>();
+		
 		try{
-			List<PersonOfInterest> suspects = new ArrayList<PersonOfInterest>();
-			List<Integer> persIDs = new ArrayList<Integer>();
 
 			personSuspectsByCaseID.setInt(1, caseID);
 			ResultSet rs = personSuspectsByCaseID.executeQuery();
 
-			while(rs.next())
-				persIDs.add(rs.getInt("persID"));
-
-			for(int id : persIDs){
-				personById.setInt(1, id);
-				suspects.add(getPersonById("" + id));
+			while (rs.next()) {
+				suspects.add(new PersonOfInterest (rs, "suspected"));
 			}
 
 			return suspects;
+			
 		}catch(Exception ex){
 			ex.printStackTrace();
+			return suspects;
 		}
-		return null;
 	}
 
 	public final List<PersonOfInterest> getWitnessesByCaseID(int caseID) {
@@ -1088,52 +1112,24 @@ public final class DatastoreInterface {
 	}
 
 	public final List<PersonOfInterest> getOthersByCaseID(int caseID) {
+		List<PersonOfInterest> suspects = new ArrayList<PersonOfInterest>();
+		
 		try{
-			List<PersonOfInterest> others = new ArrayList<PersonOfInterest>();
-			List<Integer> persIDs = new ArrayList<Integer>();
 
 			personOthersByCaseID.setInt(1, caseID);
 			ResultSet rs = personOthersByCaseID.executeQuery();
 
-			while(rs.next())
-				persIDs.add(rs.getInt("persID"));
-
-			for(int id : persIDs){
-				personById.setInt(1, id);
-				others.add(getPersonById("" + id));
+			while (rs.next()) {
+				suspects.add(new PersonOfInterest (rs, "concerns"));
 			}
 
-			return others;
+			return suspects;
+			
 		}catch(Exception ex){
 			ex.printStackTrace();
+			return suspects;
 		}
-		return null;
-	}/*
-	//Insert relations:
-			insertVictim = sqlConnection.prepareStatement("INSERT INTO Victim (CaseID, PersID) VALUES (?, ?);");
-			insertConvicted = sqlConnection.prepareStatement("INSERT INTO Convicted (CaseID, PersID, type, sentence, date, enddate) VALUES (?, ?, ?, ?, ?, ?);");
-			insertSuspect = sqlConnection.prepareStatement("INSERT INTO Suspected (CaseID, PersID, reason) VALUES (?, ?, ?);");
-			insertWitnessed = sqlConnection.prepareStatement("INSERT INTO Witnessed (CaseID, PersID) VALUES (?, ?);");
-			insertConcerns = sqlConnection.prepareStatement("INSERT INTO Concerns (CaseID, PersID, reason) VALUES (?, ?, ?);");
-			
-			//Delete relations:
-			deleteVictim = sqlConnection.prepareStatement("DELETE FROM Victim WHERE CaseID = ? AND PersID = ?;");
-			deleteConvicted = sqlConnection.prepareStatement("DELETE FROM Convicted WHERE CaseID = ? AND PersID = ?;");
-			deleteSuspect = sqlConnection.prepareStatement("DELETE FROM Suspected WHERE CaseID = ? AND PersID = ?;");
-			deleteWitnessed = sqlConnection.prepareStatement("DELETE FROM Witnessed WHERE CaseID = ? AND PersID = ?;");
-			deleteConcerns = sqlConnection.prepareStatement("DELETE FROM Concerns WHERE CaseID = ? AND PersID = ?;");*/
-	
-	/*private PreparedStatement insertVictim;
-	private PreparedStatement insertConvicted;
-	private PreparedStatement insertSuspect; 
-	private PreparedStatement insertWitnessed; 
-	private PreparedStatement insertConcerns;
-	
-	private PreparedStatement deleteVictim;
-	private PreparedStatement deleteConvicted;
-	private PreparedStatement deleteSuspect; 
-	private PreparedStatement deleteWitnessed; 
-	private PreparedStatement deleteConcerns;*/
+	}
 	
 	public final String insertPersonCaseRelation(String caseID, String persID, String type) {
 		try {
@@ -1149,7 +1145,7 @@ public final class DatastoreInterface {
 				return "Invalid query";
 			}
 
-			return "Successfully inserted person <br><a href = \"AddPersonOfInterest?caseID=" + caseID+ "&type=" + type+"\">Back to " + type +"</a>";
+			return "Successfully inserted person";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
@@ -1171,7 +1167,7 @@ public final class DatastoreInterface {
 				return "Invalid query";
 			}
 
-			return "Successfully inserted person <br><a href = \"AddPersonOfInterest?caseID=" + caseID+ "&type=" + type+"\">Back to " + type +"</a>";
+			return "Successfully inserted person";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
@@ -1194,7 +1190,7 @@ public final class DatastoreInterface {
 			}else{
 				return "Invalid query";
 			}
-			return "Successfully inserted person <br><a href = \"AddPersonOfInterest?caseID=" + caseID+ "&type=" + type+"\">Back to " + type +"</a>";
+			return "Successfully inserted person";
 
 		} catch (SQLException e) { 
 			e.printStackTrace();
