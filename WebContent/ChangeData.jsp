@@ -15,7 +15,7 @@ if (user != null) {
 	if (session.getAttribute ("ChangeError") == "true") {
 		%>
 		<font  color="red">Could not change data!</font>
-		<font  color="red">No empty Strings!</font>
+		<font  color="red">No empty Strings or existing user names!</font>
 			
 	<br>	
 	<%
